@@ -150,13 +150,16 @@ export default {
     },
     startExam () {
       // 获取题目ID列表
+      console.log(111)
       getSubjectIds(this.query.examinationId).then(subjectResponse => {
+        console.log(subjectResponse)
         const subjectData = subjectResponse.data.data
         if (subjectData.length > 0) {
           for (let i = 0; i < subjectData.length; i++) {
             const { subjectId, type } = subjectData[i]
             this.subjectIds.push({subjectId, type, index: i + 1})
           }
+          console.log(this.subjectIds)
           this.updateSubjectIndex()
           // 获取当前题目信息
           getSubjectAnswer({

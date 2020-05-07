@@ -34,6 +34,15 @@ export function start (obj) {
   })
 }
 
+export function addSubjectExamList (obj) {
+  console.log(obj)
+  return request({
+    url: baseExamRecordUrl + 'addSubjectExamList',
+    method: 'post',
+    data: obj
+  })
+}
+
 export function anonymousUserStart (obj) {
   return request({
     url: baseExamRecordUrl + 'anonymousUser/start',

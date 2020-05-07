@@ -28,6 +28,12 @@
         a.examination_id
     </sql>
 
+    <select id="findRuleByExaminationId" resultMap="examQuestionCategoryResultMap">
+        select
+        <include refid="examQuestionCategoryColumns"/>
+        from exam_question_category a where a.examination_id = #{examinationId} ORDER BY question_type_id
+    </select>
+
     <delete id="delete">
     delete from exam_question_category WHERE examination_id = #{examinationId} and question_type_id in (#{types})
     </delete>

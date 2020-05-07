@@ -14,10 +14,9 @@ import com.github.tangyi.common.security.utils.SysUtil;
 import com.github.tangyi.exam.api.dto.ExaminationDto;
 import com.github.tangyi.exam.api.dto.SubjectDto;
 import com.github.tangyi.exam.api.module.*;
+import com.github.tangyi.exam.api.vo.QuestionCategoryVO;
 import com.github.tangyi.exam.enums.ExaminationTypeEnum;
-import com.github.tangyi.exam.mapper.ExamQuestionCategoryMapper;
-import com.github.tangyi.exam.mapper.ExamQuestionExamMapper;
-import com.github.tangyi.exam.mapper.ExaminationMapper;
+import com.github.tangyi.exam.mapper.*;
 import com.github.tangyi.user.api.constant.AttachmentConstant;
 import com.github.tangyi.user.api.module.Attachment;
 import lombok.AllArgsConstructor;
@@ -374,6 +373,7 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
     public List<ExaminationSubject> findListByExaminationId(Long examinationId) {
         return examinationSubjectService.findListByExaminationId(examinationId);
     }
+
 
 	/**
 	 * 查询参与考试人数

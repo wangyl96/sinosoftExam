@@ -18,11 +18,12 @@ import com.github.tangyi.exam.api.dto.ExaminationRecordDto;
 import com.github.tangyi.exam.api.dto.SubjectDto;
 import com.github.tangyi.exam.api.enums.SubmitStatusEnum;
 import com.github.tangyi.exam.api.module.Answer;
+import com.github.tangyi.exam.api.module.ExamQuestionCategory;
 import com.github.tangyi.exam.api.module.Examination;
 import com.github.tangyi.exam.api.module.ExaminationRecord;
+import com.github.tangyi.exam.api.vo.QuestionCategoryVO;
 import com.github.tangyi.exam.excel.model.ExamRecordExcelModel;
-import com.github.tangyi.exam.mapper.AnswerMapper;
-import com.github.tangyi.exam.mapper.ExamRecordMapper;
+import com.github.tangyi.exam.mapper.*;
 import com.github.tangyi.exam.utils.ExamRecordUtil;
 import com.github.tangyi.user.api.feign.UserServiceClient;
 import lombok.AllArgsConstructor;
@@ -35,6 +36,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
@@ -59,6 +61,36 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 	private final AnswerMapper answerMapper;
 
 	private final SubjectService subjectService;
+
+	/**
+	 * 选择题
+	 */
+	private final static Integer CHOICE = 1;
+
+	/**
+	 * 判断题
+	 */
+	private final static Integer JUDGEMENT = 2;
+
+	/**
+	 * 简答题
+	 */
+	private final static Integer SHORTANSWER  = 3;
+
+	@Resource
+	private ExamQuestionExamMapper examQuestionExamMapper;
+
+	@Resource
+	private ExamQuestionCategoryMapper examQuestionCategoryMapper;
+
+	@Resource
+	private SubjectChoicesMapper subjectChoicesMapper;
+
+	@Resource
+	private SubjectJudgementMapper subjectJudgementMapper;
+
+	@Resource
+	private SubjectShortAnswerMapper subjectShortAnswerMapper;
 
 	/**
      * 查询考试记录
@@ -406,5 +438,72 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 		}
 		this.fillExamUserInfo(Collections.singletonList(examRecordDto), new Long[] {examRecord.getUserId()});
 		return examRecordDto;
+	}
+
+	/**
+	 * 给考试创建考题
+	 * @param examinationId
+	 * @return
+	 */
+	public Integer addSubjectExamList(Long examinationId) {
+		List<QuestionCategoryVO> resultList = new ArrayList<>();
+		// 1.根据考试id查询本考试所涉及的考试内容,根据题目类型排序
+		List<ExamQuestionCategory> examQuestionCategoryList = examQuestionCategoryMapper.findRuleByExaminationId(examinationId);
+		// 2.创建三个空集合分别放置对应的题目类型
+		List<ExamQuestionCategory> choiceList = new ArrayList<>();
+		List<ExamQuestionCategory> judgementList = new ArrayList<>();
+		List<ExamQuestionCategory> shortAnswerList = new ArrayList<>();
+		// 3.将考题分类添加
+		examQuestionCategoryList.stream().forEach(e -> {
+			if (CHOICE.equals(e.getQuestionTypeId())) {
+				// 选择题
+				choiceList.add(e);
+			} else if (JUDGEMENT.equals(e.getQuestionTypeId())) {
+				// 判断题
+				judgementList.add(e);
+			} else if (SHORTANSWER.equals(e.getQuestionTypeId())) {
+				// 简答题
+				shortAnswerList.add(e);
+			}
+		});
+		// 4.处理选择题
+		resultList = getResult(resultList, choiceList, 1);
+		resultList = getResult(resultList, judgementList, 2);
+		resultList = getResult(resultList, shortAnswerList, 3);
+		return 0;
+	}
+
+	private List<QuestionCategoryVO> getResult(List<QuestionCategoryVO> resultList, List<ExamQuestionCategory> questionCategoryList, int type) {
+		if (questionCategoryList.size() > 0) {
+			// 根据考试难度及题库抽取试题
+			questionCategoryList.stream().forEach(e -> {
+				// 题库id
+				Long categoryId = e.getCategoryId();
+				// 获取简单难度数量并抽题
+				Integer simpleNum = e.getQuestionSimpleNum();
+				Integer commonlyNum = e.getQuestionCommonlyNum();
+				Integer difficultyNum = e.getQuestionDifficultyNum();
+				List<QuestionCategoryVO> simpleQuestionsList = new ArrayList<>();
+				List<QuestionCategoryVO> commonlyQuestionsList = new ArrayList<>();
+				List<QuestionCategoryVO> difficultyQuestionsList = new ArrayList<>();
+				if (1 == type) {
+					simpleQuestionsList = subjectChoicesMapper.findQuestions(categoryId, simpleNum, 1);
+					commonlyQuestionsList = subjectChoicesMapper.findQuestions(categoryId, commonlyNum, 2);
+					difficultyQuestionsList = subjectChoicesMapper.findQuestions(categoryId, difficultyNum, 3);
+				} else if (2 == type) {
+					simpleQuestionsList = subjectJudgementMapper.findQuestions(categoryId, simpleNum, 1);
+					commonlyQuestionsList = subjectJudgementMapper.findQuestions(categoryId, commonlyNum, 2);
+					difficultyQuestionsList = subjectJudgementMapper.findQuestions(categoryId, difficultyNum, 3);
+				} else if (3 == type) {
+					simpleQuestionsList = subjectShortAnswerMapper.findQuestions(categoryId, simpleNum, 1);
+					commonlyQuestionsList = subjectShortAnswerMapper.findQuestions(categoryId, commonlyNum, 2);
+					difficultyQuestionsList = subjectShortAnswerMapper.findQuestions(categoryId, difficultyNum, 3);
+				}
+				resultList.addAll(simpleQuestionsList);
+				resultList.addAll(commonlyQuestionsList);
+				resultList.addAll(difficultyQuestionsList);
+			});
+		}
+		return resultList;
 	}
 }

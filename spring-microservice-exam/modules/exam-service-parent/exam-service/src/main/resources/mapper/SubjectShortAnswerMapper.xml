@@ -18,6 +18,11 @@
         <result column="tenant_code" property="tenantCode"/>
     </resultMap>
 
+    <resultMap id="questionsMap" type="com.github.tangyi.exam.api.vo.QuestionCategoryVO">
+        <id column="subjectId" property="subjectId"/>
+        <result column="type" property="type"/>
+    </resultMap>
+
     <sql id="subjectShortAnswerColumns">
         a.id,
         a.category_id,
@@ -47,6 +52,13 @@
             and a.tenant_code = #{tenantCode}
         </if>
     </sql>
+
+    <select id="findQuestions" resultMap="questionsMap">
+        select
+        a.category_id as subjectId,
+        1 as type
+        from exam_subject_choices a where a.category_id = #{categoryId}  AND LEVEL = #{type} ORDER BY RAND() LIMIT #{num}
+    </select>
 
     <select id="getById" resultMap="subjectShortAnswerResultMap">
         SELECT

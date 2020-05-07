@@ -65,7 +65,7 @@
 <script>
 import {mapGetters, mapState} from 'vuex'
 import { fetchList } from '@/api/exam/exam'
-import { getCurrentTime } from '@/api/exam/examRecord'
+import { getCurrentTime, addSubjectExamList } from '@/api/exam/examRecord'
 import { isNotEmpty, messageFail, messageWarn, getAttachmentPreviewUrl, formatDate } from '@/utils/util'
 import store from '@/store'
 import moment from 'moment'
@@ -191,15 +191,21 @@ export default {
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-            // 开始考试
-            store.dispatch('StartExam', this.tempExamRecord).then(() => {
-              if (this.examRecord === undefined || this.subject === undefined) {
+            // 考题入库
+            addSubjectExamList({'examinationId': exam.id}).then(response => {
+              console.log(response)
+              // 开始考试
+              store.dispatch('StartExam', this.tempExamRecord).then(() => {
+                console.log(this.examRecord)
+                console.log(this.subject)
+                if (this.examRecord === undefined || this.subject === undefined) {
+                  messageWarn(this, '开始考试失败')
+                  return
+                }
+                this.$router.push({ path: `/start/${exam.id}-${this.examRecord.id}-${this.subject.id}-${this.subject.type}` })
+              }).catch(() => {
                 messageWarn(this, '开始考试失败')
-                return
-              }
-              this.$router.push({ path: `/start/${exam.id}-${this.examRecord.id}-${this.subject.id}-${this.subject.type}` })
-            }).catch(() => {
-              messageWarn(this, '开始考试失败')
+              })
             })
           }).catch(() => {
             console.log('取消考试')

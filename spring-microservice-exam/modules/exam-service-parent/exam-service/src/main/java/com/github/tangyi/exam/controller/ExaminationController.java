@@ -8,10 +8,7 @@ import com.github.tangyi.common.core.web.BaseController;
 import com.github.tangyi.common.log.annotation.Log;
 import com.github.tangyi.common.security.annotations.AdminTenantTeacherAuthorization;
 import com.github.tangyi.common.security.utils.SysUtil;
-import com.github.tangyi.exam.api.dto.ExamDeleteDTO;
-import com.github.tangyi.exam.api.dto.ExamRuleDTO;
-import com.github.tangyi.exam.api.dto.ExaminationDto;
-import com.github.tangyi.exam.api.dto.SubjectDto;
+import com.github.tangyi.exam.api.dto.*;
 import com.github.tangyi.exam.api.module.ExamQuestionExam;
 import com.github.tangyi.exam.api.module.Examination;
 import com.github.tangyi.exam.api.module.ExaminationSubject;
@@ -174,6 +171,8 @@ public class ExaminationController extends BaseController {
     public ResponseBean<Boolean> addExamRule(@RequestBody @Valid List<Map<String, Object>> examRuleList) {
         return new ResponseBean<>(examinationService.addExamRule(examRuleList) > 0);
     }
+
+
 
     /**
      * 更新

@@ -3,6 +3,7 @@ package com.github.tangyi.exam.mapper;
 import com.github.tangyi.common.core.persistence.CrudMapper;
 import com.github.tangyi.exam.api.module.ExamQuestionCategory;
 import com.github.tangyi.exam.api.vo.QuestionBankChartVO;
+import com.github.tangyi.exam.api.vo.QuestionCategoryVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -36,4 +37,12 @@ public interface ExamQuestionCategoryMapper extends CrudMapper<ExamQuestionCateg
      * @return
      */
     List<QuestionBankChartVO> questionBankChart(Long examinationId);
+
+    /**
+     * 根据考试id获取本考试试题生成规则
+     * @param examinationId
+     * @return
+     */
+    List<ExamQuestionCategory> findRuleByExaminationId(Long examinationId);
+
 }

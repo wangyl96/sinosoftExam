@@ -8,6 +8,7 @@ import com.github.tangyi.common.core.web.BaseController;
 import com.github.tangyi.common.log.annotation.Log;
 import com.github.tangyi.common.security.annotations.AdminTenantTeacherAuthorization;
 import com.github.tangyi.common.security.utils.SysUtil;
+import com.github.tangyi.exam.api.dto.AddSubjectExamDTO;
 import com.github.tangyi.exam.api.dto.ExaminationDashboardDto;
 import com.github.tangyi.exam.api.dto.ExaminationRecordDto;
 import com.github.tangyi.exam.api.dto.StartExamDto;
@@ -106,6 +107,17 @@ public class ExamRecordController extends BaseController {
         examRecord.setStartTime(examRecord.getCreateDate());
         examRecordService.insert(examRecord);
         return new ResponseBean<>(examRecord);
+    }
+
+    /**
+     * 给考试创建考题
+     * @param addSubjectExamDTO
+     * @return
+     */
+    @PostMapping("addSubjectExamList")
+    @Log("考试新增考题")
+    public ResponseBean<Integer> addSubjectExamList(@RequestBody AddSubjectExamDTO addSubjectExamDTO) {
+        return new ResponseBean<>(examRecordService.addSubjectExamList(addSubjectExamDTO.getExaminationId()));
     }
 
     /**
