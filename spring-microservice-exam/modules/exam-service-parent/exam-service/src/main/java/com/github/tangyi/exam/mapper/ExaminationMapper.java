@@ -32,4 +32,11 @@ public interface ExaminationMapper extends CrudMapper<Examination> {
      * @date 2019/10/27 20:08:58
      */
     int findExamUserCount(Examination examination);
+
+    /**
+     * 获取考试总分
+     * @param examinationId
+     * @return
+     */
+    Integer getScore(Long examinationId);
 }

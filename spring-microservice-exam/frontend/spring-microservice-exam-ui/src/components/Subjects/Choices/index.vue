@@ -4,14 +4,14 @@
       <el-col :span="20" :offset="2">
         <div class="subject-info">
           <el-row>
-            <el-col :span="12">
-              <el-form-item :label="$t('table.subject.score')" prop="score">
-                <el-input v-model="subjectInfo.score"/>
-              </el-form-item>
-            </el-col>
+            <!--<el-col :span="12">-->
+              <!--<el-form-item :label="$t('table.subject.score')" prop="score">-->
+                <!--<el-input v-model="subjectInfo.score"/>-->
+              <!--</el-form-item>-->
+            <!--</el-col>-->
             <el-col :span="12">
               <el-form-item :label="$t('table.subject.level')" prop="level">
-                <el-rate v-model="subjectInfo.level" :max="4" :texts="['简单', '一般', '略难', '非常难']" show-text/>
+                <el-rate v-model="subjectInfo.level" :max="3" :texts="['简单', '一般', '困难']" show-text/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -103,7 +103,7 @@ export default {
           },
           score: 5,
           analysis: '',
-          level: 2,
+          level: 1,
           editType: 0 // 0: 输入框，1：富文本
         }
       }

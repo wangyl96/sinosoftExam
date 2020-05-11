@@ -6,7 +6,14 @@
         <span class="subject-title-content" v-html="subjectInfo.subjectName"/>
         <span class="subject-title-content" v-if="subjectInfo.score !== undefined && subjectInfo.score !== 0">&nbsp;({{subjectInfo.score}})分</span>
         <div class="subject-tinymce">
-          <tinymce ref="editor" :height="height" v-model="userAnswer"/>
+          <el-input
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 4}"
+            style="height: 300px"
+            placeholder="请输入内容"
+            v-model="userAnswer">
+          </el-input>
+          <!--<tinymce :height="height" v-model="userAnswer"/>-->
         </div>
       </div>
     </div>
@@ -15,7 +22,6 @@
 
 <script>
 import Tinymce from '@/components/Tinymce'
-
 export default {
   name: 'ShortAnswer',
   components: {

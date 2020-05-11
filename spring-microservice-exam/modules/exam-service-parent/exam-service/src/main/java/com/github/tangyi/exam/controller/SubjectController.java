@@ -123,7 +123,7 @@ public class SubjectController extends BaseController {
      */
     @PutMapping
     @AdminTenantTeacherAuthorization
-    @ApiOperation(value = "更新题目信息", notes = "根据题目id更新题目的基本信息")
+    @ApiOperation(value =  "更新题目信息", notes = "根据题目id更新题目的基本信息")
     @ApiImplicitParam(name = "subject", value = "角色实体subject", required = true, dataType = "Subject")
     @Log("更新题目")
     public ResponseBean<SubjectDto> updateSubject(@RequestBody @Valid SubjectDto subject) {
@@ -259,8 +259,8 @@ public class SubjectController extends BaseController {
                                                   @RequestParam Integer nextType,
                                                   @RequestParam(required = false) Long nextSubjectId,
 			@RequestParam(required = false) Integer nextSubjectType) {
-        return new ResponseBean<>(answerService
-                .subjectAnswer(subjectId, examRecordId, nextType, nextSubjectId, nextSubjectType));
+        return new ResponseBean<>(answerService.subjectAnswer(subjectId, examRecordId, nextType, nextSubjectId, nextSubjectType));
+
     }
 
     /**

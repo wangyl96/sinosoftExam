@@ -6,7 +6,7 @@
           <div class="time-remain">
             剩余时间:
             <div class="time">
-              <count-down v-on:start_callback="countDownS_cb(1)" v-on:end_callback="countDownE_cb(1)" :current-time="currentTime" :start-time="startTime" :end-time="endTime" :tip-text="'距离考试开始'" :tip-text-end="'距离考试结束'" :end-text="'考试结束'" :hourTxt="':'" :minutesTxt="':'" :secondsTxt="''">
+              <count-down v-on:start_callback="countDownS_cb(1)" v-on:end_callback="countDownE_cb(1)" :current-time="currentTimeWyl" :start-time="startTimeWyl" :end-time="endTimeWyl" :tip-text="'距离考试开始'" :tip-text-end="'距离考试结束'" :end-text="'考试结束'" :hourTxt="':'" :minutesTxt="':'" :secondsTxt="''">
               </count-down>
             </div>
           </div>
@@ -21,10 +21,10 @@
       </el-col>
       <el-col :span="18">
         <div class="subject-box-card">
-          <div class="subject-exam-title">{{exam.examinationName}}（共{{subjectCount}}题，合计{{exam.totalScore}}分）</div>
+          <div class="subject-exam-title">{{exam.examinationName}}（共{{subjectIds.length}}题，合计{{exam.totalScore}}分）</div>
           <!-- 题目内容 -->
           <choices ref="choices" v-show="this.query.type === 0"/>
-          <short-answer ref="shortAnswer" v-show="this.query.type === 1"/>
+          <short-answer ref="shortAnswer" v-bind:sunny="query.type" v-show="this.query.type === 1"/>
           <judgement ref="judgement" v-show="this.query.type === 2"/>
           <multiple-choices ref="multipleChoices" v-show="this.query.type === 3"/>
           <div class="subject-buttons" v-if="query.subjectId !== ''">
@@ -48,7 +48,7 @@
 import { mapState, mapGetters } from 'vuex'
 import CountDown from 'vue2-countdown'
 import { saveAndNext } from '@/api/exam/answer'
-import { getSubjectIds } from '@/api/exam/exam'
+import { getSubjectIds, getExamTime } from '@/api/exam/exam'
 import { getCurrentTime } from '@/api/exam/examRecord'
 import { getSubjectAnswer } from '@/api/exam/subject'
 import store from '@/store'
@@ -78,6 +78,9 @@ export default {
       currentTime: 0,
       startTime: 0,
       endTime: 0,
+      currentTimeWyl: 1,
+      endTimeWyl: 1000000,
+      startTimeWyl: 1,
       disableSubmit: true,
       subjectIndex: 1,
       query: {
@@ -114,6 +117,7 @@ export default {
   },
   created () {
     const examInfo = this.$route.params.id
+    console.log(examInfo)
     if (isNotEmpty(examInfo)) {
       let examInfoArr = examInfo.split('-')
       this.query.examinationId = examInfoArr[0]
@@ -121,6 +125,8 @@ export default {
       this.query.subjectId = isNotEmpty(examInfoArr[2]) ? examInfoArr[2] : this.subject.id
       this.query.type = parseInt(examInfoArr[3])
       this.query.userId = this.userInfo.id
+      this.endTimeWyl = examInfoArr[4] * 60 * 1000
+      // 先去获取考试时长, 剩下的交给天意
       this.validateExamTime()
     }
   },
@@ -150,19 +156,16 @@ export default {
     },
     startExam () {
       // 获取题目ID列表
-      console.log(111)
-      getSubjectIds(this.query.examinationId).then(subjectResponse => {
-        console.log(subjectResponse)
+      getSubjectIds(this.query.examinationId, this.userInfo.id).then(subjectResponse => {
         const subjectData = subjectResponse.data.data
         if (subjectData.length > 0) {
           for (let i = 0; i < subjectData.length; i++) {
             const { subjectId, type } = subjectData[i]
             this.subjectIds.push({subjectId, type, index: i + 1})
           }
-          console.log(this.subjectIds)
           this.updateSubjectIndex()
           // 获取当前题目信息
-          getSubjectAnswer({
+           ({
             examRecordId: this.query.examRecordId,
             subjectId: this.query.subjectId,
             type: this.query.type,
@@ -183,6 +186,7 @@ export default {
     },
     countDownE_cb: function (x) {
       messageWarn(this, '考试结束')
+      this.doSubmitExam(this.tempAnswer, this.query.examinationId, this.query.examRecordId, this.userInfo, true)
       this.disableSubmit = true
     },
     last () {

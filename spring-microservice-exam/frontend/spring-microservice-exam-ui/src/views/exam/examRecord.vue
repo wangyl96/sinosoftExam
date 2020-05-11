@@ -243,6 +243,7 @@ export default {
     },
     // 批改
     handleMarking (row) {
+      console.log(row)
       this.$router.push({
         path: `/exam/mark/${row.examinationId}-${row.id}`
       })

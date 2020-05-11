@@ -77,6 +77,9 @@ public class SubjectImportListener extends AbstractExcelImportListener<SubjectEx
 			subjectDto.setAnswer(answer);
 			subjects.add(subjectDto);
 		});
+//		subjects.stream().forEach(e -> {
+//			e.setLevel(e.getLevel() + 1);
+//		});
 		subjectService.importSubject(subjects, examinationId, categoryId);
 	}
 }

@@ -37,4 +37,6 @@ public class ExaminationSubject extends BaseEntity<ExaminationSubject> {
      * 题目类型，0：选择题，1：简答题，2：判断题，3：多选题
      */
     private Integer type;
+
+    private Long userId;
 }

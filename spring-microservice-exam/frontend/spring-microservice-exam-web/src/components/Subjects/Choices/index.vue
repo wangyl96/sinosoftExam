@@ -30,11 +30,17 @@ export default {
         score: 0
       },
       options: [],
+      showOptions: [],
       userAnswer: '',
-      index: ''
+      index: '',
+      optionsExhibition: []
     }
   },
   methods: {
+    random (m,n){
+    var random = Math.floor(Math.random()*(m - n) + n);
+    return random;
+  },
     getAnswer () {
       return this.userAnswer
     },
@@ -46,7 +52,13 @@ export default {
       this.subjectInfo = subject
       if (subject.hasOwnProperty('options')) {
         this.options = subject.options
+        this.showOptions = subject.options;
+        console.log(this.showOptions)
       }
+      for (let i = 0; i < this.options.length; i++) {
+       this.optionsExhibition.push(this.options[i].optionName)
+      }
+
       if (subject.hasOwnProperty('answer')) {
         this.setAnswer(subject.answer.answer)
       }

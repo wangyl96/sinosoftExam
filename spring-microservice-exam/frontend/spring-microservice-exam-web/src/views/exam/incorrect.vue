@@ -71,8 +71,9 @@
               <!-- 简答题 -->
               <div v-if="tempIncorrectAnswer.subject.type === 1">
                 <p>
-                  <span v-html="tempIncorrectAnswer.subject.answer.answer"></span>
+                 考生答案： <span v-html="tempIncorrectAnswer.answer"></span>
                 </p>
+                <br/>
               </div>
               <p class="subject-content-answer" v-if="tempIncorrectAnswer.subject.answer.answer !== ''">
                 参考答案：<span v-html="tempIncorrectAnswer.subject.answer.answer"></span>
@@ -150,6 +151,7 @@ export default {
         }, 500)
         getAnswerListInfo(this.incorrectRecord.id, this.listQuery).then(response => {
           const { total, isLastPage, list } = response.data
+          console.log(list)
           this.updateList(list)
           this.total = total
           this.isLastPage = isLastPage

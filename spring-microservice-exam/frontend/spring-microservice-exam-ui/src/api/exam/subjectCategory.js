@@ -26,6 +26,22 @@ export function questionBankChart (query) {
   })
 }
 
+export function questionTypesChart (query) {
+  return request({
+    url: baseSubjectCategoryUrl + 'questionTypesChart',
+    method: 'post',
+    data: query
+  })
+}
+
+export function difficultyLevelChart (query) {
+  return request({
+    url: baseSubjectCategoryUrl + 'difficultyLevelChart',
+    method: 'post',
+    data: query
+  })
+}
+
 export function addCategory (obj) {
   return request({
     url: baseSubjectCategoryUrl,

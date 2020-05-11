@@ -39,9 +39,16 @@ public interface SubjectShortAnswerMapper extends CrudMapper<SubjectShortAnswer>
     /**
      * 获取题目id 及 题目类型 0：选择题，1：简答题，2：判断题，3：多选题
      * @param categoryId
-     * @param simpleNum
+     * @param num
      * @param type
      * @return
      */
-    List<QuestionCategoryVO> findQuestions(Long categoryId, Integer num, int type);
+    List<QuestionCategoryVO> findQuestions(Long categoryId, Integer num, int type, Long examinationId, Long userId);
+
+    /**
+     * 获取选择题答案
+     * @param subjectId
+     * @return
+     */
+    String findAnswerById(Long subjectId);
 }

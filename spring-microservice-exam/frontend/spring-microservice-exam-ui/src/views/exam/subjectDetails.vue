@@ -38,7 +38,7 @@
       <el-button @click="dialogSubjectFormVisible = false">{{ $t('table.cancel') }}</el-button>
       <el-button v-if="dialogStatus === dialogStatusType.create" type="primary" @click="createSubjectData">{{ $t('table.save') }}</el-button>
       <el-button v-else type="primary" @click="updateSubjectData">{{ $t('table.save') }}</el-button>
-      <el-button type="primary" @click="updateAndAddSubjectData">{{ $t('table.saveAndAdd') }}</el-button>
+      <!--<el-button type="primary" @click="updateAndAddSubjectData">{{ $t('table.saveAndAdd') }}</el-button>-->
     </div>
   </div>
 </template>
@@ -91,7 +91,7 @@ export default {
           answerType: '',
           score: ''
         },
-        score: 5,
+        score: 0,
         analysis: '',
         level: 2
       },
@@ -168,6 +168,7 @@ export default {
         const subjectInfo = ref.getSubjectInfo()
         subjectInfo.examinationId = this.examinationId
         subjectInfo.categoryId = this.categoryId
+        console.log(JSON.stringify(subjectInfo))
         putSubject(subjectInfo).then(() => {
           this.dialogSubjectFormVisible = false
           notifySuccess(this, '更新成功')
@@ -177,7 +178,6 @@ export default {
     // 更新并添加题目
     updateAndAddSubjectData () {
       const ref = this.getSubjectRef()
-      console.log(ref)
       if (ref.validate()) {
         const subjectInfo = ref.getSubjectInfo()
         // 绑定考试ID
@@ -233,6 +233,7 @@ export default {
     },
     // 保存题目
     createSubjectData () {
+      console.log('createSubjectData')
       const ref = this.getSubjectRef()
       if (ref.validate()) {
         let subjectInfo = ref.getSubjectInfo()

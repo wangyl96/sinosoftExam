@@ -43,5 +43,12 @@ public interface SubjectChoicesMapper extends CrudMapper<SubjectChoices> {
      * @param type
      * @return
      */
-    List<QuestionCategoryVO> findQuestions(Long categoryId, Integer num, int type);
+    List<QuestionCategoryVO> findQuestions(Long categoryId, Integer num, int type, Long examinationId, Long userId);
+
+    /**
+     * 获取选择题答案
+     * @param subjectId
+     * @return
+     */
+    String findAnswerById(Long subjectId);
 }

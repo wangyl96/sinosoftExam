@@ -8,7 +8,7 @@
       </div>
       <ul class="subject-options" v-for="option in options" :key="option.id">
         <li class="subject-option">
-          <input class="toggle" type="checkbox" :checked="isChecked(option.optionName)" :id="'option' + option.id" @change="toggleOption($event, option)">
+          <input class="toggle" type="checkbox"  :id="'option' + option.id" @change="toggleOption($event, option)">
           <label :for="'option' + option.id">
             <span class="subject-option-prefix">{{ option.optionName }}&nbsp;</span>
             <span v-html="option.optionContent" class="subject-option-prefix" />

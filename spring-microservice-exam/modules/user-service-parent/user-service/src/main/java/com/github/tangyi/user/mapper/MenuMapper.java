@@ -39,4 +39,11 @@ public interface MenuMapper extends CrudMapper<Menu> {
      * @return int
      */
     int deleteByTenantCode(Menu menu);
+
+    /**
+     * 根据用户角色id查询菜单
+     * @param modifier
+     * @return
+     */
+    List<Menu> findListByRoleId(String modifier);
 }

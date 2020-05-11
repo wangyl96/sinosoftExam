@@ -12,6 +12,8 @@ import com.github.tangyi.exam.api.dto.*;
 import com.github.tangyi.exam.api.module.ExamQuestionExam;
 import com.github.tangyi.exam.api.module.Examination;
 import com.github.tangyi.exam.api.module.ExaminationSubject;
+import com.github.tangyi.exam.api.vo.ExamRuleResultVO;
+import com.github.tangyi.exam.api.vo.ExamRuleVO;
 import com.github.tangyi.exam.service.ExaminationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -20,6 +22,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.imageio.ImageIO;
@@ -126,7 +129,7 @@ public class ExaminationController extends BaseController {
             @ApiImplicitParam(name = CommonConstant.ORDER, value = "排序方向", defaultValue = CommonConstant.PAGE_ORDER_DEFAULT, dataType = "String"),
             @ApiImplicitParam(name = "subjectDto", value = "题目信息", dataType = "SubjectDto")
     })
-    public PageInfo<ExamQuestionExam> subjectList(@RequestParam(value = CommonConstant.PAGE_NUM, required = false, defaultValue = CommonConstant.PAGE_NUM_DEFAULT) String pageNum,
+    public ExamRuleResultVO subjectList(@RequestParam(value = CommonConstant.PAGE_NUM, required = false, defaultValue = CommonConstant.PAGE_NUM_DEFAULT) String pageNum,
                                                   @RequestParam(value = CommonConstant.PAGE_SIZE, required = false, defaultValue = CommonConstant.PAGE_SIZE_DEFAULT) String pageSize,
                                                   @RequestParam(value = CommonConstant.SORT, required = false, defaultValue = CommonConstant.PAGE_SORT_DEFAULT) String sort,
                                                   @RequestParam(value = CommonConstant.ORDER, required = false, defaultValue = CommonConstant.PAGE_ORDER_DEFAULT) String order,
@@ -168,11 +171,10 @@ public class ExaminationController extends BaseController {
 
     @PostMapping("addExamRule")
     @Log("新增考试规则")
-    public ResponseBean<Boolean> addExamRule(@RequestBody @Valid List<Map<String, Object>> examRuleList) {
-        return new ResponseBean<>(examinationService.addExamRule(examRuleList) > 0);
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseBean<Integer> addExamRule(@RequestBody AddExamRuleDTO addExamRuleDTO) {
+        return new ResponseBean<>(examinationService.addExamRule(addExamRuleDTO));
     }
-
-
 
     /**
      * 更新
@@ -253,9 +255,9 @@ public class ExaminationController extends BaseController {
      * @date 2019/06/18 14:31
      */
     @ApiImplicitParam(name = "examinationId", value = "考试ID", required = true, paramType = "path")
-    @GetMapping("/{examinationId}/subjectIds")
-    public ResponseBean<List<ExaminationSubject>> findExaminationSubjectIds(@PathVariable Long examinationId) {
-		List<ExaminationSubject> subjects = examinationService.findListByExaminationId(examinationId);
+    @GetMapping("/{examinationId}/{userId}/subjectIds")
+    public ResponseBean<List<ExaminationSubject>> findListByExaminationIdAndUserId(@PathVariable Long examinationId, @PathVariable Long userId) {
+		List<ExaminationSubject> subjects = examinationService.findListByExaminationIdAndUserId(examinationId, userId);
 		subjects.forEach(BaseEntity::clearCommonValue);
         return new ResponseBean<>(subjects);
     }
@@ -316,5 +318,17 @@ public class ExaminationController extends BaseController {
             BufferedImage image = ImageIO.read(inputStream);
             ImageIO.write(image, "PNG", out);
         }
+    }
+
+    /**
+     * 获取考试时长
+     * @param examId
+     * @return
+     */
+    @Log("获取考试时长")
+    @GetMapping("/{examId}/getExamTime")
+    public ResponseBean<Integer> getExamTime(@PathVariable Long examId) {
+        Integer time = examinationService.getExamTime(examId);
+        return new ResponseBean<>(time);
     }
 }

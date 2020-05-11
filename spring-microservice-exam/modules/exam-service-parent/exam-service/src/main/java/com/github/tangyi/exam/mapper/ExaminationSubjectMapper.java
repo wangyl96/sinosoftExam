@@ -2,6 +2,7 @@ package com.github.tangyi.exam.mapper;
 
 import com.github.tangyi.common.core.persistence.CrudMapper;
 import com.github.tangyi.exam.api.module.ExaminationSubject;
+import com.github.tangyi.exam.api.vo.QuestionCategoryVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -84,4 +85,34 @@ public interface ExaminationSubjectMapper extends CrudMapper<ExaminationSubject>
      * @date 2019/10/24 21:47:24
      */
     List<ExaminationSubject> findListByCategoryId(ExaminationSubject examinationSubject);
+
+    /**
+     * 删除此考生旧的试题
+     * @param examinationId
+     * @param userId
+     * @return
+     */
+    Integer deleteOld(Long examinationId, Long userId);
+
+    /**
+     * 添加本次考试试题
+     * @param resultList
+     * @return
+     */
+    Integer addNew(List<QuestionCategoryVO> resultList);
+
+    /**
+     * 查询该考生试题
+     * @param examinationId
+     * @param userId
+     * @return
+     */
+    List<ExaminationSubject> findListByExaminationIdAndUserid(Long examinationId, Long userId);
+
+    /**
+     * 根据考试记录获取考题
+     * @param examRecordId
+     * @return
+     */
+    List<ExaminationSubject> findListByRecordId(Long examRecordId);
 }

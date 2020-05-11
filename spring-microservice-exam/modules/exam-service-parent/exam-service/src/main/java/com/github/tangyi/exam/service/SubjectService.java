@@ -12,6 +12,7 @@ import com.github.tangyi.exam.api.module.SubjectChoices;
 import com.github.tangyi.exam.api.module.SubjectJudgement;
 import com.github.tangyi.exam.api.module.SubjectShortAnswer;
 import com.github.tangyi.exam.enums.SubjectTypeEnum;
+import com.github.tangyi.exam.mapper.ExaminationSubjectMapper;
 import com.github.tangyi.exam.utils.SubjectUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,6 +43,9 @@ public class SubjectService {
     private final ExaminationSubjectService examinationSubjectService;
 
     private final SubjectJudgementService subjectJudgementService;
+
+    @Resource
+    private ExaminationSubjectMapper examinationSubjectMapper;
 
     /**
      * 根据题目ID，题目类型查询题目信息
@@ -451,12 +456,39 @@ public class SubjectService {
      * @author tangyi
      * @date 2019/10/13 18:36:58
      */
-    public SubjectDto findFirstSubjectByExaminationId(Long examinationId) {
+    public SubjectDto findFirstSubjectByExaminationId(Long examinationId, Long userId) {
         // 第一题
         ExaminationSubject examinationSubject = new ExaminationSubject();
         examinationSubject.setExaminationId(examinationId);
         // 根据考试ID查询考试题目管理关系，题目ID递增
-        List<ExaminationSubject> examinationSubjects = examinationSubjectService.findList(examinationSubject);
+       // List<ExaminationSubject> examinationSubjects = examinationSubjectService.findList(examinationSubject);
+        List<ExaminationSubject> examinationSubjects = examinationSubjectMapper.findListByExaminationIdAndUserid(examinationId, userId);
+        List<ExaminationSubject> resultList = new ArrayList<>();
+        List<ExaminationSubject> choiceList = new ArrayList<>();
+        List<ExaminationSubject> multipleChoiceList = new ArrayList<>();
+        List<ExaminationSubject> judgeList = new ArrayList<>();
+        List<ExaminationSubject> shortAnswerList = new ArrayList<>();
+        examinationSubjects.stream().forEach(e -> {
+            if (0 == e.getType()) {
+                // 单选
+                choiceList.add(e);
+            } else if (1 == e.getType()) {
+                // 简答
+                shortAnswerList.add(e);
+            } else if (2 == e.getType()) {
+                // 判断
+                judgeList.add(e);
+            } else if (3 == e.getType()) {
+                // 多选
+                multipleChoiceList.add(e);
+            }
+        });
+        resultList.addAll(choiceList);
+        resultList.addAll(multipleChoiceList);
+        resultList.addAll(judgeList);
+        resultList.addAll(shortAnswerList);
+        examinationSubjects.clear();
+        examinationSubjects.addAll(resultList);
         if (CollectionUtils.isEmpty(examinationSubjects))
             throw new CommonException("该考试未录入题目");
         // 第一题的ID

@@ -1,58 +1,58 @@
 <template>
   <div class="dashboard-editor-container">
+      欢迎登陆
+    <!--<panel-group @handleSetLineChartData="handleSetLineChartData"/>-->
 
-    <panel-group @handleSetLineChartData="handleSetLineChartData"/>
-
-    <el-row class="chart-wrapper" style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
-      <div class="chart-wrapper-header">
-        <div>考试次数</div>
-        <div class="chart-wrapper-header-select">
-          <el-select v-model="query.pastDays" placeholder="请选择" size="mini" @change="getExamRecordData">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
-            </el-option>
-          </el-select>
-        </div>
-      </div>
-      <div class="chart-wrapper-body">
-        <line-chart :chart-data="lineChartData"/>
-      </div>
-    </el-row>
-    <el-row :gutter="32">
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <div class="chart-wrapper-header">
-            <div>难度等级分布</div>
-          </div>
-          <div class="chart-wrapper-body">
-            <another-pie-chart/>
-          </div>
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <div class="chart-wrapper-header">
-            <div>考生分布图</div>
-          </div>
-          <div class="chart-wrapper-body">
-            <pie-chart/>
-          </div>
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <div class="chart-wrapper-header">
-            <div>考生水平分布</div>
-          </div>
-          <div class="chart-wrapper-body">
-            <bar-chart/>
-          </div>
-        </div>
-      </el-col>
-    </el-row>
+    <!--<el-row class="chart-wrapper" style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">-->
+      <!--<div class="chart-wrapper-header">-->
+        <!--<div>考试次数</div>-->
+        <!--<div class="chart-wrapper-header-select">-->
+          <!--<el-select v-model="query.pastDays" placeholder="请选择" size="mini" @change="getExamRecordData">-->
+            <!--<el-option-->
+              <!--v-for="item in options"-->
+              <!--:key="item.value"-->
+              <!--:label="item.label"-->
+              <!--:value="item.value">-->
+            <!--</el-option>-->
+          <!--</el-select>-->
+        <!--</div>-->
+      <!--</div>-->
+      <!--<div class="chart-wrapper-body">-->
+        <!--<line-chart :chart-data="lineChartData"/>-->
+      <!--</div>-->
+    <!--</el-row>-->
+    <!--<el-row :gutter="32">-->
+      <!--<el-col :xs="24" :sm="24" :lg="8">-->
+        <!--<div class="chart-wrapper">-->
+          <!--<div class="chart-wrapper-header">-->
+            <!--<div>难度等级分布</div>-->
+          <!--</div>-->
+          <!--<div class="chart-wrapper-body">-->
+            <!--<another-pie-chart/>-->
+          <!--</div>-->
+        <!--</div>-->
+      <!--</el-col>-->
+      <!--<el-col :xs="24" :sm="24" :lg="8">-->
+        <!--<div class="chart-wrapper">-->
+          <!--<div class="chart-wrapper-header">-->
+            <!--<div>考生分布图</div>-->
+          <!--</div>-->
+          <!--<div class="chart-wrapper-body">-->
+            <!--<pie-chart/>-->
+          <!--</div>-->
+        <!--</div>-->
+      <!--</el-col>-->
+      <!--<el-col :xs="24" :sm="24" :lg="8">-->
+        <!--<div class="chart-wrapper">-->
+          <!--<div class="chart-wrapper-header">-->
+            <!--<div>考生水平分布</div>-->
+          <!--</div>-->
+          <!--<div class="chart-wrapper-body">-->
+            <!--<bar-chart/>-->
+          <!--</div>-->
+        <!--</div>-->
+      <!--</el-col>-->
+    <!--</el-row>-->
   </div>
 </template>
 

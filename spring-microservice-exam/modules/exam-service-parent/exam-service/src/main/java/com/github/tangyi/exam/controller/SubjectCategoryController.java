@@ -11,6 +11,8 @@ import com.github.tangyi.exam.api.dto.CategoriesListDTO;
 import com.github.tangyi.exam.api.dto.SubjectCategoryDto;
 import com.github.tangyi.exam.api.module.SubjectCategory;
 import com.github.tangyi.exam.api.vo.CategoriesListVO;
+import com.github.tangyi.exam.api.vo.DifficultyLevelChartVO;
+import com.github.tangyi.exam.api.vo.QestionTypesChartVO;
 import com.github.tangyi.exam.api.vo.QuestionBankChartVO;
 import com.github.tangyi.exam.service.SubjectCategoryService;
 import io.swagger.annotations.Api;
@@ -64,6 +66,18 @@ public class SubjectCategoryController extends BaseController {
     }
 
     /**
+     * 获取题型占比饼图
+     * @param categoriesListDTO
+     * @return
+     */
+    @ResponseBody
+    @PostMapping(value = "questionTypesChart")
+    @ApiOperation(value = "获取各题库选题占比饼图")
+    public List<QestionTypesChartVO> questionTypesChart(@RequestBody CategoriesListDTO categoriesListDTO) {
+        return categoryService.questionTypesChart(categoriesListDTO);
+    }
+
+    /**
      * 获取各题库选题占比饼图
      * @param categoriesListDTO
      * @return
@@ -73,6 +87,18 @@ public class SubjectCategoryController extends BaseController {
     @ApiOperation(value = "获取各题库选题占比饼图")
     public List<QuestionBankChartVO> questionBankChart(@RequestBody CategoriesListDTO categoriesListDTO) {
         return categoryService.questionBankChart(categoriesListDTO);
+    }
+
+    /**
+     * 获取考试难易程度饼图
+     * @param categoriesListDTO
+     * @return
+     */
+    @ResponseBody
+    @PostMapping(value = "difficultyLevelChart")
+    @ApiOperation(value = "获取各题库选题占比饼图")
+    public DifficultyLevelChartVO difficultyLevelChart(@RequestBody CategoriesListDTO categoriesListDTO) {
+        return categoryService.difficultyLevelChart(categoriesListDTO);
     }
 
     /**

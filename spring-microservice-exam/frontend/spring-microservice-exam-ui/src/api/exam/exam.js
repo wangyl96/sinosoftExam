@@ -17,7 +17,6 @@ export function fetchSubjectListById (query) {
   })
 }
 
-
 export function getObj (id) {
   return request({
     url: apiList.exam + id,
@@ -25,9 +24,9 @@ export function getObj (id) {
   })
 }
 
-export function getSubjectIds (id, query) {
+export function getSubjectIds (id, userId, query) {
   return request({
-    url: apiList.exam + id + '/subjectIds',
+    url: apiList.exam + id + '/' + userId + '/subjectIds',
     method: 'get',
     params: query
   })

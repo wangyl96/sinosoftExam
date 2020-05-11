@@ -23,4 +23,6 @@ public class ExaminationDto extends Examination {
      */
     private String logoUrl;
 
+    private Integer totalTime;
+
 }

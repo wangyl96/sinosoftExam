@@ -1,6 +1,7 @@
 <template>
   <div class="dashboard-container">
-    <component :is="currentRole"/>
+    <!--<component :is="currentRole"/>-->
+    <div style="text-align: center; margin-top: 100px; font-size: 32px">欢迎登陆考试后台系统</div>
   </div>
 </template>
 

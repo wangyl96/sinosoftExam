@@ -9,6 +9,16 @@
         <result column="count" property="count"/>
     </resultMap>
 
+    <resultMap id="examRuleMap" type="com.github.tangyi.exam.api.vo.ExamRuleVO">
+        <result column="id" property="id"/>
+        <result column="examId" property="examId"/>
+        <result column="questionTypeId" property="questionTypeId"/>
+        <result column="categoryName" property="categoryName"/>
+        <result column="simpleNum" property="simpleNum"/>
+        <result column="commonlyNum" property="commonlyNum"/>
+        <result column="difficultyNum" property="difficultyNum"/>
+    </resultMap>
+
     <sql id="examQuestionExamColumns">
         a.id,
         a.exam_id,
@@ -17,9 +27,36 @@
         a.count
     </sql>
 
+    <sql id="examQuestionExamColumns2">
+        id,
+        exam_id,
+        question_type_id,
+        score,
+        count
+    </sql>
+
     <delete id="delete">
-        delete from exam_question_examination WHERE exam_id = #{examinationId} and question_type_id in (#{types})
+        delete from exam_question_examination WHERE exam_id = #{examinationId}
     </delete>
+
+    <insert id="insertForeach" parameterType="java.util.List" useGeneratedKeys="false">
+        insert into exam_question_examination (
+        exam_id,
+        question_type_id,
+        score,
+        count
+        ) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.examId},
+            #{item.questionTypeId},
+            #{item.score},
+            #{item.count}
+            )
+        </foreach>
+    </insert>
+
+
 
     <insert id="insertForeachExamQuestionExam" parameterType="java.util.List" useGeneratedKeys="false">
     insert into exam_question_examination (
@@ -38,11 +75,28 @@
     </foreach>
     </insert>
 
-    <select id="getExamQuestionExamById" resultMap="examQuestionExamMap">
-    SELECT
-    <include refid="examQuestionExamColumns"/>
-    FROM exam_question_examination a
-    WHERE a.exam_id = #{examinationId}
+    <select id="getExamQuestionExamById" resultMap="examRuleMap">
+        SELECT a.id, b.examination_id examId, b.question_type_id questionTypeId, a.category_name categoryName, b.question_simple_num simpleNum, b.question_commonly_num commonlyNum, b.question_difficulty_num difficultyNum
+        FROM exam_subject_category a LEFT JOIN exam_question_category b
+        ON a.id = b.category_id AND b.examination_id = #{examinationId}
+        WHERE a.del_flag = 0 ORDER BY b.question_type_id
+    </select>
+
+    <select id="getRuleById" resultMap="examQuestionExamMap">
+        SELECT * FROM exam_question_examination WHERE exam_id = #{examinationId}
+    </select>
+
+    <select id="getScoreByExamIdAndTypeId" resultType="java.lang.Integer">
+        SELECT
+        a.score
+        FROM exam_question_examination a
+        WHERE a.exam_id = #{examinationId} and a.question_type_id = #{type}
+    </select>
+
+    <select id="getListByRecordId" resultMap="examQuestionExamMap">
+        SELECT
+        <include refid="examQuestionExamColumns2"/>
+        FROM exam_question_examination WHERE exam_id = (SELECT examination_id FROM exam_examination_record WHERE id = #{examRecordId})
     </select>
 
     <!-- where 条件 -->

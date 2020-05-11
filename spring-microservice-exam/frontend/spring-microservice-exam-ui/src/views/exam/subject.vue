@@ -59,11 +59,11 @@
                 <el-tag :type="scope.row.type | subjectTypeTagFilter" effect="dark" size="small">{{ scope.row.type | subjectTypeFilter }}</el-tag>
               </template>
             </el-table-column>
-            <el-table-column :label="$t('table.subject.score')" width="120">
-              <template slot-scope="scope">
-                <span>{{ scope.row.score }}</span>
-              </template>
-            </el-table-column>
+            <!--<el-table-column :label="$t('table.subject.score')" width="120">-->
+              <!--<template slot-scope="scope">-->
+                <!--<span>{{ scope.row.score }}</span>-->
+              <!--</template>-->
+            <!--</el-table-column>-->
             <el-table-column :label="$t('table.modifier')" property="modifier" width="120">
               <template slot-scope="scope">
                 <span>{{ scope.row.modifier }}</span>
@@ -162,7 +162,7 @@
         <el-button @click="dialogSubjectFormVisible = false">{{ $t('table.cancel') }}</el-button>
         <el-button v-if="subjectFormStatus === 'create'" type="primary" @click="createSubjectData">{{ $t('table.save') }}</el-button>
         <el-button v-else type="primary" @click="updateSubjectData">{{ $t('table.save') }}</el-button>
-        <el-button type="primary" @click="updateAndAddSubjectData">{{ $t('table.saveAndAdd') }}</el-button>
+        <!--<el-button type="primary" @click="updateAndAddSubjectData">{{ $t('table.saveAndAdd') }}</el-button>-->
       </div>
     </el-dialog>
 
@@ -668,6 +668,7 @@ export default {
       if (ref.validate()) {
         let subjectInfo = ref.getSubjectInfo()
         subjectInfo.categoryId = this.currentCategoryId
+        console.log(subjectInfo)
         addSubject(subjectInfo).then(() => {
           this.dialogSubjectFormVisible = false
           notifySuccess(this, '创建成功')
@@ -679,6 +680,7 @@ export default {
       const ref = this.getSubjectRef()
       if (ref.validate()) {
         const subjectInfo = ref.getSubjectInfo()
+        console.log(subjectInfo)
         putSubject(subjectInfo).then(() => {
           this.dialogSubjectFormVisible = false
           notifySuccess(this, '更新成功')

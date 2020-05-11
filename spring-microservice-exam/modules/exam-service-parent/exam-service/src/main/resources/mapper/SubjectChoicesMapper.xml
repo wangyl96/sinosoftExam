@@ -20,7 +20,12 @@
     </resultMap>
 
     <resultMap id="questionsMap" type="com.github.tangyi.exam.api.vo.QuestionCategoryVO">
-        <id column="subjectId" property="subjectId"/>
+        <result column="examinationId" property="examinationId"/>
+        <result column="subjectId" property="subjectId"/>
+        <result column="categoryId" property="categoryId"/>
+        <result column="applicationCode" property="applicationCode"/>
+        <result column="tenatCode" property="tenatCode"/>
+        <result column="userId" property="userId"/>
         <result column="type" property="type"/>
     </resultMap>
 
@@ -65,8 +70,13 @@
 
     <select id="findQuestions" resultMap="questionsMap">
         select
-            a.category_id as subjectId,
-            a.choices_type as type
+        #{examinationId} as examinationId,
+        a.id as subjectId,
+        #{categoryId} as categoryId,
+        choices_type as type,
+        'EXAM' as applicationCode,
+        'gitee' as tenantCode,
+        #{userId} as userId
         from exam_subject_choices a where a.category_id = #{categoryId}  AND LEVEL = #{type} ORDER BY RAND() LIMIT #{num}
     </select>
 
@@ -74,6 +84,12 @@
         SELECT
         <include refid="subjectChoicesColumns"/>
         FROM exam_subject_choices a WHERE a.id = #{id} and a.del_flag = 0
+    </select>
+
+    <select id="findAnswerById" resultType="java.lang.String">
+        SELECT
+        answer
+        FROM exam_subject_choices a WHERE a.id = #{subjectId} and a.del_flag = 0
     </select>
 
     <select id="get" resultMap="subjectChoicesResultMap">

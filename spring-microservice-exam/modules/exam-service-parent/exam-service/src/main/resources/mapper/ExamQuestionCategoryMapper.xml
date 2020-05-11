@@ -13,8 +13,19 @@
     </resultMap>
 
     <resultMap id="questionBankChartMap" type="com.github.tangyi.exam.api.vo.QuestionBankChartVO">
-        <id column="category_name" property="categoryName"/>
-        <result column="num" property="num"/>
+        <id column="name" property="name"/>
+        <result column="value" property="value"/>
+    </resultMap>
+
+    <resultMap id="questionTypesChartMap" type="com.github.tangyi.exam.api.vo.QuestionBankChartVO">
+        <id column="name" property="name"/>
+        <result column="value" property="value"/>
+    </resultMap>
+
+    <resultMap id="difficultyLevelChartMap" type="com.github.tangyi.exam.api.vo.DifficultyLevelChartVO">
+        <result column="simpleNum" property="simpleNum"/>
+        <result column="commonlyNum" property="commonlyNum"/>
+        <result column="difficultyNum" property="difficultyNum"/>
     </resultMap>
 
     <sql id="examQuestionCategoryColumns">
@@ -35,13 +46,12 @@
     </select>
 
     <delete id="delete">
-    delete from exam_question_category WHERE examination_id = #{examinationId} and question_type_id in (#{types})
+      delete from exam_question_category WHERE examination_id = #{examinationId}
     </delete>
 
     <insert id="insertForeach" parameterType="java.util.List" useGeneratedKeys="false">
     insert into exam_question_category (
     question_type_id,
-    question_type_score,
     category_id,
     question_simple_num,
     question_commonly_num,
@@ -51,21 +61,47 @@
     <foreach collection="list" item="item" index="index" separator=",">
         (
             #{item.questionTypeId},
-            #{item.questionTypeScore},
-            #{item.categoryId},
-            #{item.questionSimpleNum},
-            #{item.questionCommonlyNum},
-            #{item.questionDifficultyNum},
-            #{item.examinationId}
+            #{item.id},
+            #{item.simpleNum},
+            #{item.commonlyNum},
+            #{item.difficultyNum},
+            #{item.examId}
         )
     </foreach>
     </insert>
+
+    <insert id="insertForeachCategory" parameterType="java.util.List">
+        insert into exam_question_category (
+        question_type_id,
+        category_id,
+        examination_id
+        ) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.questionTypeId},
+            #{item.categoryId},
+            #{item.examId}
+            )
+        </foreach>
+    </insert>
+
+    <select id="questionTypesChart" resultMap="questionTypesChartMap">
+        SELECT a.quesrtion_type_name AS NAME, b.value FROM exam_question_type a JOIN
+        (SELECT question_type_id, (SUM(question_simple_num) + SUM(question_commonly_num) + SUM(question_difficulty_num)) AS VALUE  FROM exam_question_category
+        WHERE examination_id = #{examinationId} GROUP BY question_type_id) b
+        ON a.id = b.question_type_id
+    </select>
 
     <select id="questionBankChart" resultMap="questionBankChartMap">
         SELECT a.`category_name` as name, (b.simpleNum + commonlyNum + difficultyNum ) as value FROM exam_subject_category a JOIN
          (SELECT category_id,SUM(question_simple_num) AS simpleNum, SUM(question_commonly_num) AS commonlyNum, SUM(question_difficulty_num) AS difficultyNum
           FROM exam_question_category WHERE examination_id = #{examinationId} GROUP BY category_id) b
          ON a.`id` = b.category_id
+    </select>
+
+    <select id="difficultyLevelChart" resultMap="difficultyLevelChartMap">
+        SELECT SUM(question_simple_num) AS simpleNum, SUM(question_commonly_num) AS commonlyNum,
+        SUM(question_difficulty_num) AS difficultyNum FROM exam_question_category WHERE examination_id = #{examinationId}
     </select>
 
     <!--&lt;!&ndash; where 条件 &ndash;&gt;-->

@@ -23,6 +23,13 @@ public abstract class AbstractAnswerHandler implements IAnswerHandler {
 			List<Double> rightScore = new ArrayList<>();
 			// 获取题目信息
 			List<SubjectDto> subjects = getSubjects(answers);
+			answers.stream().forEach(e -> {
+				subjects.stream().forEach(m -> {
+					if (e.getSubjectId().equals(m.getId())) {
+						m.setScore(e.getScore());
+					}
+				});
+			});
 			answers.forEach(tempAnswer -> {
 				subjects.stream()
 						// 题目ID匹配

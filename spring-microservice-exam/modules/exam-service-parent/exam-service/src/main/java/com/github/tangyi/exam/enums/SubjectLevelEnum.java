@@ -12,11 +12,11 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum SubjectLevelEnum {
 
-	SIMPLE("简单", 0),
+	SIMPLE("简单", 1),
 
-	NORMAL("一般", 1),
+	NORMAL("一般", 2),
 
-	DIFFICULT("略难", 2),
+	DIFFICULT("困难", 3),
 
 	MORE_DIFFICULT("非常难", 3);
 

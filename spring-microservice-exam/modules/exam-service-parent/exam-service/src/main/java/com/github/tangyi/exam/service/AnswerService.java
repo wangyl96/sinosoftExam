@@ -18,17 +18,14 @@ import com.github.tangyi.exam.api.dto.RankInfoDto;
 import com.github.tangyi.exam.api.dto.StartExamDto;
 import com.github.tangyi.exam.api.dto.SubjectDto;
 import com.github.tangyi.exam.api.enums.SubmitStatusEnum;
-import com.github.tangyi.exam.api.module.Answer;
-import com.github.tangyi.exam.api.module.Examination;
-import com.github.tangyi.exam.api.module.ExaminationRecord;
-import com.github.tangyi.exam.api.module.ExaminationSubject;
+import com.github.tangyi.exam.api.module.*;
 import com.github.tangyi.exam.enums.SubjectTypeEnum;
 import com.github.tangyi.exam.handler.AnswerHandleResult;
 import com.github.tangyi.exam.handler.impl.ChoicesAnswerHandler;
 import com.github.tangyi.exam.handler.impl.JudgementAnswerHandler;
 import com.github.tangyi.exam.handler.impl.MultipleChoicesAnswerHandler;
 import com.github.tangyi.exam.handler.impl.ShortAnswerHandler;
-import com.github.tangyi.exam.mapper.AnswerMapper;
+import com.github.tangyi.exam.mapper.*;
 import com.github.tangyi.exam.utils.AnswerHandlerUtil;
 import com.github.tangyi.exam.utils.ExamRecordUtil;
 import com.github.tangyi.user.api.feign.UserServiceClient;
@@ -45,6 +42,7 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -81,6 +79,21 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
 	private final ShortAnswerHandler shortAnswerHandler;
 
 	private final RedisTemplate<String, String> redisTemplate;
+
+	@Resource
+	private ExamQuestionExamMapper examQuestionExamMapper;
+
+	@Resource
+    private ExaminationSubjectMapper examinationSubjectMapper;
+
+	@Resource
+    private SubjectChoicesMapper subjectChoicesMapper;
+
+	@Resource
+    private SubjectJudgementMapper subjectJudgementMapper;
+
+	@Resource
+    private SubjectShortAnswerMapper subjectShortAnswerMapper;
 
 	/**
      * 查找答题
@@ -248,12 +261,48 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
 	public int save(AnswerDto answerDto, String userCode, String sysCode, String tenantCode) {
 		Answer answer = new Answer();
 		BeanUtils.copyProperties(answerDto, answer);
+        String subjectAnswer = "";
+        Double score = 0.0;
+        // 获取题型分数
+        List<ExamQuestionExam> examQuestionExamList = examQuestionExamMapper.getListByRecordId(answer.getExamRecordId());
+        Double choicesScore = 0.0;
+        Double shortScore = 0.0;
+        Double judgementScore = 0.0;
+        for (ExamQuestionExam e : examQuestionExamList) {
+            if (e.getQuestionTypeId() == 1) {
+                choicesScore = Double.valueOf(e.getScore().toString());
+            } else if (e.getQuestionTypeId() == 2) {
+                judgementScore = Double.valueOf(e.getScore().toString());
+            } else if (e.getQuestionTypeId() == 3) {
+                shortScore = Double.valueOf(e.getScore().toString());
+            }
+        }
+        // 获取本道题的正确答案与考生回答的答案对比,然后打分
+        if (answer.getType() == 0) {
+            // 单选题
+            subjectAnswer = subjectChoicesMapper.findAnswerById(answer.getSubjectId());
+            score = StringUtils.equals(subjectAnswer, answer.getAnswer()) == true ? choicesScore : 0.0;
+        } else if (answer.getType() == 1) {
+            // 简答题
+            subjectAnswer = subjectShortAnswerMapper.findAnswerById(answer.getSubjectId());
+            score = StringUtils.equals(subjectAnswer, answer.getAnswer()) == true ? shortScore : 0.0;
+        } else if (answer.getType() == 2) {
+            // 判断题
+            subjectAnswer = subjectJudgementMapper.findAnswerById(answer.getSubjectId());
+            score = StringUtils.equals(subjectAnswer, answer.getAnswer()) == true ? judgementScore : 0.0;
+        } else if (answer.getType() == 3) {
+            // 多选题
+            subjectAnswer = subjectChoicesMapper.findAnswerById(answer.getSubjectId());
+            score = StringUtils.equals(subjectAnswer, answer.getAnswer()) == true ? choicesScore : 0.0;
+        }
+        answer.setScore(score);
 		Answer tempAnswer = this.getAnswer(answer);
 		if (tempAnswer != null) {
 			tempAnswer.setCommonValue(userCode, sysCode, tenantCode);
 			tempAnswer.setAnswer(answer.getAnswer());
 			tempAnswer.setType(answer.getType());
 			tempAnswer.setEndTime(tempAnswer.getModifyDate());
+            tempAnswer.setScore(score);
 			return this.update(tempAnswer);
 		} else {
 			answer.setCommonValue(userCode, sysCode, tenantCode);
@@ -345,7 +394,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         // 2. 更新考试状态
         boolean success = examRecordService.update(examRecord) > 0;
 		log.debug("Submit examination, username: {}，time consuming: {}ms", currentUsername, System.currentTimeMillis() - start);
-		return success;
+		return true;
     }
 
     /**
@@ -417,6 +466,15 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         // 设置答题
         subject.setAnswer(userAnswer);
         subject.setExaminationRecordId(examRecordId);
+        // 重新设置题目分数 0/3是选择  1是简答
+        int type = subject.getType();
+        if (0 == type || 3 == type) {
+            type = 1;
+        } else if (1 == type) {
+            type = 3;
+        }
+        Integer score = examQuestionExamMapper.getScoreByExamIdAndTypeId(type, examRecord.getExaminationId());
+        subject.setScore(Double.valueOf(score.toString()));
         return subject;
     }
 
@@ -469,14 +527,25 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
     public AnswerDto answerInfo(Long recordId, Long currentSubjectId, Integer nextSubjectType, Integer nextType) {
         ExaminationRecord record = examRecordService.get(recordId);
         SubjectDto subjectDto;
+        Double scoreSubject = 0.0;
         // 题目为空，则加载第一题
         if (currentSubjectId == null) {
-            subjectDto = subjectService.findFirstSubjectByExaminationId(record.getExaminationId());
+            subjectDto = subjectService.findFirstSubjectByExaminationId(record.getExaminationId(), record.getUserId());
+            // 根据考试id和题型重新设置分数
+            // 重新设置题目分数 0/3是选择  1是简答
+            int type = subjectDto.getType();
+            if (0 == type || 3 == type) {
+                type = 1;
+            } else if (1 == type) {
+                type = 3;
+            }
+            Integer score = examQuestionExamMapper.getScoreByExamIdAndTypeId(type, record.getExaminationId());
+            scoreSubject = Double.valueOf(score.toString());
+            subjectDto.setScore(scoreSubject);
         } else {
             ExaminationSubject examinationSubject = new ExaminationSubject();
             examinationSubject.setExaminationId(record.getExaminationId());
             examinationSubject.setSubjectId(currentSubjectId);
-
             // 查询该考试和指定序号的题目的关联信息
             // 下一题
             if (AnswerConstant.NEXT.equals(nextType)) {
@@ -491,6 +560,16 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
                 throw new CommonException("ID为" + currentSubjectId + "的题目不存在");
             // 查询题目的详细信息
             subjectDto = subjectService.get(examinationSubject.getSubjectId(), examinationSubject.getType());
+            // 重新设置题目分数 0/3是选择  1是简答
+            int type = subjectDto.getType();
+            if (0 == type || 3 == type) {
+                type = 1;
+            } else if (1 == type) {
+                type = 3;
+            }
+            Integer score = examQuestionExamMapper.getScoreByExamIdAndTypeId(type, record.getExaminationId());
+            scoreSubject = Double.valueOf(score.toString());
+            subjectDto.setScore(scoreSubject);
         }
         AnswerDto answerDto = new AnswerDto();
         answerDto.setSubject(subjectDto);
@@ -499,6 +578,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         answer.setSubjectId(subjectDto.getId());
         answer.setExamRecordId(recordId);
         Answer userAnswer = this.getAnswer(answer);
+        userAnswer.setScore(scoreSubject);
         if (userAnswer == null)
             userAnswer = answer;
         BeanUtils.copyProperties(userAnswer, answerDto);
@@ -806,7 +886,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
             startExamDto.setExamination(examination);
             startExamDto.setExamRecord(examRecord);
             // 根据题目ID，类型获取第一题的详细信息
-            SubjectDto subjectDto = subjectService.findFirstSubjectByExaminationId(examRecord.getExaminationId());
+            SubjectDto subjectDto = subjectService.findFirstSubjectByExaminationId(examRecord.getExaminationId(), userId);
             startExamDto.setSubjectDto(subjectDto);
             // 创建第一题的答题
             Answer answer = new Answer();

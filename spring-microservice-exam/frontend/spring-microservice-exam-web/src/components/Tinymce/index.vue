@@ -1,7 +1,7 @@
 <template>
-  <div :class="{fullscreen:fullscreen}" class="tinymce-container editor-container">
-    <textarea :id="tinymceId" class="tinymce-textarea"/>
-  </div>
+<div :class="{fullscreen:fullscreen}" class="tinymce-container editor-container">
+  <textarea :id="id" class="tinymce-textarea"/>
+</div>
 </template>
 
 <script>
@@ -61,7 +61,7 @@ export default {
     value (val) {
       if (!this.hasChange && this.hasInit) {
         this.$nextTick(() =>
-          window.tinymce.get(this.tinymceId).setContent(val || ''))
+          console.log(window.tinymce.get()))
       }
     },
     language () {

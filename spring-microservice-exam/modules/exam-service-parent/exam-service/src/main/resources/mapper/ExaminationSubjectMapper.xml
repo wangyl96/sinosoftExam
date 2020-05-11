@@ -21,6 +21,16 @@
         a.tenant_code
     </sql>
 
+    <sql id="examinationSubjectColumns2">
+        id,
+        examination_id,
+        category_id,
+        subject_id,
+        type,
+        application_code,
+        tenant_code
+    </sql>
+
     <!-- where 条件 -->
     <sql id="whereColumnList">
         <if test="examinationId != null and examinationId != ''">
@@ -57,7 +67,7 @@
     <select id="findListByExaminationId" resultMap="examinationSubjectResultMap">
         SELECT
         <include refid="examinationSubjectColumns"/>
-        FROM exam_examination_subject a WHERE a.examination_id = #{examinationId} order by subject_id ASC
+        FROM exam_examination_subject a WHERE a.examination_id = #{examinationId} order by a.type, a.subject_id ASC
     </select>
 
     <select id="findByExaminationIdAndSubjectId" resultMap="examinationSubjectResultMap">
@@ -111,6 +121,19 @@
         FROM exam_examination_subject a WHERE a.category_id = #{categoryId}
     </select>
 
+    <select id="findListByExaminationIdAndUserid" resultMap="examinationSubjectResultMap">
+        SELECT
+        <include refid="examinationSubjectColumns"/>
+        FROM exam_examination_subject a WHERE a.examination_id = #{examinationId} and a.user_id = #{userId}  ORDER BY a.type, a.subject_id ASC
+    </select>
+
+    <select id="findListByRecordId" resultMap="examinationSubjectResultMap">
+        SELECT
+        <include refid="examinationSubjectColumns2"/>
+        FROM exam_examination_subject WHERE user_id = (SELECT user_id FROM exam_examination_record WHERE id = #{examRecordId})
+        AND examination_id = (SELECT examination_id FROM exam_examination_record WHERE id = {examRecordId}) ORDER BY TYPE, subject_id ASC
+    </select>
+
     <insert id="insert">
         insert into exam_examination_subject (
             id,
@@ -129,6 +152,29 @@
             #{applicationCode},
             #{tenantCode}
         );
+    </insert>
+
+    <insert id="addNew">
+        insert into exam_examination_subject (
+        examination_id,
+        category_id,
+        subject_id,
+        type,
+        application_code,
+        tenant_code,
+        user_id
+        ) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.examinationId},
+            #{item.categoryId},
+            #{item.subjectId},
+            #{item.type},
+            #{item.applicationCode},
+            #{item.tenantCode},
+            #{item.userId}
+            )
+        </foreach>
     </insert>
 
     <update id="update">
@@ -151,6 +197,12 @@
     <!-- 物理删除 -->
     <delete id="delete">
         DELETE FROM exam_examination_subject WHERE id = #{id}
+    </delete>
+
+
+
+    <delete id="deleteOld">
+        DELETE FROM exam_examination_subject WHERE examination_id = #{examinationId} and user_id = #{userId}
     </delete>
 
     <!-- 物理删除 -->

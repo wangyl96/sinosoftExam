@@ -45,6 +45,28 @@
         a.tenant_code
     </sql>
 
+    <sql id="menuColumns2">
+        id,
+        NAME,
+        permission,
+        url,
+        redirect,
+        parent_id,
+        icon,
+        sort,
+        TYPE,
+        component,
+        path,
+        remark,
+        creator,
+        create_date,
+        MODIFIER,
+        modify_date,
+        del_flag,
+        application_code,
+        tenant_code
+    </sql>
+
     <!-- where 条件 -->
     <sql id="whereColumnList">
         <if test="name != null and name != ''">
@@ -184,6 +206,12 @@
         FROM sys_menu a
         WHERE a.del_flag = 0
         <include refid="whereColumnList"/>
+    </select>
+
+    <select id="findListByRoleId" resultMap="menuResultMap">
+        SELECT <include refid="menuColumns2"/>
+        FROM sys_menu WHERE del_flag = 0 and id IN
+        (SELECT menu_id FROM sys_role_menu p WHERE p.role_id IN  (SELECT b.role_id FROM sys_user a,sys_user_role b WHERE  a.id = b.user_id  AND a.modifier = #{modifier}))
     </select>
 
     <select id="findListById" resultMap="menuResultMap">

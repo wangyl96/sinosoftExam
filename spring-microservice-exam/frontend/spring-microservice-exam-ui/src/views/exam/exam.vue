@@ -125,14 +125,27 @@
               </el-col>
             </el-row>
             <el-row>
+              <!--<el-col :span="12">-->
+                <!--<el-form-item :label="$t('table.startTime')" prop="startTime">-->
+                  <!--<el-date-picker v-model="temp.startTime" :placeholder="$t('table.startTime')" type="datetime" format="yyyy-MM-dd HH:mm" value-format="timestamp"/>-->
+                <!--</el-form-item>-->
+              <!--</el-col>-->
+              <!--<el-col :span="12">-->
+                <!--<el-form-item :label="$t('table.endTime')" prop="endTime">-->
+                  <!--<el-date-picker v-model="temp.endTime" :placeholder="$t('table.endTime')" type="datetime" format="yyyy-MM-dd HH:mm" value-format="timestamp"/>-->
+                <!--</el-form-item>-->
+              <!--</el-col>-->
               <el-col :span="12">
-                <el-form-item :label="$t('table.startTime')" prop="startTime">
-                  <el-date-picker v-model="temp.startTime" :placeholder="$t('table.startTime')" type="datetime" format="yyyy-MM-dd HH:mm" value-format="timestamp"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item :label="$t('table.endTime')" prop="endTime">
-                  <el-date-picker v-model="temp.endTime" :placeholder="$t('table.endTime')" type="datetime" format="yyyy-MM-dd HH:mm" value-format="timestamp"/>
+                <el-form-item label='考试时长' prop="totalTime">
+                  <el-row>
+                    <el-col :span="12">
+                      <el-input v-model="temp.totalTime" />
+                    </el-col>
+                    <el-col :span="6">
+                      <span>&nbsp;&nbsp;&nbsp;分</span>
+                    </el-col>
+
+                  </el-row>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -241,397 +254,390 @@
 </template>
 
 <script>
-  import { fetchList, addObj, putObj, delObj, delAllObj } from '@/api/exam/exam'
-  import { fetchCourseList } from '@/api/exam/course'
-  import waves from '@/directive/waves'
-  import { mapGetters, mapState } from 'vuex'
-  import { getToken } from '@/utils/auth'
-  import { checkMultipleSelect, isNotEmpty, notifySuccess, notifyFail, messageSuccess } from '@/utils/util'
-  import { delAttachment } from '@/api/admin/attachment'
-  import Tinymce from '@/components/Tinymce'
-  import SpinnerLoading from '@/components/SpinnerLoading'
-  import Choices from '@/components/Subjects/Choices'
-  import MultipleChoices from '@/components/Subjects/MultipleChoices'
-  import ShortAnswer from '@/components/Subjects/ShortAnswer'
-  import { apiList } from '@/const/constant'
-  import { examType } from '@/utils/constant'
+import { fetchList, addObj, putObj, delObj, delAllObj } from '@/api/exam/exam'
+import { fetchCourseList } from '@/api/exam/course'
+import waves from '@/directive/waves'
+import { mapGetters, mapState } from 'vuex'
+import { getToken } from '@/utils/auth'
+import { checkMultipleSelect, isNotEmpty, notifySuccess, notifyFail, messageSuccess } from '@/utils/util'
+import { delAttachment } from '@/api/admin/attachment'
+import Tinymce from '@/components/Tinymce'
+import SpinnerLoading from '@/components/SpinnerLoading'
+import Choices from '@/components/Subjects/Choices'
+import MultipleChoices from '@/components/Subjects/MultipleChoices'
+import ShortAnswer from '@/components/Subjects/ShortAnswer'
+import { apiList } from '@/const/constant'
+import { examType } from '@/utils/constant'
 
-  export default {
-    name: 'ExamManagement',
-    directives: {
-      waves
-    },
-    components: { Tinymce, SpinnerLoading, Choices, MultipleChoices, ShortAnswer },
-    filters: {
-      courseFilter (row) {
-        if (isNotEmpty(row.course) && isNotEmpty(row.course.courseName)) {
-          return row.course.courseName
-        }
-        return ''
+export default {
+  name: 'ExamManagement',
+  directives: {
+    waves
+  },
+  components: { Tinymce, SpinnerLoading, Choices, MultipleChoices, ShortAnswer },
+  filters: {
+    courseFilter (row) {
+      if (isNotEmpty(row.course) && isNotEmpty(row.course.courseName)) {
+        return row.course.courseName
       }
-    },
-    data () {
-      return {
-        headers: {
-          Authorization: 'Bearer ' + getToken()
-        },
-        params: {
-          busiType: '1'
-        },
-        baseUrl: '/exam',
-        tableKey: 0,
-        list: null,
-        total: null,
-        listLoading: true,
+      return ''
+    }
+  },
+  data () {
+    return {
+      headers: {
+        Authorization: 'Bearer ' + getToken()
+      },
+      params: {
+        busiType: '1'
+      },
+      baseUrl: '/exam',
+      tableKey: 0,
+      list: null,
+      total: null,
+      listLoading: true,
+      listQuery: {
+        pageNum: 1,
+        pageSize: 10,
+        sort: 'id',
+        order: 'descending'
+      },
+      // 课程
+      course: {
         listQuery: {
           pageNum: 1,
           pageSize: 10,
           sort: 'id',
           order: 'descending'
         },
-        // 课程
+        list: null,
+        total: null,
+        listLoading: true
+      },
+      // 考试临时信息
+      temp: {
+        id: '',
+        examinationName: '',
+        type: 0,
+        attention: '',
+        startTime: '1589012450000',
+        endTime: '1905177600000',
+        totalTime: '',
+        duration: '',
+        totalScore: '',
+        totalSubject: '0',
+        questionStyle: [],
+        subjectType: [{
+          'id': '1',
+          'questionTypeName': '选择题'
+        }, {
+          'id': '2',
+          'questionTypeName': '判断题'
+        }, {
+          'id': '3',
+          'questionTypeName': '简答题'
+        }],
+        status: 1,
+        avatarId: null,
+        collegeId: '',
+        majorId: '',
         course: {
-          listQuery: {
-            pageNum: 1,
-            pageSize: 10,
-            sort: 'id',
-            order: 'descending'
-          },
-          list: null,
-          total: null,
-          listLoading: true
-        },
-        // 考试临时信息
-        temp: {
           id: '',
-          examinationName: '',
-          type: 0,
-          attention: '',
-          startTime: '',
-          endTime: '',
-          duration: '',
-          totalScore: '',
-          totalSubject: '0',
-          questionStyle: [],
-          subjectType: [{
-            'id': '1',
-            'questionTypeName': '选择题'
-          }, {
-            'id': '2',
-            'questionTypeName': '判断题'
-          }, {
-            'id': '3',
-            'questionTypeName': '简答题'
-          }],
-          status: 1,
-          avatarId: null,
-          collegeId: '',
-          majorId: '',
-          course: {
-            id: '',
-            courseName: ''
-          },
-          remark: ''
+          courseName: ''
         },
-        avatar: null,
-        dialogFormVisible: false,
-        dialogStatus: '',
-        textMap: {
-          update: '编辑',
-          create: '新建'
+        remark: ''
+      },
+      avatar: null,
+      dialogFormVisible: false,
+      dialogStatus: '',
+      textMap: {
+        update: '编辑',
+        create: '新建'
+      },
+      // 校验规则
+      rules: {
+        examinationName: [{ required: true, message: '请输入考试名称', trigger: 'change' }],
+        courseId: [{ required: true, message: '请输入考试所属课程', trigger: 'change' }],
+        startTime: [{ required: true, message: '请选择开始时间', trigger: 'change' }],
+        endTime: [{ required: true, message: '请选择结束时间', trigger: 'change' }],
+        totalScore: [{ required: true, message: '请输入总分', trigger: 'change' }],
+        subjectType: [{ required: true }],
+        totalTime: [{ required: true }]
+      },
+      downloadLoading: false,
+      labelPosition: 'right',
+      // 按钮权限
+      exam_btn_add: false,
+      exam_btn_edit: false,
+      exam_btn_del: false,
+      exam_btn_subject: false,
+      dialogCourseVisible: false,
+      dialogQrCodeVisible: false,
+      courseData: [],
+      // 多选考试
+      multipleSelection: [],
+      uploading: false,
+      percentage: 0,
+      percentageSubject: 0,
+      activeName: '0',
+      qrCodeUrl: '',
+      examType: []
+    }
+  },
+  created () {
+    // 加载考试列表
+    this.getList()
+    // 获取课程列表
+    fetchCourseList(this.course.listQuery).then(response => {
+      this.course.list = [{ id: '', courseName: '请选择' }].concat(response.data.list)
+      this.course.total = parseInt(response.data.total)
+      this.course.listLoading = false
+    })
+    this.exam_btn_add = this.permissions['exam:exam:add']
+    this.exam_btn_edit = this.permissions['exam:exam:edit']
+    this.exam_btn_del = this.permissions['exam:exam:del']
+    this.exam_btn_subject = this.permissions['exam:exam:subject']
+    Object.keys(examType).forEach(key => {
+      this.examType.push({ key: parseInt(key), displayName: examType[key] })
+    })
+  },
+  computed: {
+    ...mapGetters([
+      'elements',
+      'permissions'
+    ]),
+    ...mapState({
+      sysConfig: state => state.sysConfig.sysConfig
+    })
+  },
+  methods: {
+    // 加载考试列表
+    getList () {
+      this.listLoading = true
+      fetchList(this.listQuery).then(response => {
+        this.list = response.data.list
+        this.total = parseInt(response.data.total)
+        setTimeout(() => {
+          this.listLoading = false
+        }, 500)
+      }).catch(() => {
+        this.listLoading = false
+      })
+    },
+    handleFilter () {
+      this.listQuery.pageNum = 1
+      this.getList()
+    },
+    handleSizeChange (val) {
+      this.listQuery.limit = val
+      this.getList()
+    },
+    handleCurrentChange (val) {
+      this.listQuery.pageNum = val
+      this.getList()
+    },
+    handleModifyStatus (row, status) {
+      row.status = status
+      putObj(row).then(() => {
+        this.dialogFormVisible = false
+        messageSuccess(this, '操作成功')
+      })
+    },
+    handleSelectionChange (val) {
+      this.multipleSelection = val
+    },
+    // 排序事件
+    sortChange (column, prop, order) {
+      this.listQuery.sort = column.prop
+      this.listQuery.order = column.order
+      this.getList()
+    },
+    resetTemp () {
+      this.temp = {
+        id: '',
+        examinationName: '',
+        type: 0,
+        attention: '',
+        startTime: '1589012450000',
+        endTime: '1905177600000',
+        totalTime: '',
+        duration: '',
+        totalScore: '',
+        status: 1,
+        questionStyle: [],
+        subjectType: [{
+          'id': '1',
+          'questionTypeName': '选择题'
+        }, {
+          'id': '2',
+          'questionTypeName': '判断题'
+        }, {
+          'id': '3',
+          'questionTypeName': '简答题'
+        }],
+        avatar: '',
+        collegeId: '',
+        majorId: '',
+        course: {
+          id: '',
+          courseName: ''
         },
-        // 校验规则
-        rules: {
-          examinationName: [{ required: true, message: '请输入考试名称', trigger: 'change' }],
-          courseId: [{ required: true, message: '请输入考试所属课程', trigger: 'change' }],
-          startTime: [{ required: true, message: '请选择开始时间', trigger: 'change' }],
-          endTime: [{ required: true, message: '请选择结束时间', trigger: 'change' }],
-          totalScore: [{ required: true, message: '请输入总分', trigger: 'change' }],
-          subjectType: [{ required: true }]
-        },
-        downloadLoading: false,
-        labelPosition: 'right',
-        // 按钮权限
-        exam_btn_add: false,
-        exam_btn_edit: false,
-        exam_btn_del: false,
-        exam_btn_subject: false,
-        dialogCourseVisible: false,
-        dialogQrCodeVisible: false,
-        courseData: [],
-        // 多选考试
-        multipleSelection: [],
-        uploading: false,
-        percentage: 0,
-        percentageSubject: 0,
-        activeName: '0',
-        qrCodeUrl: '',
-        examType: []
+        remark: ''
       }
     },
-    created () {
-      // 加载考试列表
-      this.getList()
-      // 获取课程列表
-      fetchCourseList(this.course.listQuery).then(response => {
-        this.course.list = [{ id: '', courseName: '请选择' }].concat(response.data.list)
-        this.course.total = parseInt(response.data.total)
-        this.course.listLoading = false
-      })
-      this.exam_btn_add = this.permissions['exam:exam:add']
-      this.exam_btn_edit = this.permissions['exam:exam:edit']
-      this.exam_btn_del = this.permissions['exam:exam:del']
-      this.exam_btn_subject = this.permissions['exam:exam:subject']
-      Object.keys(examType).forEach(key => {
-        this.examType.push({ key: parseInt(key), displayName: examType[key] })
+    handleCreate () {
+      this.resetTemp()
+      this.dialogStatus = 'create'
+      this.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
       })
     },
-    computed: {
-      ...mapGetters([
-        'elements',
-        'permissions'
-      ]),
-      ...mapState({
-        sysConfig: state => state.sysConfig.sysConfig
+    createData () {
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          this.temp.totalScore = parseInt(this.temp.totalScore)
+          this.temp.questionStyle = JSON.stringify(this.temp.questionStyle)
+          console.log(this.temp)
+          addObj(this.temp).then(() => {
+            this.list.unshift(this.temp)
+            this.dialogFormVisible = false
+            this.getList()
+            notifySuccess(this, '创建成功')
+          })
+        }
       })
     },
-    methods: {
-      // 加载考试列表
-      getList () {
-        this.listLoading = true
-        fetchList(this.listQuery).then(response => {
-          this.list = response.data.list
-          this.total = parseInt(response.data.total)
-          setTimeout(() => {
-            this.listLoading = false
-          }, 500)
-        }).catch(() => {
-          this.listLoading = false
-        })
-      },
-      handleFilter () {
-        this.listQuery.pageNum = 1
-        this.getList()
-      },
-      handleSizeChange (val) {
-        this.listQuery.limit = val
-        this.getList()
-      },
-      handleCurrentChange (val) {
-        this.listQuery.pageNum = val
-        this.getList()
-      },
-      handleModifyStatus (row, status) {
-        row.status = status
-        putObj(row).then(() => {
-          this.dialogFormVisible = false
-          messageSuccess(this, '操作成功')
-        })
-      },
-      handleSelectionChange (val) {
-        this.multipleSelection = val
-      },
-      // 排序事件
-      sortChange (column, prop, order) {
-        this.listQuery.sort = column.prop
-        this.listQuery.order = column.order
-        this.getList()
-      },
-      resetTemp () {
-        this.temp = {
+    handleShare (row) {
+      this.qrCodeUrl = apiList.exam + 'anonymousUser/generateQrCode/' + row.id
+      this.dialogQrCodeVisible = true
+    },
+    handleShareV2 (row) {
+      this.qrCodeUrl = apiList.exam + 'anonymousUser/generateQrCode/v2/' + row.id
+      this.dialogQrCodeVisible = true
+    },
+    handleUpdate (row) {
+      this.temp = Object.assign({}, row)
+      this.avatar = ''
+      if (!isNotEmpty(this.temp.course)) {
+        this.temp.course = {
           id: '',
-          examinationName: '',
-          type: 0,
-          attention: '',
-          startTime: '',
-          endTime: '',
-          duration: '',
-          totalScore: '',
-          status: 1,
-          questionStyle: [],
-          subjectType: [{
-            'id': '1',
-            'questionTypeName': '选择题'
-          }, {
-            'id': '2',
-            'questionTypeName': '判断题'
-          }, {
-            'id': '3',
-            'questionTypeName': '简答题'
-          }],
-          avatar: '',
-          collegeId: '',
-          majorId: '',
-          course: {
-            id: '',
-            courseName: ''
-          },
-          remark: ''
+          courseName: ''
         }
-      },
-      handleCreate () {
-        this.resetTemp()
-        this.dialogStatus = 'create'
-        this.dialogFormVisible = true
-        this.$nextTick(() => {
-          this.$refs['dataForm'].clearValidate()
-        })
-      },
-      createData () {
-        this.$refs['dataForm'].validate((valid) => {
-          if (valid) {
-            this.temp.totalScore = parseInt(this.temp.totalScore)
-            this.temp.questionStyle = JSON.stringify(this.temp.questionStyle)
-            addObj(this.temp).then(() => {
-              this.list.unshift(this.temp)
-              this.dialogFormVisible = false
-              this.getList()
-              notifySuccess(this, '创建成功')
-            })
-          }
-        })
-      },
-      handleShare (row) {
-        this.qrCodeUrl = apiList.exam + 'anonymousUser/generateQrCode/' + row.id
-        this.dialogQrCodeVisible = true
-      },
-      handleShareV2 (row) {
-        this.qrCodeUrl = apiList.exam + 'anonymousUser/generateQrCode/v2/' + row.id
-        this.dialogQrCodeVisible = true
-      },
-      handleUpdate (row) {
-        this.temp = Object.assign({}, row)
-        this.avatar = ''
-        if (!isNotEmpty(this.temp.course)) {
-          this.temp.course = {
-            id: '',
-            courseName: ''
-          }
-        }
-        // 获取图片的预览地址
-        if (isNotEmpty(this.temp.avatarId)) {
-          this.avatar = '/api/user/v1/attachment/preview?id=' + this.temp.avatarId
-        }
-        this.dialogStatus = 'update'
-        this.dialogFormVisible = true
-        this.$nextTick(() => {
-          this.$refs['dataForm'].clearValidate()
-        })
-      },
-      updateData () {
-        this.$refs['dataForm'].validate((valid) => {
-          if (valid) {
-            const tempData = Object.assign({}, this.temp)
-            putObj(tempData).then(() => {
-              for (const v of this.list) {
-                if (v.id === this.temp.id) {
-                  const index = this.list.indexOf(v)
-                  this.list.splice(index, 1, this.temp)
-                  break
-                }
+      }
+      // 获取图片的预览地址
+      if (isNotEmpty(this.temp.avatarId)) {
+        this.avatar = '/api/user/v1/attachment/preview?id=' + this.temp.avatarId
+      }
+      this.dialogStatus = 'update'
+      this.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
+    updateData () {
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          const tempData = Object.assign({}, this.temp)
+          putObj(tempData).then(() => {
+            for (const v of this.list) {
+              if (v.id === this.temp.id) {
+                const index = this.list.indexOf(v)
+                this.list.splice(index, 1, this.temp)
+                break
               }
-              this.dialogFormVisible = false
-              this.getList()
-              notifySuccess(this, '更新成功')
-            })
-          }
+            }
+            this.dialogFormVisible = false
+            this.getList()
+            notifySuccess(this, '更新成功')
+          })
+        }
+      })
+    },
+    // 删除
+    handleDelete (row) {
+      this.$confirm('确定要删除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        delObj(row.id).then(() => {
+          this.dialogFormVisible = false
+          this.getList()
+          notifySuccess(this, '删除成功')
         })
-      },
-      // 删除
-      handleDelete (row) {
+      }).catch(() => {})
+    },
+    // 批量删除
+    handleDeletes () {
+      if (checkMultipleSelect(this.multipleSelection, this)) {
+        let ids = []
+        for (let i = 0; i < this.multipleSelection.length; i++) {
+          ids.push(this.multipleSelection[i].id)
+        }
         this.$confirm('确定要删除吗?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          delObj(row.id).then(() => {
-            this.dialogFormVisible = false
+          delAllObj({ids: ids}).then(() => {
             this.getList()
             notifySuccess(this, '删除成功')
           })
         }).catch(() => {})
-      },
-      // 批量删除
-      handleDeletes () {
-        if (checkMultipleSelect(this.multipleSelection, this)) {
-          let ids = []
-          for (let i = 0; i < this.multipleSelection.length; i++) {
-            ids.push(this.multipleSelection[i].id)
-          }
-          this.$confirm('确定要删除吗?', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }).then(() => {
-            delAllObj({ids: ids}).then(() => {
-              this.getList()
-              notifySuccess(this, '删除成功')
-            })
-          }).catch(() => {})
-        }
-      },
-      // 选择课程
-      selectCourse () {
-        this.course.listLoading = true
-        fetchCourseList(this.course.listQuery).then(response => {
-          this.course.list = response.data.list
-          this.course.total = parseInt(response.data.total)
-          this.course.listLoading = false
-        })
-        this.dialogCourseVisible = true
-      },
-      // 双击选择课程
-      selectedCourse (row) {
-        this.temp.course.id = row.id
-        this.temp.course.courseName = row.courseName
-        this.dialogCourseVisible = false
-      },
-      // 加载题目
-      handleSubjectManagement (row) {
-        this.$router.push({
-          path: `/exam/subjects/${row.id}`
-        })
-      },
-      // 发布考试
-      handlePublic (row, status) {
-        const tempData = Object.assign({}, row)
-        tempData.status = status
-        putObj(tempData).then(() => {
-          this.getList()
-          notifySuccess(this, '更新成功')
-        })
-      },
-      // 图片上传前
-      beforeAvatarUpload (file) {
-        const isJPG = file.type === 'image/jpeg' || file.type === 'image/png'
-        const isLt2M = file.size / 1024 / 1024 < 2
+      }
+    },
+    // 选择课程
+    selectCourse () {
+      this.course.listLoading = true
+      fetchCourseList(this.course.listQuery).then(response => {
+        this.course.list = response.data.list
+        this.course.total = parseInt(response.data.total)
+        this.course.listLoading = false
+      })
+      this.dialogCourseVisible = true
+    },
+    // 双击选择课程
+    selectedCourse (row) {
+      this.temp.course.id = row.id
+      this.temp.course.courseName = row.courseName
+      this.dialogCourseVisible = false
+    },
+    // 加载题目
+    handleSubjectManagement (row) {
+      this.$router.push({
+        path: `/exam/subjects/${row.id}`
+      })
+    },
+    // 发布考试
+    handlePublic (row, status) {
+      const tempData = Object.assign({}, row)
+      tempData.status = status
+      putObj(tempData).then(() => {
+        this.getList()
+        notifySuccess(this, '更新成功')
+      })
+    },
+    // 图片上传前
+    beforeAvatarUpload (file) {
+      const isJPG = file.type === 'image/jpeg' || file.type === 'image/png'
+      const isLt2M = file.size / 1024 / 1024 < 2
 
-        if (!isJPG) {
-          this.$message.error('上传头像图片只能是 jpg/png 格式!')
-        }
-        if (!isLt2M) {
-          this.$message.error('上传头像图片大小不能超过 2MB!')
-        }
-        return isJPG && isLt2M
-      },
-      // 上传成功
-      handleAvatarSuccess (res, file) {
-        this.$refs['dataForm'].validate((valid) => {
-          if (valid) {
-            if (isNotEmpty(this.temp.avatarId)) {
-              // 删除旧头像
-              delAttachment(this.temp.avatarId).then(() => {
-                // 更新头像信息
-                this.temp.avatarId = res.data.id
-                putObj(Object.assign({}, this.temp)).then(() => {
-                  notifySuccess(this, '上传成功')
-                  this.dialogFormVisible = false
-                  this.getList()
-                }).catch(() => {
-                  notifyFail(this, '上传失败')
-                })
-              })
-            } else {
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 jpg/png 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!')
+      }
+      return isJPG && isLt2M
+    },
+    // 上传成功
+    handleAvatarSuccess (res, file) {
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          if (isNotEmpty(this.temp.avatarId)) {
+            // 删除旧头像
+            delAttachment(this.temp.avatarId).then(() => {
               // 更新头像信息
               this.temp.avatarId = res.data.id
               putObj(Object.assign({}, this.temp)).then(() => {
@@ -641,12 +647,23 @@
               }).catch(() => {
                 notifyFail(this, '上传失败')
               })
-            }
+            })
+          } else {
+            // 更新头像信息
+            this.temp.avatarId = res.data.id
+            putObj(Object.assign({}, this.temp)).then(() => {
+              notifySuccess(this, '上传成功')
+              this.dialogFormVisible = false
+              this.getList()
+            }).catch(() => {
+              notifyFail(this, '上传失败')
+            })
           }
-        })
-      }
+        }
+      })
     }
   }
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>

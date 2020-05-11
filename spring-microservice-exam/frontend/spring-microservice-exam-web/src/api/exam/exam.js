@@ -34,9 +34,17 @@ export function anonymousUserGetObj (id, query) {
   })
 }
 
-export function getSubjectIds (id, query) {
+export function getExamTime (examId, query) {
   return request({
-    url: baseExaminationUrl + id + '/subjectIds',
+    url: baseExaminationUrl + examId + '/getExamTime',
+    method: 'get',
+    params: query
+  })
+}
+
+export function getSubjectIds (id, userId, query) {
+  return request({
+    url: baseExaminationUrl + id + '/' + userId + '/subjectIds',
     method: 'get',
     params: query
   })

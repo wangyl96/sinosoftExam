@@ -61,8 +61,8 @@ public class MenuService extends CrudService<MenuMapper, Menu> {
 		condition.setTenantCode(SecurityConstant.DEFAULT_TENANT_CODE);
 		condition.setApplicationCode(SysUtil.getSysCode());
 		condition.setType(MenuConstant.MENU_TYPE_MENU);
-		List<Menu> defaultMenus = findAllList(condition);
-
+		// List<Menu> defaultMenus = findAllList(condition);
+		List<Menu> defaultMenus = findListByRoleId(condition, identifier);
 		// 超级管理员
 		if (identifier.equals(sysProperties.getAdminUser())) {
 			// 获取租户的菜单和默认租户的菜单，最后组装数据，租户的菜单优先
@@ -107,6 +107,51 @@ public class MenuService extends CrudService<MenuMapper, Menu> {
 	}
 
 	/**
+	 * 根据角色返回菜单
+	 * @param menu
+	 * @param modifier
+	 * @return
+	 */
+	private List<Menu> findListByRoleId(Menu menu,String modifier) {
+		List<Menu> menus = new ArrayList<>();
+		if (!menu.getTenantCode().equals(SecurityConstant.DEFAULT_TENANT_CODE)) {
+			Menu defaultMenu = new Menu();
+			defaultMenu.setApplicationCode(SysUtil.getSysCode());
+			defaultMenu.setTenantCode(SecurityConstant.DEFAULT_TENANT_CODE);
+			//menus = menuMapper.findAllList(defaultMenu);
+			menus = menuMapper.findListByRoleId(modifier);
+		}
+		List<Menu> tenantMenus = menuMapper.findListByRoleId(modifier);
+		if (CollectionUtils.isNotEmpty(tenantMenus))
+			menus = mergeMenu(menus, tenantMenus);
+		return menus;
+	}
+
+
+    /**
+     * 查询全部菜单，包括租户本身的菜单和默认租户的菜单
+     *
+     * @param menu menu
+     * @return List
+     * @author tangyi
+     * @date 2019/04/10 17:58
+     */
+    @Override
+    public List<Menu> findAllList(Menu menu) {
+        List<Menu> menus = new ArrayList<>();
+        if (!menu.getTenantCode().equals(SecurityConstant.DEFAULT_TENANT_CODE)) {
+            Menu defaultMenu = new Menu();
+            defaultMenu.setApplicationCode(SysUtil.getSysCode());
+            defaultMenu.setTenantCode(SecurityConstant.DEFAULT_TENANT_CODE);
+            menus = menuMapper.findAllList(defaultMenu);
+        }
+        List<Menu> tenantMenus = menuMapper.findAllList(menu);
+        if (CollectionUtils.isNotEmpty(tenantMenus))
+            menus = mergeMenu(menus, tenantMenus);
+        return menus;
+    }
+
+	/**
 	 * 根据角色查找菜单
 	 *
 	 * @param role       角色标识
@@ -146,28 +191,6 @@ public class MenuService extends CrudService<MenuMapper, Menu> {
 		return menus;
 	}
 
-	/**
-	 * 查询全部菜单，包括租户本身的菜单和默认租户的菜单
-	 *
-	 * @param menu menu
-	 * @return List
-	 * @author tangyi
-	 * @date 2019/04/10 17:58
-	 */
-	@Override
-	public List<Menu> findAllList(Menu menu) {
-		List<Menu> menus = new ArrayList<>();
-		if (!menu.getTenantCode().equals(SecurityConstant.DEFAULT_TENANT_CODE)) {
-			Menu defaultMenu = new Menu();
-			defaultMenu.setApplicationCode(SysUtil.getSysCode());
-			defaultMenu.setTenantCode(SecurityConstant.DEFAULT_TENANT_CODE);
-			menus = menuMapper.findAllList(defaultMenu);
-		}
-		List<Menu> tenantMenus = menuMapper.findAllList(menu);
-		if (CollectionUtils.isNotEmpty(tenantMenus))
-			menus = mergeMenu(menus, tenantMenus);
-		return menus;
-	}
 
 	/**
 	 * 新增菜单

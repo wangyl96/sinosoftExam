@@ -12,15 +12,9 @@ import com.github.tangyi.common.core.utils.DateUtils;
 import com.github.tangyi.common.core.utils.PageUtil;
 import com.github.tangyi.common.core.utils.ResponseUtil;
 import com.github.tangyi.common.security.utils.SysUtil;
-import com.github.tangyi.exam.api.dto.AnswerDto;
-import com.github.tangyi.exam.api.dto.ExaminationDashboardDto;
-import com.github.tangyi.exam.api.dto.ExaminationRecordDto;
-import com.github.tangyi.exam.api.dto.SubjectDto;
+import com.github.tangyi.exam.api.dto.*;
 import com.github.tangyi.exam.api.enums.SubmitStatusEnum;
-import com.github.tangyi.exam.api.module.Answer;
-import com.github.tangyi.exam.api.module.ExamQuestionCategory;
-import com.github.tangyi.exam.api.module.Examination;
-import com.github.tangyi.exam.api.module.ExaminationRecord;
+import com.github.tangyi.exam.api.module.*;
 import com.github.tangyi.exam.api.vo.QuestionCategoryVO;
 import com.github.tangyi.exam.excel.model.ExamRecordExcelModel;
 import com.github.tangyi.exam.mapper.*;
@@ -62,6 +56,7 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 
 	private final SubjectService subjectService;
 
+
 	/**
 	 * 选择题
 	 */
@@ -91,6 +86,10 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 
 	@Resource
 	private SubjectShortAnswerMapper subjectShortAnswerMapper;
+
+	@Resource
+	private ExaminationSubjectMapper examinationSubjectMapper;
+
 
 	/**
      * 查询考试记录
@@ -425,6 +424,21 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 		examRecordDto.setSubmitStatus(examRecord.getSubmitStatus());
 		// 答题列表
 		List<Answer> answers = answerMapper.findListByExamRecordId(examRecord.getId());
+		// 获取该考试各题型考试分数
+		List<ExamQuestionExam> examQuestionExamList = examQuestionExamMapper.getRuleById(examRecord.getExaminationId());
+//		examQuestionExamList.stream().forEach(e -> {
+//			answers.stream().forEach(m -> {
+//				int type = m.getType();
+//				if (type == 0 || type == 3) {
+//					type = 1;
+//				} else if (type == 1) {
+//					type = 3;
+//				}
+//				if (type == e.getQuestionTypeId() && 0.0 != m.getScore()) {
+//					m.setScore(Double.valueOf(e.getScore().toString()));
+//				}
+//			});
+//		});
 		if (CollectionUtils.isNotEmpty(answers)) {
 			List<AnswerDto> answerDtos = answers.stream().map(answer -> {
 				AnswerDto answerDto = new AnswerDto();
@@ -442,10 +456,13 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 
 	/**
 	 * 给考试创建考题
-	 * @param examinationId
+	 * @param addSubjectExamDTO
 	 * @return
 	 */
-	public Integer addSubjectExamList(Long examinationId) {
+	@Transactional(rollbackFor = Exception.class)
+	public Integer addSubjectExamList(AddSubjectExamDTO addSubjectExamDTO) {
+        Long examinationId = addSubjectExamDTO.getExaminationId();
+        Long userId = addSubjectExamDTO.getUserId();
 		List<QuestionCategoryVO> resultList = new ArrayList<>();
 		// 1.根据考试id查询本考试所涉及的考试内容,根据题目类型排序
 		List<ExamQuestionCategory> examQuestionCategoryList = examQuestionCategoryMapper.findRuleByExaminationId(examinationId);
@@ -467,13 +484,17 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 			}
 		});
 		// 4.处理选择题
-		resultList = getResult(resultList, choiceList, 1);
-		resultList = getResult(resultList, judgementList, 2);
-		resultList = getResult(resultList, shortAnswerList, 3);
-		return 0;
+		resultList = getResult(examinationId, userId, resultList, choiceList, 1);
+		resultList = getResult(examinationId, userId, resultList, judgementList, 2);
+		resultList = getResult(examinationId, userId, resultList, shortAnswerList, 3);
+		// 5.删除本考生以前的考题
+		Integer deteleNum = examinationSubjectMapper.deleteOld(examinationId, userId);
+		// 6.添加本次试题
+		Integer addNum = examinationSubjectMapper.addNew(resultList);
+		return addNum;
 	}
 
-	private List<QuestionCategoryVO> getResult(List<QuestionCategoryVO> resultList, List<ExamQuestionCategory> questionCategoryList, int type) {
+	private List<QuestionCategoryVO> getResult(Long examinationId, Long userId, List<QuestionCategoryVO> resultList, List<ExamQuestionCategory> questionCategoryList, int type) {
 		if (questionCategoryList.size() > 0) {
 			// 根据考试难度及题库抽取试题
 			questionCategoryList.stream().forEach(e -> {
@@ -487,17 +508,17 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 				List<QuestionCategoryVO> commonlyQuestionsList = new ArrayList<>();
 				List<QuestionCategoryVO> difficultyQuestionsList = new ArrayList<>();
 				if (1 == type) {
-					simpleQuestionsList = subjectChoicesMapper.findQuestions(categoryId, simpleNum, 1);
-					commonlyQuestionsList = subjectChoicesMapper.findQuestions(categoryId, commonlyNum, 2);
-					difficultyQuestionsList = subjectChoicesMapper.findQuestions(categoryId, difficultyNum, 3);
+					simpleQuestionsList = subjectChoicesMapper.findQuestions(categoryId, simpleNum, 1, examinationId, userId);
+					commonlyQuestionsList = subjectChoicesMapper.findQuestions(categoryId, commonlyNum, 2, examinationId, userId);
+					difficultyQuestionsList = subjectChoicesMapper.findQuestions(categoryId, difficultyNum, 3, examinationId, userId);
 				} else if (2 == type) {
-					simpleQuestionsList = subjectJudgementMapper.findQuestions(categoryId, simpleNum, 1);
-					commonlyQuestionsList = subjectJudgementMapper.findQuestions(categoryId, commonlyNum, 2);
-					difficultyQuestionsList = subjectJudgementMapper.findQuestions(categoryId, difficultyNum, 3);
+					simpleQuestionsList = subjectJudgementMapper.findQuestions(categoryId, simpleNum, 1, examinationId, userId);
+					commonlyQuestionsList = subjectJudgementMapper.findQuestions(categoryId, commonlyNum, 2, examinationId, userId);
+					difficultyQuestionsList = subjectJudgementMapper.findQuestions(categoryId, difficultyNum, 3, examinationId, userId);
 				} else if (3 == type) {
-					simpleQuestionsList = subjectShortAnswerMapper.findQuestions(categoryId, simpleNum, 1);
-					commonlyQuestionsList = subjectShortAnswerMapper.findQuestions(categoryId, commonlyNum, 2);
-					difficultyQuestionsList = subjectShortAnswerMapper.findQuestions(categoryId, difficultyNum, 3);
+					simpleQuestionsList = subjectShortAnswerMapper.findQuestions(categoryId, simpleNum, 1, examinationId, userId);
+					commonlyQuestionsList = subjectShortAnswerMapper.findQuestions(categoryId, commonlyNum, 2, examinationId, userId);
+					difficultyQuestionsList = subjectShortAnswerMapper.findQuestions(categoryId, difficultyNum, 3, examinationId, userId);
 				}
 				resultList.addAll(simpleQuestionsList);
 				resultList.addAll(commonlyQuestionsList);

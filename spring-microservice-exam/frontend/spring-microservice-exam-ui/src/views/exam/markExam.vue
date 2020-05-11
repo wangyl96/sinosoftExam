@@ -50,11 +50,11 @@
                   </ul>
                 </div>
                 <!-- 简答题 -->
-                <div v-if="tempAnswer.type === 1">
-                  <p>
-                    <span v-html="tempAnswer.answer"></span>
-                  </p>
-                </div>
+                <!--<div v-if="tempAnswer.type === 1">-->
+                  <!--<p>-->
+                    <!--<span v-html="tempAnswer.answer"></span>-->
+                  <!--</p>-->
+                <!--</div>-->
               </div>
             </div>
             <el-row>
@@ -159,6 +159,7 @@ export default {
   },
   created () {
     const ids = this.$route.params.id.split('-')
+    console.log(ids)
     this.examinationId = ids[0]
     this.examRecordId = ids[1]
     this.handleMarking()
@@ -178,6 +179,7 @@ export default {
     },
     handleMarking () {
       getAnswerByRecordId(this.examRecordId, undefined, undefined).then(response => {
+        console.log(response)
         if (response.data.data === null) {
           messageFail(this, '加载答题失败')
           return
@@ -187,8 +189,9 @@ export default {
         this.subjectId = id
         this.score = score
         this.correct = this.tempAnswer.answerType === 0
-        getSubjectIds(this.examinationId).then(response => {
+        getSubjectIds(this.examinationId,'708057003460792320').then(response => {
           const subjectData = response.data.data
+          console.log(subjectData)
           if (subjectData.length > 0) {
             for (let i = 0; i < subjectData.length; i++) {
               const { subjectId, type } = subjectData[i]
@@ -234,6 +237,7 @@ export default {
           }
           let { subjectId, type, index } = this.subjectIds[++i]
           this.subjectIndex = index
+          console.log(22)
           this.saveCurrentAnswerAndNext(subjectId, type, nextSubjectType.next)
           break
         }

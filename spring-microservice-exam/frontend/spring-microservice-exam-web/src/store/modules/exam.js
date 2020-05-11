@@ -24,7 +24,6 @@ const exam = {
     },
     // 开始考试
     StartExam ({ commit, state }, examRecord) {
-      console.log(examRecord)
       return new Promise((resolve, reject) => {
         start(examRecord).then(response => {
           commit('SET_EXAM', response.data.data.examination)
@@ -32,7 +31,6 @@ const exam = {
           commit('SET_SUBJECT', response.data.data.subjectDto)
           resolve(response)
         }).catch(error => {
-          console.log(error)
           reject(error)
         })
       })

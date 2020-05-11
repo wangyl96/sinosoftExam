@@ -14,7 +14,7 @@
       <el-link type="primary" >请指定题型数量及分数</el-link>
       <template>
         <el-table
-          :data="tableData"
+          :data="result.examQuestionExamsList"
           border
           style="width: 50%">
           <el-table-column prop="type" label="题型"></el-table-column>
@@ -28,7 +28,7 @@
 
           <el-table-column label="分值">
             <template slot-scope="scope">
-              <el-input v-if="scope.row.type !== '累计'" class="update" clearable v-model="scope.row.score"></el-input>
+              <el-input v-if="scope.row.type !== '累计'" class="update" @input="changeInput(scope.row)" clearable v-model="scope.row.score"></el-input>
               <span v-if="scope.row.type === '累计'" >-</span>
             </template>
           </el-table-column>
@@ -56,10 +56,10 @@
           <el-col :xs="24" :sm="24" :lg="8">
             <div class="chart-wrapper">
               <div class="chart-wrapper-header">
-                <div>各题型总分占比</div>
+                <div>各题型占比</div>
               </div>
               <div class="chart-wrapper-body">
-                <another-pie-chart/>
+                <question-types-chart v-bind:sunny="subject.listQuery.examinationId"/>
               </div>
             </div>
           </el-col>
@@ -69,7 +69,7 @@
                 <div>难度占比</div>
               </div>
               <div class="chart-wrapper-body">
-                <pie-chart/>
+                <difficulty-level-chart v-bind:sunny="subject.listQuery.examinationId"/>
               </div>
             </div>
           </el-col>
@@ -92,36 +92,36 @@
         :before-close="handleClose">
         <template>
           <el-table
-            :data="categoryList"
+            :data="result.examRuleVOList.slice(showFirst, showNum + showFirst)"
             style="width: 100%;margin-bottom: 20px;"
-            row-key="id"
             border
-            default-expand-all
-            :tree-props="{children: 'children', hasChildren: 'hasChildren'}">
+            >
             <el-table-column
-              prop="categoryName"
               label="题库"
               width="180">
+              <template slot-scope="scope">
+                <span>{{ scope.row.categoryName }}</span>
+              </template>
             </el-table-column>
             <el-table-column
               label="简单难度"
               width="180">
               <template slot-scope="scope">
-                <el-input-number v-model="scope.row.simpleNum" style="width: 150px" controls-position="right" @change="handleChange" :min="0" :max="10"></el-input-number>
+                <el-input-number v-model="scope.row.simpleNum" style="width: 150px" controls-position="right" :min="0" :max="10"></el-input-number>
               </template>
             </el-table-column>
             <el-table-column
               label="一般难度"
               width="180">
               <template slot-scope="scope">
-                <el-input-number v-model="scope.row.commonlyNum" style="width: 150px" controls-position="right" @change="handleChange" :min="0" :max="10"></el-input-number>
+                <el-input-number v-model="scope.row.commonlyNum" style="width: 150px" controls-position="right" :min="0" :max="10"></el-input-number>
               </template>
             </el-table-column>
             <el-table-column
               label="困难难度"
               width="180">
               <template slot-scope="scope">
-                <el-input-number v-model="scope.row.difficultyNum " style="width: 150px" controls-position="right" @change="handleChange" :min="0" :max="10"></el-input-number>
+                <el-input-number v-model="scope.row.difficultyNum " style="width: 150px" controls-position="right" :min="0" :max="10"></el-input-number>
               </template>
             </el-table-column>
             <el-table-column
@@ -135,7 +135,7 @@
         </template>
         <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="determine()">确 定</el-button>
+          <el-button type="primary" @click="determine(result.examRuleVOList.slice(showFirst, showNum + showFirst)[0].questionTypeId)">确 定</el-button>
         </span>
       </el-dialog>
     </el-form>
@@ -259,7 +259,7 @@
 <script>
 
 import { fetchSubjectListById, addExamRule } from '@/api/exam/exam'
-import { fetchCategoryTree, fetchCategoryList } from '@/api/exam/subjectCategory'
+import { fetchCategoryList } from '@/api/exam/subjectCategory'
 import { getSubject, delSubject, exportSubject } from '@/api/exam/subject'
 import { getToken } from '@/utils/auth'
 import waves from '@/directive/waves'
@@ -269,11 +269,15 @@ import SpinnerLoading from '@/components/SpinnerLoading'
 import PieChart from '../dashboard/admin/components/PieChart'
 import AnotherPieChart from '../dashboard/admin/components/AnotherPieChart'
 import BarChart from '../dashboard/admin/components/BarChart'
-import QuestionBankChart from "../dashboard/admin/components/QuestionBankChart";
+import QuestionBankChart from '../dashboard/admin/components/QuestionBankChart'
+import DifficultyLevelChart from '../dashboard/admin/components/DifficultyLevelChart'
+import QuestionTypesChart from '../dashboard/admin/components/QuestionTypesChart'
 
 export default {
   name: 'ExamSubjectsManagement',
   components: {
+    QuestionTypesChart,
+    DifficultyLevelChart,
     QuestionBankChart,
     SpinnerLoading,
     PieChart,
@@ -297,15 +301,15 @@ export default {
 
       },
       categoryList: [],
-      resultData:[],
+      resultData: [],
       tableData: [],
-      listQuery: {
-        subjectName: undefined,
-        categoryId: undefined,
-        examinationId: undefined,
-        sort: 'id',
-        order: 'descending'
-      },
+      // listQuery: {
+      //   subjectName: undefined,
+      //   categoryId: undefined,
+      //   examinationId: undefined,
+      //   sort: 'id',
+      //   order: 'descending'
+      // },
       dialogVisible: false,
       multipleSelection: [],
       params: {
@@ -315,14 +319,18 @@ export default {
       list: null,
       total: null,
       listLoading: true,
-      listQuery: {
-        pageNum: 1,
-        pageSize: 10,
-        sort: 'id',
-        order: 'descending'
-      },
+      showId: '',
+      showNum: '',
+      showFirst: '',
+      // listQuery: {
+      //   pageNum: 1,
+      //   pageSize: 10,
+      //   sort: 'id',
+      //   order: 'descending'
+      // },
       // 导入题目的url
       importUrl: '/api/exam/v1/subject/import',
+      result: '',
       // 题目
       subject: {
         listQuery: {
@@ -425,78 +433,142 @@ export default {
       }
       return sumScore
     },
-    dialog(row) {
+    dialog (row, key) {
+      console.log(this.result.examRuleVOList)
+      this.showId = row.questionTypeId
+      let num = 0;
+      let first = -1;
+      for (let i = 0; i < this.result.examRuleVOList.length; i++) {
+        if (this.result.examRuleVOList[i].questionTypeId === row.questionTypeId && first == -1) {
+          first = i;
+          this.showFirst = first;
+        }
+        if (this.result.examRuleVOList[i].questionTypeId === row.questionTypeId) {
+          num = num + 1;
+        }
+      }
+      this.showNum = num;
       this.dialogVisible = true
-      // 调用后台查询题库相关信息(入参需要考试id, 题目类型Id, )
-        fetchCategoryList({'examinationId' : this.subject.listQuery.examinationId, 'questionTypeId' : row.questionTypeId}).then(response => {
-        console.log(response)
-        let categoryList = response.data;
-        for (let i = 0; i < categoryList.length; i++) {
-          categoryList[i].questionTypeId = row.questionTypeId;
-          categoryList[i].examId = this.subject.listQuery.examinationId
-        }
-        this.categoryList = categoryList;
-      })
+      // if (key === 'score') {
+      //   this.dialogVisible = false
+      //   fetchCategoryList({ 'examinationId': this.subject.listQuery.examinationId, 'questionTypeId': row.questionTypeId }).then(response => {
+      //     let categoryList = response.data
+      //     let flag = 0;
+      //     for (let i = 0; i < categoryList.length; i++) {
+      //       flag = flag + categoryList[i].commonlyNum + categoryList[i].difficultyNum + categoryList[i].simpleNum;
+      //       categoryList[i].questionTypeId = row.questionTypeId
+      //       categoryList[i].examId = this.subject.listQuery.examinationId
+      //     }
+      //     if (flag === 0) {
+      //       return
+      //     }
+      //     this.categoryList = categoryList
+      //     // 获取题型
+      //     let questionTypeId = row.questionTypeId
+      //     let tempList = { 'questionTypeId': questionTypeId, 'categoryList': categoryList }
+      //     if (this.resultData.length > 0) {
+      //       for (let t = 0; t < this.resultData.length; t++) {
+      //         if (this.resultData[t].questionTypeId === questionTypeId) {
+      //           this.resultData.splice(t, 1)
+      //           return
+      //         }
+      //       }
+      //     }
+      //     this.resultData.push(tempList)
+      //   })
+      // } else {
+      //   this.dialogVisible = true
+      //   // 调用后台查询题库相关信息(入参需要考试id, 题目类型Id, )
+      //   fetchCategoryList({ 'examinationId': this.subject.listQuery.examinationId, 'questionTypeId': row.questionTypeId }).then(response => {
+      //     console.log(response)
+      //     let categoryList = response.data
+      //     for (let i = 0; i < categoryList.length; i++) {
+      //       categoryList[i].questionTypeId = row.questionTypeId
+      //       categoryList[i].examId = this.subject.listQuery.examinationId
+      //     }
+      //     this.categoryList = categoryList
+      //   })
+      // }
     },
-    sumUp(row) {
+    sumUp (row) {
       // 获取三种难度
-      let simpleNum = row.simpleNum;
-      let commonlyNum = row.commonlyNum;
-      let difficultyNum = row.difficultyNum;
-      return Number(simpleNum) + Number(commonlyNum) + Number(difficultyNum);
+      let simpleNum = row.simpleNum
+      let commonlyNum = row.commonlyNum
+      let difficultyNum = row.difficultyNum
+      return Number(simpleNum) + Number(commonlyNum) + Number(difficultyNum)
     },
-    determine() {
-      // 将每类题型的个数及总分带出
-      let categoryList = this.categoryList;
-      // 获取题型
-      let questionTypeId = categoryList[0].questionTypeId;
-      let tempList = {'questionTypeId' : questionTypeId, 'categoryList' : categoryList}
-      if (this.resultData.length > 0) {
-        for (let t = 0; t < this.resultData.length; t ++) {
-          if ( this.resultData[t].questionTypeId === questionTypeId) {
-            this.resultData.splice(t, 1);
-            return;
-          }
-        }
-      }
-      this.resultData.push(tempList)
+    determine (questionTypeId) {
+      // 将总数同步
       let totalCount = 0;
-      for (let i = 0; i < categoryList.length; i++) {
+      for (let i = 0; i < this.result.examRuleVOList.length; i++) {
         // 计算该题型选择的总数
-        totalCount = totalCount + categoryList[i].simpleNum + categoryList[i].commonlyNum + categoryList[i].difficultyNum
-      }
-      // 将总数放到tableData中
-      for (let l = 0 ; l < this.tableData.length; l++) {
-        if (questionTypeId === this.tableData[l].questionTypeId) {
-          let temp = {'count': totalCount}
-          this.tableData[l].count = totalCount;
+        if (this.result.examRuleVOList[i].questionTypeId === questionTypeId) {
+          totalCount = totalCount + this.result.examRuleVOList[i].simpleNum + this.result.examRuleVOList[i].commonlyNum + this.result.examRuleVOList[i].difficultyNum
         }
       }
-      this.dialogVisible = false;
-    },
-    save() {
-      // 将categoryList入库(包括考题类型、考题分数、题库类型、简单题数量、一般难度数量、困难难度数量)
-      for (let i = 0; i < this.tableData.length; i++) {
-        // 判断用户是否选择了题库
-        if (this.tableData[i].count === 0 || this.tableData[i].score === 0) {
-          notifyFail(this, '请指定题库及分数')
-          return;
+      for (let j = 0; j < this.result.examQuestionExamsList.length; j++) {
+        if (this.result.examQuestionExamsList[j].questionTypeId === questionTypeId) {
+          this.result.examQuestionExamsList[j].count = totalCount
+          this.dialogVisible = false
+          return
         }
-        let score = this.tableData[i].score;
-        let questionTypeId = this.tableData[i].questionTypeId;
+      }
 
-        for (let l = 0; l < this.resultData.length; l++) {
-          if (questionTypeId === this.resultData[l].questionTypeId) {
-            this.resultData[l].score = score;
-          }
+      // // 将每类题型的个数及总分带出
+      // let categoryList = this.categoryList
+      // // 获取题型
+      // let questionTypeId = categoryList[0].questionTypeId
+      // let tempList = { 'questionTypeId': questionTypeId, 'categoryList': categoryList }
+      // if (this.resultData.length > 0) {
+      //   for (let t = 0; t < this.resultData.length; t++) {
+      //     if (this.resultData[t].questionTypeId === questionTypeId) {
+      //       this.resultData.splice(t, 1)
+      //       return
+      //     }
+      //   }
+      // }
+      // this.resultData.push(tempList)
+      // let totalCount = 0
+      // for (let i = 0; i < categoryList.length; i++) {
+      //   // 计算该题型选择的总数
+      //   totalCount = totalCount + categoryList[i].simpleNum + categoryList[i].commonlyNum + categoryList[i].difficultyNum
+      // }
+      // // 将总数放到tableData中
+      // for (let l = 0; l < this.tableData.length; l++) {
+      //   if (questionTypeId === this.tableData[l].questionTypeId) {
+      //     this.tableData[l].count = totalCount
+      //   }
+      // }
+      // this.dialogVisible = false
+    },
+    save () {
+      // 将categoryList入库(包括考题类型、考题分数、题库类型、简单题数量、一般难度数量、困难难度数量)
+      // for (let i = 0; i < this.tableData.length; i++) {
+      //   // 判断用户是否选择了题库
+      //   if (this.tableData[i].count === 0 || this.tableData[i].score === 0) {
+      //     notifyFail(this, '请指定题库及分数')
+      //     return
+      //   }
+      //   let score = this.tableData[i].score
+      //   let questionTypeId = this.tableData[i].questionTypeId
+      //
+      //   for (let l = 0; l < this.resultData.length; l++) {
+      //     if (questionTypeId === this.resultData[l].questionTypeId) {
+      //       this.resultData[l].score = score
+      //     }
+      //   }
+      // }
+      addExamRule({'examinationId': this.subject.listQuery.examinationId, 'examRule': this.result}, ).then((response) => {
+        let flag = response.data.data === -1 ? false : true
+        if (flag) {
+          notifySuccess(this, '保存成功')
+          this.$router.go(0)
+        } else {
+          notifyFail(this, '题目总分设置失败, 请检查总分是否一致')
         }
-      }
-      addExamRule(this.resultData).then(() => {
-        notifySuccess(this, '保存成功')
-        this.$router.go(0);
       })
     },
-    handleChange(value) {
+    handleChange (value) {
     },
     handleClose (done) {
       this.$confirm('确认关闭？')
@@ -513,8 +585,6 @@ export default {
       } else {
         this.$refs.multipleTable.clearSelection()
       }
-    },
-    handleChange (value) {
     },
     handleSelectionChange (val) {
       this.multipleSelection = val
@@ -553,23 +623,39 @@ export default {
       let subjectInfoArr = subjectInfo.split('-')
       this.subject.listQuery.examinationId = subjectInfoArr[0]
       fetchSubjectListById(this.subject.listQuery).then(response => {
-        let tableData = response.data.list;
-        for (let i = 0; i < tableData.length; i++) {
-          let questionTypeId = tableData[i].questionTypeId;
-          tableData[i].examId = this.subject.listQuery.examinationId;
+        console.log(response)
+        let result = response.data;
+        for (let i = 0; i < result.examQuestionExamsList.length; i++) {
+          let questionTypeId = result.examQuestionExamsList[i].questionTypeId
           if (questionTypeId === 1) {
-            tableData[i].type = '选择题'
+            result.examQuestionExamsList[i].type = '选择题'
           } else if (questionTypeId === 2) {
-            tableData[i].type = '判断题'
+            result.examQuestionExamsList[i].type = '判断题'
           } else if (questionTypeId === 3) {
-            tableData[i].type = '简答题'
+            result.examQuestionExamsList[i].type = '简答题'
           }
         }
-        this.tableData = tableData;
+        this.result = result;
+        // let tableData = response.data.list
+        // for (let i = 0; i < tableData.length; i++) {
+        //   let questionTypeId = tableData[i].questionTypeId
+        //   tableData[i].examId = this.subject.listQuery.examinationId
+        //   if (questionTypeId === 1) {
+        //     tableData[i].type = '选择题'
+        //   } else if (questionTypeId === 2) {
+        //     tableData[i].type = '判断题'
+        //   } else if (questionTypeId === 3) {
+        //     tableData[i].type = '简答题'
+        //   }
+        // }
+        // this.tableData = tableData
         setTimeout(() => {
           this.subject.listLoading = false
         }, 500)
       })
+    },
+    changeInput (row) {
+      // this.dialog(row, 'score')
     },
     // 新建题目
     handleCreateSubject () {

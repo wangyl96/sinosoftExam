@@ -18,4 +18,6 @@ import java.util.List;
 public interface SubjectCategoryMapper extends CrudMapper<SubjectCategory> {
 
     List<CategoriesListVO> getSubjectCategory(CategoriesListDTO categoriesListDTO);
+
+    List<SubjectCategory> getList();
 }

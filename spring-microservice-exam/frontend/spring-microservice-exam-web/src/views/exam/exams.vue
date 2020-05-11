@@ -64,7 +64,7 @@
 </template>
 <script>
 import {mapGetters, mapState} from 'vuex'
-import { fetchList } from '@/api/exam/exam'
+import { fetchList, getExamTime } from '@/api/exam/exam'
 import { getCurrentTime, addSubjectExamList } from '@/api/exam/examRecord'
 import { isNotEmpty, messageFail, messageWarn, getAttachmentPreviewUrl, formatDate } from '@/utils/util'
 import store from '@/store'
@@ -174,45 +174,49 @@ export default {
     },
     // 开始考试
     startExam (exam) {
-      this.tempExamRecord.examinationId = exam.id
-      this.tempExamRecord.userId = this.userInfo.id
-      getCurrentTime().then(response => {
-        // 校验考试时间
-        const currentTime = moment(response.data.data)
-        // 校验结束时间
-        if (currentTime.isAfter(exam.endTime)) {
-          messageWarn(this, '考试已结束')
-        } else if (currentTime.isBefore(exam.startTime)) {
-          // 考试未开始
-          messageWarn(this, '考试未开始')
-        } else {
-          this.$confirm('确定要开始吗?', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }).then(() => {
-            // 考题入库
-            addSubjectExamList({'examinationId': exam.id}).then(response => {
-              console.log(response)
-              // 开始考试
-              store.dispatch('StartExam', this.tempExamRecord).then(() => {
-                console.log(this.examRecord)
-                console.log(this.subject)
-                if (this.examRecord === undefined || this.subject === undefined) {
+      getExamTime(exam.id).then(response => {
+        let timeInfo = response.data.data
+        this.tempExamRecord.examinationId = exam.id
+        this.tempExamRecord.userId = this.userInfo.id
+        getCurrentTime().then(response => {
+          // 校验考试时间
+          const currentTime = moment(response.data.data)
+          // 校验结束时间
+          if (currentTime.isAfter(exam.endTime)) {
+            messageWarn(this, '考试已结束')
+          } else if (currentTime.isBefore(exam.startTime)) {
+            // 考试未开始
+            messageWarn(this, '考试未开始')
+          } else {
+            this.$confirm('确定要开始吗?', '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(() => {
+              // 考题入库
+              addSubjectExamList({'examinationId': exam.id, 'userId': this.userInfo.id}).then(response => {
+                console.log(response)
+                // 开始考试
+                store.dispatch('StartExam', this.tempExamRecord).then(() => {
+                  if (this.examRecord === undefined || this.subject === undefined) {
+                    messageWarn(this, '开始考试失败')
+                    return
+                  }
+                  console.log(this.subject.id)
+                  this.$router.push({ path: `/start/${exam.id}-${this.examRecord.id}-${this.subject.id}-${this.subject.type}-${timeInfo}` })
+                }).catch(() => {
                   messageWarn(this, '开始考试失败')
-                  return
-                }
-                this.$router.push({ path: `/start/${exam.id}-${this.examRecord.id}-${this.subject.id}-${this.subject.type}` })
-              }).catch(() => {
-                messageWarn(this, '开始考试失败')
+                })
               })
+            }).catch(() => {
+              console.log('取消考试')
             })
-          }).catch(() => {
-            console.log('取消考试')
-          })
-        }
+          }
+        }).catch(() => {
+          messageFail(this, '开始考试失败！')
+        })
       }).catch(() => {
-        messageFail(this, '开始考试失败！')
+        messageFail(this, '获取考试时长失败,请联系管理员！')
       })
     },
     getAvatar (avatar) {

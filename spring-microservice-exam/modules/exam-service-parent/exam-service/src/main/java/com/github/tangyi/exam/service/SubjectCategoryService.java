@@ -9,6 +9,8 @@ import com.github.tangyi.exam.api.dto.CategoriesListDTO;
 import com.github.tangyi.exam.api.dto.SubjectCategoryDto;
 import com.github.tangyi.exam.api.module.SubjectCategory;
 import com.github.tangyi.exam.api.vo.CategoriesListVO;
+import com.github.tangyi.exam.api.vo.DifficultyLevelChartVO;
+import com.github.tangyi.exam.api.vo.QestionTypesChartVO;
 import com.github.tangyi.exam.api.vo.QuestionBankChartVO;
 import com.github.tangyi.exam.mapper.ExamQuestionCategoryMapper;
 import com.github.tangyi.exam.mapper.SubjectCategoryMapper;
@@ -137,6 +139,30 @@ public class SubjectCategoryService extends CrudService<SubjectCategoryMapper, S
     public List<QuestionBankChartVO> questionBankChart(CategoriesListDTO categoriesListDTO) {
         // 根据考试唯一标识id, 获取本考试组成部分
         List<QuestionBankChartVO> questionBankChartVOList = examQuestionCategoryMapper.questionBankChart(categoriesListDTO.getExaminationId());
+        return questionBankChartVOList;
+    }
+
+    /**
+     * 获取考试难易程度饼图
+     * @param categoriesListDTO
+     * @return
+     */
+    public DifficultyLevelChartVO difficultyLevelChart(CategoriesListDTO categoriesListDTO) {
+        // 根据考试唯一标识id, 获取本考试组成部分
+        DifficultyLevelChartVO difficultyLevelChartVO = examQuestionCategoryMapper.difficultyLevelChart(categoriesListDTO.getExaminationId());
+        if (null == difficultyLevelChartVO) {
+            difficultyLevelChartVO = new DifficultyLevelChartVO();
+        }
+        return difficultyLevelChartVO;
+    }
+
+    /**
+     * 获取题型占比饼图
+     * @param categoriesListDTO
+     * @return
+     */
+    public List<QestionTypesChartVO> questionTypesChart(CategoriesListDTO categoriesListDTO) {
+        List<QestionTypesChartVO> questionBankChartVOList = examQuestionCategoryMapper.questionTypesChart(categoriesListDTO.getExaminationId());
         return questionBankChartVOList;
     }
 }

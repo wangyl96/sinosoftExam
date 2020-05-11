@@ -35,7 +35,7 @@ export default {
     }
   },
   mounted () {
-    this.questionBankChart();
+    this.questionBankChart()
     this.__resizeHandler = debounce(() => {
       if (this.chart) {
         this.chart.resize()
@@ -53,17 +53,19 @@ export default {
   },
   methods: {
     questionBankChart () {
-      questionBankChart({'examinationId' : this.sunny}).then(response => {
-        console.log(response)
-        let chartData = response.data;
-        let nameData = [];
-        for (let i = 0; i < chartData.length; i++) {
-          nameData.push(chartData[i].name)
+      questionBankChart({ 'examinationId': this.sunny }).then(response => {
+        let chartData = response.data
+        if (chartData.length == 0) {
+          this.initChart([], [])
+        } else {
+          let nameData = []
+          for (let i = 0; i < chartData.length; i++) {
+            nameData.push(chartData[i].name)
+          }
+          this.initChart(chartData, nameData)
         }
-        this.initChart(chartData, nameData);
+
       })
-
-
     },
     initChart (chartData, nameData) {
       this.chart = echarts.init(this.$el, 'macarons')

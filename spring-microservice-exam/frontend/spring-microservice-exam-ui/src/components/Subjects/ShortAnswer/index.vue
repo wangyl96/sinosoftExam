@@ -10,7 +10,7 @@
             </el-col>
             <el-col :span="12">
               <el-form-item :label="$t('table.subject.level')" prop="level">
-                <el-rate v-model="subjectInfo.level" :max="4" :texts="['简单', '一般', '略难', '非常难']" show-text/>
+                <el-rate v-model="subjectInfo.level" :max="3" :texts="['简单', '一般', '困难']" show-text/>
               </el-form-item>
             </el-col>
           </el-row>

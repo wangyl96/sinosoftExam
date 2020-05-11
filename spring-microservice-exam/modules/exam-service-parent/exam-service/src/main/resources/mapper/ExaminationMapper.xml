@@ -101,7 +101,11 @@
         SELECT COUNT(*) FROM (SELECT * FROM exam_examination_record WHERE tenant_code = #{tenantCode} GROUP BY user_id) a
     </select>
 
-    <insert id="insert">
+    <select id="getScore" resultType="java.lang.Integer">
+        SELECT total_score FROM exam_examination where id = #{examinationId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         insert into exam_examination (
             id,
             examination_name,

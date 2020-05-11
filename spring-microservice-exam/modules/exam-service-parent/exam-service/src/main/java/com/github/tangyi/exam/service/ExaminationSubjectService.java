@@ -58,6 +58,11 @@ public class ExaminationSubjectService extends CrudService<ExaminationSubjectMap
      * @author tangyi
      * @date 2019/06/18 14:35
      */
+    public List<ExaminationSubject> findListByExaminationIdAndUserId(Long examinationId, Long userId) {
+        return this.dao.findListByExaminationIdAndUserid(examinationId, userId);
+    }
+
+
     public List<ExaminationSubject> findListByExaminationId(Long examinationId) {
         return this.dao.findListByExaminationId(examinationId);
     }
@@ -73,6 +78,7 @@ public class ExaminationSubjectService extends CrudService<ExaminationSubjectMap
     public ExaminationSubject findByExaminationIdAndSubjectId(ExaminationSubject examinationSubject) {
         return this.dao.findByExaminationIdAndSubjectId(examinationSubject);
     }
+
 
     /**
      * 根据上一题ID查询下一题
@@ -109,4 +115,6 @@ public class ExaminationSubjectService extends CrudService<ExaminationSubjectMap
     public List<ExaminationSubject> findListByCategoryId(ExaminationSubject examinationSubject) {
         return this.dao.findListByCategoryId(examinationSubject);
     }
+
+
 }

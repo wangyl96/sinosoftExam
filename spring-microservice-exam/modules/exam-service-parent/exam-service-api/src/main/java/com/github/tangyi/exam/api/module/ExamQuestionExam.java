@@ -1,5 +1,6 @@
 package com.github.tangyi.exam.api.module;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -15,6 +16,7 @@ public class ExamQuestionExam {
 
     private Integer id;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long examId;
 
     private Integer questionTypeId;
