@@ -151,7 +151,7 @@ public class SubjectShortAnswerService extends CrudService<SubjectShortAnswerMap
      * @date 2019/09/14 17:05
      */
     @Override
-    public SubjectDto getNextByCurrentIdAndType(Long examinationId, Long previousId, Integer nextType) {
+    public SubjectDto getNextByCurrentIdAndType(String userId, Long examinationId, Long previousId, Integer nextType) {
         return null;
     }
 

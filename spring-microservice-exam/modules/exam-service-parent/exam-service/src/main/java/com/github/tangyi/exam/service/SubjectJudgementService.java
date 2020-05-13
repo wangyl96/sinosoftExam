@@ -51,7 +51,7 @@ public class SubjectJudgementService extends CrudService<SubjectJudgementMapper,
      * @date 2019-09-14 17:03
      */
     @Override
-    public SubjectDto getNextByCurrentIdAndType(Long examinationId, Long previousId, Integer nextType) {
+    public SubjectDto getNextByCurrentIdAndType(String userId, Long examinationId, Long previousId, Integer nextType) {
         return null;
     }
 

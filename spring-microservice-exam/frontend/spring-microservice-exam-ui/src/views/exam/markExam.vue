@@ -179,7 +179,6 @@ export default {
     },
     handleMarking () {
       getAnswerByRecordId(this.examRecordId, undefined, undefined).then(response => {
-        console.log(response)
         if (response.data.data === null) {
           messageFail(this, '加载答题失败')
           return
@@ -189,9 +188,8 @@ export default {
         this.subjectId = id
         this.score = score
         this.correct = this.tempAnswer.answerType === 0
-        getSubjectIds(this.examinationId,'708057003460792320').then(response => {
+        getSubjectIds(this.examinationId,this.tempAnswer.userId).then(response => {
           const subjectData = response.data.data
-          console.log(subjectData)
           if (subjectData.length > 0) {
             for (let i = 0; i < subjectData.length; i++) {
               const { subjectId, type } = subjectData[i]
@@ -256,7 +254,6 @@ export default {
         markStatus: 1,
         answerType: this.correct ? 0 : 1
       }
-      console.log(answer.answerType)
       markAnswer(answer).then(() => {
         if (subjectId !== undefined) {
           this.getAnswer(subjectId, subjectType, nextType)

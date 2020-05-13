@@ -247,12 +247,12 @@ public class AnswerController extends BaseController {
 	 * @author tangyi
 	 * @date 2019/04/30 18:06
 	 */
-	@GetMapping("nextSubject")
-	@ApiOperation(value = "获取下一题", notes = "获取下一题")
-	public ResponseBean<SubjectDto> nextSubject(@RequestParam Long examinationId, @RequestParam Long subjectId,
-			@RequestParam Integer type, @RequestParam Integer nextType) {
-		return new ResponseBean<>(subjectService.getNextByCurrentIdAndType(examinationId, subjectId, type, nextType));
-	}
+//	@GetMapping("nextSubject")
+//	@ApiOperation(value = "获取下一题", notes = "获取下一题")
+//	public ResponseBean<SubjectDto> nextSubject(@RequestParam Long examinationId, @RequestParam Long subjectId,
+//			@RequestParam Integer type, @RequestParam Integer nextType) {
+//		return new ResponseBean<>(subjectService.getNextByCurrentIdAndType(examinationId, subjectId, type, nextType));
+//	}
 
     /**
      * 提交答卷

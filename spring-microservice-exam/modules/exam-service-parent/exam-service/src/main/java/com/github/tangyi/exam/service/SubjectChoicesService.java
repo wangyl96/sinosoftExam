@@ -111,9 +111,10 @@ public class SubjectChoicesService extends CrudService<SubjectChoicesMapper, Sub
      * @author tangyi
      * @date 2019-09-14 16:47
      */
-    public SubjectChoices getByCurrentId(Long examinationId, SubjectChoices subjectChoices) {
+    public SubjectChoices getByCurrentId(String userId, Long examinationId, SubjectChoices subjectChoices) {
         ExaminationSubject examinationSubject = new ExaminationSubject();
         examinationSubject.setExaminationId(examinationId);
+        examinationSubject.setUserId(Long.valueOf(userId));
         examinationSubject.setSubjectId(subjectChoices.getId());
         examinationSubject = examinationSubjectService.findByExaminationIdAndSubjectId(examinationSubject);
         if (examinationSubject == null)
@@ -130,10 +131,11 @@ public class SubjectChoicesService extends CrudService<SubjectChoicesMapper, Sub
      * @author tangyi
      * @date 2019-09-14 16:47
      */
-    public SubjectChoices getByPreviousId(Long examinationId, SubjectChoices subjectChoices) {
+    public SubjectChoices getByPreviousId(String userId, Long examinationId, SubjectChoices subjectChoices) {
         ExaminationSubject examinationSubject = new ExaminationSubject();
         examinationSubject.setExaminationId(examinationId);
         examinationSubject.setSubjectId(subjectChoices.getId());
+        examinationSubject.setUserId(Long.valueOf(userId));
         examinationSubject = examinationSubjectService.getByPreviousId(examinationSubject);
         if (examinationSubject == null)
             return null;
@@ -149,10 +151,11 @@ public class SubjectChoicesService extends CrudService<SubjectChoicesMapper, Sub
      * @author tangyi
      * @date 2019/10/07 20:40:16
      */
-    public SubjectChoices getPreviousByCurrentId(Long examinationId, SubjectChoices subjectChoices) {
+    public SubjectChoices getPreviousByCurrentId(String userId, Long examinationId, SubjectChoices subjectChoices) {
         ExaminationSubject examinationSubject = new ExaminationSubject();
         examinationSubject.setExaminationId(examinationId);
         examinationSubject.setSubjectId(subjectChoices.getId());
+        examinationSubject.setUserId(Long.valueOf(userId));
         examinationSubject = examinationSubjectService.getPreviousByCurrentId(examinationSubject);
         if (examinationSubject == null)
             return null;
@@ -285,15 +288,15 @@ public class SubjectChoicesService extends CrudService<SubjectChoicesMapper, Sub
      */
     @Override
     @Transactional
-    public SubjectDto getNextByCurrentIdAndType(Long examinationId, Long previousId, Integer nextType) {
+    public SubjectDto getNextByCurrentIdAndType(String userId, Long examinationId, Long previousId, Integer nextType) {
         SubjectChoices subjectChoices = new SubjectChoices();
         subjectChoices.setId(previousId);
         if (AnswerConstant.CURRENT.equals(nextType)) {
-            subjectChoices = this.getByCurrentId(examinationId, subjectChoices);
+            subjectChoices = this.getByCurrentId(userId, examinationId, subjectChoices);
         } else if (AnswerConstant.NEXT.equals(nextType)) {
-            subjectChoices = this.getByPreviousId(examinationId, subjectChoices);
+            subjectChoices = this.getByPreviousId(userId, examinationId, subjectChoices);
         } else {
-            subjectChoices = this.getPreviousByCurrentId(examinationId, subjectChoices);
+            subjectChoices = this.getPreviousByCurrentId(userId, examinationId, subjectChoices);
         }
         return SubjectUtil.subjectChoicesToDto(subjectChoices, true);
     }

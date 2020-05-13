@@ -90,6 +90,8 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 	@Resource
 	private ExaminationSubjectMapper examinationSubjectMapper;
 
+	@Resource
+	private ExamRecordMapper examRecordMapper;
 
 	/**
      * 查询考试记录
@@ -461,6 +463,11 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	public Integer addSubjectExamList(AddSubjectExamDTO addSubjectExamDTO) {
+		// 先判断该用户是否已经参加过该考试, 若参加过则不允许再参加
+		Integer count = examRecordMapper.findRecordIdByExaminationIdAndUserId(addSubjectExamDTO.getExaminationId(), addSubjectExamDTO.getUserId());
+		if (count != null && count != 0) {
+			return -1;
+		}
         Long examinationId = addSubjectExamDTO.getExaminationId();
         Long userId = addSubjectExamDTO.getUserId();
 		List<QuestionCategoryVO> resultList = new ArrayList<>();

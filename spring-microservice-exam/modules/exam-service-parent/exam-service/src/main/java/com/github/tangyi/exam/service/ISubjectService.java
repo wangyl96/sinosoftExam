@@ -33,7 +33,7 @@ public interface ISubjectService {
      * @author tangyi
      * @date 2019-09-14 16:33
      */
-    SubjectDto getNextByCurrentIdAndType(Long examinationId, Long previousId, Integer nextType);
+    SubjectDto getNextByCurrentIdAndType(String userId, Long examinationId, Long previousId, Integer nextType);
 
     /**
      * 查询题目列表

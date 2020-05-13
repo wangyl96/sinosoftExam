@@ -240,7 +240,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
 		String tenantCode = SysUtil.getTenantCode();
 		if (this.save(answerDto, userCode, sysCode, tenantCode) > 0) {
 			// 查询下一题
-			return this.subjectAnswer(answerDto.getSubjectId(), answerDto.getExamRecordId(),
+			return this.subjectAnswer(answerDto.getUserId().toString(), answerDto.getSubjectId(), answerDto.getExamRecordId(),
 					type, nextSubjectId, nextSubjectType);
 		}
         return null;
@@ -429,7 +429,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
      * @date 2019/04/30 17:10
      */
     @Transactional
-    public SubjectDto subjectAnswer(Long subjectId, Long examRecordId, Integer nextType, Long nextSubjectId, Integer nextSubjectType) {
+    public SubjectDto subjectAnswer(String userId, Long subjectId, Long examRecordId, Integer nextType, Long nextSubjectId, Integer nextSubjectType) {
 		// 查找考试记录
     	ExaminationRecord examRecord = examRecordService.get(examRecordId);
         if (examRecord == null)
@@ -450,7 +450,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         if (nextSubjectId != null) {
             subject = subjectService.get(nextSubjectId, nextSubjectType);
         } else {
-            subject = subjectService.getNextByCurrentIdAndType(examRecord.getExaminationId(), subjectId, examinationSubjectPageInfo.getList().get(0).getType(), nextType);
+            subject = subjectService.getNextByCurrentIdAndType(userId, examRecord.getExaminationId(), subjectId, examinationSubjectPageInfo.getList().get(0).getType(), nextType);
         }
         if (subject == null) {
             log.error("Subject does not exist: {}", subjectId);
@@ -546,6 +546,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
             ExaminationSubject examinationSubject = new ExaminationSubject();
             examinationSubject.setExaminationId(record.getExaminationId());
             examinationSubject.setSubjectId(currentSubjectId);
+            examinationSubject.setUserId(record.getUserId());
             // 查询该考试和指定序号的题目的关联信息
             // 下一题
             if (AnswerConstant.NEXT.equals(nextType)) {
@@ -608,6 +609,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
             UserVo userVo = userVoResponseBean.getData().get(0);
             answerDto.setUserName(userVo.getName());
         }
+        answerDto.setUserId(record.getUserId());
         return answerDto;
     }
 

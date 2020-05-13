@@ -73,7 +73,7 @@
     <select id="findByExaminationIdAndSubjectId" resultMap="examinationSubjectResultMap">
         SELECT
         <include refid="examinationSubjectColumns"/>
-        FROM exam_examination_subject a WHERE a.examination_id = #{examinationId} and a.subject_id = #{subjectId}
+        FROM exam_examination_subject a WHERE a.examination_id = #{examinationId} and a.subject_id = #{subjectId} and a.user_id = #{userId}
     </select>
 
     <select id="findList" resultMap="examinationSubjectResultMap">
@@ -104,7 +104,7 @@
         SELECT
         <include refid="examinationSubjectColumns"/>
         FROM exam_examination_subject a
-        WHERE a.subject_id > #{subjectId} AND a.examination_id = #{examinationId} ORDER BY subject_id ASC LIMIT 1
+        WHERE a.subject_id > #{subjectId} AND a.examination_id = #{examinationId} and a.user_id =#{userId} ORDER BY subject_id ASC LIMIT 1
     </select>
 
     <!-- 根据当前题目ID查询上一题 -->
@@ -112,7 +112,7 @@
         SELECT
         <include refid="examinationSubjectColumns"/>
         FROM exam_examination_subject a
-        WHERE a.subject_id <![CDATA[<]]> #{subjectId} AND a.examination_id = #{examinationId} ORDER BY subject_id DESC LIMIT 1
+        WHERE a.subject_id <![CDATA[<]]> #{subjectId} AND a.examination_id = #{examinationId} and a.user_id =#{userId} ORDER BY subject_id DESC LIMIT 1
     </select>
 
     <select id="findListByCategoryId" resultMap="examinationSubjectResultMap">

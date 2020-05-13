@@ -117,7 +117,6 @@ export default {
   },
   created () {
     const examInfo = this.$route.params.id
-    console.log(examInfo)
     if (isNotEmpty(examInfo)) {
       let examInfoArr = examInfo.split('-')
       this.query.examinationId = examInfoArr[0]
@@ -125,8 +124,8 @@ export default {
       this.query.subjectId = isNotEmpty(examInfoArr[2]) ? examInfoArr[2] : this.subject.id
       this.query.type = parseInt(examInfoArr[3])
       this.query.userId = this.userInfo.id
-      this.endTimeWyl = examInfoArr[4] * 60 * 1000
       // 先去获取考试时长, 剩下的交给天意
+      this.endTimeWyl = examInfoArr[4] * 60 * 1000
       this.validateExamTime()
     }
   },
@@ -165,7 +164,8 @@ export default {
           }
           this.updateSubjectIndex()
           // 获取当前题目信息
-           ({
+          getSubjectAnswer({
+            userId: this.userInfo.id,
             examRecordId: this.query.examRecordId,
             subjectId: this.query.subjectId,
             type: this.query.type,

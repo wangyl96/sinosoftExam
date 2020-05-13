@@ -91,8 +91,8 @@ public class SubjectService {
      * @date 2019/06/18 13:49
      */
     @Transactional
-    public SubjectDto getNextByCurrentIdAndType(Long examinationId, Long previousSubjectId, Integer type, Integer nextType) {
-        return subjectService(type).getNextByCurrentIdAndType(examinationId, previousSubjectId, nextType);
+    public SubjectDto getNextByCurrentIdAndType(String userId, Long examinationId, Long previousSubjectId, Integer type, Integer nextType) {
+        return subjectService(type).getNextByCurrentIdAndType(userId, examinationId, previousSubjectId, nextType);
     }
 
     /**

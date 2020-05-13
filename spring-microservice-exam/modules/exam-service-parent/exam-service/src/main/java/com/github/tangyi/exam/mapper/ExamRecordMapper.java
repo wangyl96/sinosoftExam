@@ -44,4 +44,12 @@ public interface ExamRecordMapper extends CrudMapper<ExaminationRecord> {
 	 * @date 2020/2/1 11:57 上午
 	 */
 	List<ExaminationRecord> findExaminationRecordCountByDate(Date start);
+
+	/**
+	 * 获取该考生的考试记录, 用于判断是否参加过考试了
+	 * @param examinationId
+	 * @param userId
+	 * @return
+	 */
+	Integer findRecordIdByExaminationIdAndUserId(Long examinationId, Long userId);
 }

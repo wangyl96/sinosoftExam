@@ -259,7 +259,7 @@ public class SubjectController extends BaseController {
                                                   @RequestParam Integer nextType,
                                                   @RequestParam(required = false) Long nextSubjectId,
 			@RequestParam(required = false) Integer nextSubjectType) {
-        return new ResponseBean<>(answerService.subjectAnswer(subjectId, examRecordId, nextType, nextSubjectId, nextSubjectType));
+        return new ResponseBean<>(answerService.subjectAnswer(userId, subjectId, examRecordId, nextType, nextSubjectId, nextSubjectType));
 
     }
 
@@ -289,6 +289,6 @@ public class SubjectController extends BaseController {
                                                   @RequestParam(required = false) Long nextSubjectId,
                                                   @RequestParam(required = false) Integer nextSubjectType) {
         return new ResponseBean<>(answerService
-                .subjectAnswer(subjectId, examRecordId, nextType, nextSubjectId, nextSubjectType));
+                .subjectAnswer(userId, subjectId, examRecordId, nextType, nextSubjectId, nextSubjectType));
     }
 }

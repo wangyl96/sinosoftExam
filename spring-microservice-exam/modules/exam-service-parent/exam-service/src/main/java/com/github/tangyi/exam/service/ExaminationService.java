@@ -68,6 +68,9 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
 	@Resource
 	private SubjectCategoryMapper subjectCategoryMapper;
 
+	@Resource
+	private ExamRecordMapper examRecordMapper;
+
     /**
      * 查询考试
      *
@@ -424,7 +427,6 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
      * @date 2019/06/18 14:34
      */
     public List<ExaminationSubject> findListByExaminationIdAndUserId(Long examinationId, Long userId) {
-
 		List<ExaminationSubject> examinationSubjectList = examinationSubjectService.findListByExaminationIdAndUserId(examinationId, userId);
 		List<ExaminationSubject> resultList = new ArrayList<>();
 		List<ExaminationSubject> choiceList = new ArrayList<>();
