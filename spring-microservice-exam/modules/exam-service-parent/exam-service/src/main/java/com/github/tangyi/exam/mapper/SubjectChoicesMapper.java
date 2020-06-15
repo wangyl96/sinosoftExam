@@ -6,6 +6,7 @@ import com.github.tangyi.exam.api.vo.QuestionCategoryVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 选择题Mapper
@@ -51,4 +52,11 @@ public interface SubjectChoicesMapper extends CrudMapper<SubjectChoices> {
      * @return
      */
     String findAnswerById(Long subjectId);
+
+    /**
+     * 获取题目总数
+     * @return
+     */
+    List<Map<String, Object>> getTotalChoicesMap();
+
 }

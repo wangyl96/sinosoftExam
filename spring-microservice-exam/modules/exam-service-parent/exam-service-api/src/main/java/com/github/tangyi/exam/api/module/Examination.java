@@ -77,4 +77,9 @@ public class Examination extends BaseEntity<Examination> {
      */
     private String questionStyle;
 
+    /**
+     * 考试时长
+     */
+    private Integer totalTime;
+
 }

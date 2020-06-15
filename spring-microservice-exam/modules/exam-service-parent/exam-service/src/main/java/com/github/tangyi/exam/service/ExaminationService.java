@@ -71,6 +71,15 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
 	@Resource
 	private ExamRecordMapper examRecordMapper;
 
+	@Resource
+	private SubjectChoicesMapper subjectChoicesMapper;
+
+	@Resource
+	private SubjectJudgementMapper subjectJudgementMapper;
+
+	@Resource
+	private SubjectShortAnswerMapper subjectShortAnswerMapper;
+
     /**
      * 查询考试
      *
@@ -268,7 +277,10 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
 			List<Course> courses = courseService.findListById(page.getList().stream().map(Examination::getCourseId).distinct().toArray(Long[]::new));
 			List<ExaminationDto> examinationDtos = page.getList().stream().map(exam -> {
 				ExaminationDto examinationDto = new ExaminationDto();
+				Integer time = examExaminationTimeMapper.getExamTime(exam.getId());
+				exam.setTotalTime(time);
 				BeanUtils.copyProperties(exam, examinationDto);
+				// 设置考试时长
 				// 设置考试所属课程
 				courses.stream().filter(tempCourse -> tempCourse.getId().equals(exam.getCourseId())).findFirst().ifPresent(examinationDto::setCourse);
 				// 初始化封面图片
@@ -394,6 +406,24 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
 		List<ExamRuleVO> examRuleList = examQuestionExamMapper.getExamQuestionExamById(examinationId);
 		// 查汇总(题型分数及总量)
 		List<ExamQuestionExam> ExamQuestionExamList = examQuestionExamMapper.getRuleById(examinationId);
+		// 查询题目总数
+		List<Map<String, Object>> totalChoicesMap = subjectChoicesMapper.getTotalChoicesMap();
+		List<Map<String, Object>> totalJudgementMap = subjectJudgementMapper.getTotalJudgementMap();
+		List<Map<String, Object>> totalShortAnswerMap = subjectShortAnswerMapper.getTotalShortAnswerMap();
+		// 将各题库题题型提难度的题目数最大值放入examRuleList集合
+		examRuleList.stream().forEach(e -> {
+			totalChoicesMap.stream().forEach(r -> {
+				if (e.getId().equals(Long.valueOf(r.get("categoryId").toString()))) {
+					if (StringUtils.equals("1", r.get("level").toString())) {
+						e.setTotalsimpleNum(Integer.valueOf(r.get("num").toString()));
+					} else if (StringUtils.equals("2", r.get("level").toString())) {
+						e.setTotalCommonlyNum(Integer.valueOf(r.get("num").toString()));
+					} else if (StringUtils.equals("3", r.get("level").toString())) {
+						e.setTotalDifficultyNum(Integer.valueOf(r.get("num").toString()));
+					}
+				}
+			});
+		});
 		// 将结果返回
 		PageInfo<ExamRuleResultVO> subjectDtoPageInfo = new PageInfo<>();
 		ExamRuleResultVO examRuleResultVO = new ExamRuleResultVO().setExamRuleVOList(examRuleList).setExamQuestionExamsList(ExamQuestionExamList);

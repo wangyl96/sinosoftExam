@@ -92,6 +92,10 @@
         FROM exam_subject_choices a WHERE a.id = #{subjectId} and a.del_flag = 0
     </select>
 
+    <select id="getTotalChoicesMap" resultType="java.util.Map">
+        SELECT category_id categoryId,COUNT(*) num,LEVEL as level FROM exam_subject_choices  WHERE  del_flag = 0  GROUP BY category_id,LEVEL ORDER BY category_id,LEVEL
+    </select>
+
     <select id="get" resultMap="subjectChoicesResultMap">
         SELECT
         <include refid="subjectChoicesColumns"/>
