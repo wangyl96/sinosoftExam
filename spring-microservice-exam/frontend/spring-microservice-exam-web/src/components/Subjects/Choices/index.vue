@@ -37,10 +37,10 @@ export default {
     }
   },
   methods: {
-    random (m,n){
-    var random = Math.floor(Math.random()*(m - n) + n);
-    return random;
-  },
+    random (m, n) {
+      var random = Math.floor(Math.random() * (m - n) + n)
+      return random
+    },
     getAnswer () {
       return this.userAnswer
     },

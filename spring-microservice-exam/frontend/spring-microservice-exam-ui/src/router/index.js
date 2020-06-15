@@ -179,5 +179,7 @@ export const constantExamRouterMap = [
 export default new Router({
   // mode: 'history', // require service support
   scrollBehavior: () => ({ y: 0 }),
+  base: '/dist/',
+  // mode: "history",
   routes: [].concat(...formatRoutes(store.state.user.menu), constantRouterMap, constantExamRouterMap)
 })

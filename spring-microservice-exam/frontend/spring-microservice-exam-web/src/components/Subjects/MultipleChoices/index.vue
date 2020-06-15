@@ -38,6 +38,7 @@ export default {
   watch: {
 
   },
+
   methods: {
     getAnswer () {
       return this.userAnswer.join(',')

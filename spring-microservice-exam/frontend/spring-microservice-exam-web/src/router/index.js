@@ -108,5 +108,6 @@ export const constantRouterMap = [
   }
 ]
 export default new Router({
+  base: '/exam/',
   routes: constantRouterMap
 })

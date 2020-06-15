@@ -107,21 +107,21 @@
               label="简单难度"
               width="180">
               <template slot-scope="scope">
-                <el-input-number v-model="scope.row.simpleNum" style="width: 150px" controls-position="right" :min="0" :max="10"></el-input-number>
+                <el-input-number v-model="scope.row.simpleNum" style="width: 150px" controls-position="right" :min="0" :max="scope.row.simpleNum"></el-input-number>
               </template>
             </el-table-column>
             <el-table-column
               label="一般难度"
               width="180">
               <template slot-scope="scope">
-                <el-input-number v-model="scope.row.commonlyNum" style="width: 150px" controls-position="right" :min="0" :max="10"></el-input-number>
+                <el-input-number v-model="scope.row.commonlyNum" style="width: 150px" controls-position="right" :min="0" :max="scope.row.commonlyNum"></el-input-number>
               </template>
             </el-table-column>
             <el-table-column
               label="困难难度"
               width="180">
               <template slot-scope="scope">
-                <el-input-number v-model="scope.row.difficultyNum " style="width: 150px" controls-position="right" :min="0" :max="10"></el-input-number>
+                <el-input-number v-model="scope.row.difficultyNum " style="width: 150px" controls-position="right" :min="0" :max="scope.row.totalDifficultyNum"></el-input-number>
               </template>
             </el-table-column>
             <el-table-column

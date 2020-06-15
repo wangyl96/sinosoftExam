@@ -38,6 +38,7 @@ exports.cssLoaders = function (options) {
     // (which is the case during production build)
     if (options.extract) {
       loaders.push(MiniCssExtractPlugin.loader)
+
     } else {
       loaders.push('vue-style-loader')
     }

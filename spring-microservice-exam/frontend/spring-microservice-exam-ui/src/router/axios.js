@@ -12,6 +12,7 @@ const whiteList = ['/auth/authentication/removeToken']// 白名单
 
 // 超时时间
 axios.defaults.timeout = 30000
+
 // 跨域请求，允许保存cookie
 axios.defaults.withCredentials = true
 NProgress.configure({ showSpinner: false })// NProgress Configuration
@@ -47,7 +48,7 @@ axios.interceptors.response.use(data => {
   return data
 }, error => {
   NProgress.done()
-  if (error.response) {
+  if (error.response) {request
     const originalRequest = error.config
     const currentRefreshToken = getRefreshToken()
     // 接口返回401并且已经重试过，自动刷新token

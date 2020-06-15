@@ -219,8 +219,10 @@ export default {
     },
     // 保存当前题目，同时根据序号加载下一题
     saveCurrentSubjectAndGetNextSubject (nextType, nextSubjectId, subjectType) {
+      console.log(this.tempAnswer)
       const answerId = isNotEmpty(this.tempAnswer) ? this.tempAnswer.id : ''
       const answer = this.getAnswer(answerId)
+      console.log(answer)
       this.startLoading(nextType)
       saveAndNext(answer, nextType, nextSubjectId, subjectType).then(response => {
         if (response.data.data !== null) {
@@ -231,6 +233,9 @@ export default {
           this.tempAnswer = answer
           this.tempAnswer.index = this.subjectIndex
           this.setSubjectInfo(subject)
+          if (type === 0 || type === 3) {
+            this.getSubjectRef().userAnswer = []
+          }
           store.dispatch('SetSubjectInfo', subject).then(() => {})
           this.updateSubjectIndex()
         }

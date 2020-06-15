@@ -416,6 +416,10 @@ export default {
       this.listLoading = true
       fetchList(this.listQuery).then(response => {
         this.list = response.data.list
+        for (let i = 0; i < this.list.length; i++) {
+          this.list[i].type = 1
+        }
+        console.log(this.list)
         this.total = parseInt(response.data.total)
         setTimeout(() => {
           this.listLoading = false
