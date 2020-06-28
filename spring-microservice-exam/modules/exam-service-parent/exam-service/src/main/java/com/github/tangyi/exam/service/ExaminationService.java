@@ -33,6 +33,7 @@ import javax.annotation.Resource;
 import java.io.ByteArrayOutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 考试service
@@ -403,7 +404,35 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
 		// 获取考试id
 		Long examinationId = subjectDto.getExaminationId();
 		// 根据考试id查询题目
-		List<ExamRuleVO> examRuleList = examQuestionExamMapper.getExamQuestionExamById(examinationId);
+		List<ExamRuleVO> temp = examQuestionExamMapper.getExamQuestionExamById(examinationId);
+		List<ExamRuleVO> examRuleList = new ArrayList<>();
+		// 将questionType为null的进行id填充
+		temp.stream().forEach(e -> {
+			if (null == e.getQuestionTypeId()) {
+				Map<String, Object> maptChoices = subjectChoicesMapper.getTotalChoicesMapBySubjectId(e.getId());
+				Map<String, Object> mapJudgement = subjectJudgementMapper.getTotalJudgementMapBySubjectId(e.getId());
+				Map<String, Object> mapShortAnswer = subjectShortAnswerMapper.getTotalShortAnswerMapBySubjectId(e.getId());
+				if  (maptChoices != null && !maptChoices.isEmpty()) {
+					ExamRuleVO examRuleVO = new ExamRuleVO().setId(e.getId()).setExamId(e.getExamId()).setQuestionTypeId(1).setCategoryName(e.getCategoryName());
+					examRuleList.add(examRuleVO);
+				}
+
+				if  (mapJudgement != null && !mapJudgement.isEmpty()) {
+					ExamRuleVO examRuleVO = new ExamRuleVO().setId(e.getId()).setExamId(e.getExamId()).setQuestionTypeId(2).setCategoryName(e.getCategoryName());
+					examRuleList.add(examRuleVO);
+				}
+
+				if  (mapShortAnswer != null && !mapShortAnswer.isEmpty()) {
+					ExamRuleVO examRuleVO = new ExamRuleVO().setId(e.getId()).setExamId(e.getExamId()).setQuestionTypeId(3).setCategoryName(e.getCategoryName());
+					examRuleList.add(examRuleVO);
+				}
+			} else {
+				examRuleList.add(e);
+			}
+		});
+
+
+
 		// 查汇总(题型分数及总量)
 		List<ExamQuestionExam> ExamQuestionExamList = examQuestionExamMapper.getRuleById(examinationId);
 		// 查询题目总数
@@ -412,17 +441,50 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
 		List<Map<String, Object>> totalShortAnswerMap = subjectShortAnswerMapper.getTotalShortAnswerMap();
 		// 将各题库题题型提难度的题目数最大值放入examRuleList集合
 		examRuleList.stream().forEach(e -> {
-			totalChoicesMap.stream().forEach(r -> {
-				if (e.getId().equals(Long.valueOf(r.get("categoryId").toString()))) {
-					if (StringUtils.equals("1", r.get("level").toString())) {
-						e.setTotalsimpleNum(Integer.valueOf(r.get("num").toString()));
-					} else if (StringUtils.equals("2", r.get("level").toString())) {
-						e.setTotalCommonlyNum(Integer.valueOf(r.get("num").toString()));
-					} else if (StringUtils.equals("3", r.get("level").toString())) {
-						e.setTotalDifficultyNum(Integer.valueOf(r.get("num").toString()));
+			if (!totalChoicesMap.isEmpty()) {
+				totalChoicesMap.stream().forEach(r -> {
+					if (e.getQuestionTypeId() == 1 && e.getId().equals(Long.valueOf(r.get("categoryId").toString()))) {
+							if (StringUtils.equals("1", r.get("level").toString())) {
+								e.setTotalsimpleNum(Integer.valueOf(r.get("num").toString()));
+							} else if (StringUtils.equals("2", r.get("level").toString())) {
+								e.setTotalCommonlyNum(Integer.valueOf(r.get("num").toString()));
+							} else if (StringUtils.equals("3", r.get("level").toString())) {
+								e.setTotalDifficultyNum(Integer.valueOf(r.get("num").toString()));
+							}
+						}
+				});
+			}
+
+			if (!totalJudgementMap.isEmpty()) {
+				totalJudgementMap.stream().forEach(r -> {
+					if (null == e.getQuestionTypeId()) {
+						if (e.getQuestionTypeId() == 2 && e.getId().equals(Long.valueOf(r.get("categoryId").toString()))) {
+							if (StringUtils.equals("1", r.get("level").toString())) {
+								e.setTotalsimpleNum(Integer.valueOf(r.get("num").toString()));
+							} else if (StringUtils.equals("2", r.get("level").toString())) {
+								e.setTotalCommonlyNum(Integer.valueOf(r.get("num").toString()));
+							} else if (StringUtils.equals("3", r.get("level").toString())) {
+								e.setTotalDifficultyNum(Integer.valueOf(r.get("num").toString()));
+							}
+						}
 					}
-				}
-			});
+				});
+			}
+
+			if (!totalShortAnswerMap.isEmpty()) {
+				totalShortAnswerMap.stream().forEach(r -> {
+					if (e.getQuestionTypeId() == 3 && e.getId().equals(Long.valueOf(r.get("categoryId").toString()))) {
+						if (StringUtils.equals("1", r.get("level").toString())) {
+							e.setTotalsimpleNum(Integer.valueOf(r.get("num").toString()));
+						} else if (StringUtils.equals("2", r.get("level").toString())) {
+							e.setTotalCommonlyNum(Integer.valueOf(r.get("num").toString()));
+						} else if (StringUtils.equals("3", r.get("level").toString())) {
+							e.setTotalDifficultyNum(Integer.valueOf(r.get("num").toString()));
+						}
+					}
+				});
+			}
+
 		});
 		// 将结果返回
 		PageInfo<ExamRuleResultVO> subjectDtoPageInfo = new PageInfo<>();

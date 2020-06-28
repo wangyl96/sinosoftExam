@@ -92,7 +92,7 @@
         :before-close="handleClose">
         <template>
           <el-table
-            :data="result.examRuleVOList.slice(showFirst, showNum + showFirst)"
+            :data="dialogList"
             style="width: 100%;margin-bottom: 20px;"
             border
             >
@@ -107,14 +107,14 @@
               label="简单难度"
               width="180">
               <template slot-scope="scope">
-                <el-input-number v-model="scope.row.simpleNum" style="width: 150px" controls-position="right" :min="0" :max="scope.row.simpleNum"></el-input-number>
+                <el-input-number v-model="scope.row.simpleNum" style="width: 150px" controls-position="right" :min="0" :max="scope.row.totalsimpleNum"></el-input-number>
               </template>
             </el-table-column>
             <el-table-column
               label="一般难度"
               width="180">
               <template slot-scope="scope">
-                <el-input-number v-model="scope.row.commonlyNum" style="width: 150px" controls-position="right" :min="0" :max="scope.row.commonlyNum"></el-input-number>
+                <el-input-number v-model="scope.row.commonlyNum" style="width: 150px" controls-position="right" :min="0" :max="scope.row.totalCommonlyNum"></el-input-number>
               </template>
             </el-table-column>
             <el-table-column
@@ -135,7 +135,7 @@
         </template>
         <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="determine(result.examRuleVOList.slice(showFirst, showNum + showFirst)[0].questionTypeId)">确 定</el-button>
+          <el-button type="primary" @click="determine(dialogList)">确 定</el-button>
         </span>
       </el-dialog>
     </el-form>
@@ -322,6 +322,7 @@ export default {
       showId: '',
       showNum: '',
       showFirst: '',
+      dialogList: [],
       // listQuery: {
       //   pageNum: 1,
       //   pageSize: 10,
@@ -434,20 +435,28 @@ export default {
       return sumScore
     },
     dialog (row, key) {
-      console.log(this.result.examRuleVOList)
-      this.showId = row.questionTypeId
-      let num = 0;
-      let first = -1;
+      // 获取对应题型
+      this.dialogList = [];
       for (let i = 0; i < this.result.examRuleVOList.length; i++) {
-        if (this.result.examRuleVOList[i].questionTypeId === row.questionTypeId && first == -1) {
-          first = i;
-          this.showFirst = first;
-        }
-        if (this.result.examRuleVOList[i].questionTypeId === row.questionTypeId) {
-          num = num + 1;
+        if (row.questionTypeId === this.result.examRuleVOList[i].questionTypeId || this.result.examRuleVOList[i].questionTypeId === null) {
+          this.dialogList.push(this.result.examRuleVOList[i])
         }
       }
-      this.showNum = num;
+      // let num = 0;
+      // let first = -1;
+      // for (let i = 0; i < this.result.examRuleVOList.length; i++) {
+      //   // 如果
+      //   if (this.result.examRuleVOList[i].questionTypeId === row.questionTypeId && first == -1) {
+      //     first = i;
+      //     this.showFirst = first;
+      //     console.log(this.showFirst)
+      //   }
+      //   if (this.result.examRuleVOList[i].questionTypeId === row.questionTypeId) {
+      //     num = num + 1;
+      //   }
+      // }
+      // this.showNum = num;
+
       this.dialogVisible = true
       // if (key === 'score') {
       //   this.dialogVisible = false
@@ -497,23 +506,29 @@ export default {
       let difficultyNum = row.difficultyNum
       return Number(simpleNum) + Number(commonlyNum) + Number(difficultyNum)
     },
-    determine (questionTypeId) {
-      // 将总数同步
-      let totalCount = 0;
-      for (let i = 0; i < this.result.examRuleVOList.length; i++) {
-        // 计算该题型选择的总数
-        if (this.result.examRuleVOList[i].questionTypeId === questionTypeId) {
-          totalCount = totalCount + this.result.examRuleVOList[i].simpleNum + this.result.examRuleVOList[i].commonlyNum + this.result.examRuleVOList[i].difficultyNum
+    
+    determine (dialogList) {
+      let questionTypeId;
+      for (let i = 0; i < dialogList.length; i++) {
+        if (dialogList[i].questionTypeId !== null) {
+          questionTypeId = dialogList[i].questionTypeId;
+          break
         }
       }
+      // 将总数同步
+      let totalCount = 0;
+      for (let i = 0; i < dialogList.length; i++) {
+        // 计算该题型选择的总数
+        totalCount = totalCount + dialogList[i].simpleNum + dialogList[i].commonlyNum + dialogList[i].difficultyNum
+      }
+
       for (let j = 0; j < this.result.examQuestionExamsList.length; j++) {
         if (this.result.examQuestionExamsList[j].questionTypeId === questionTypeId) {
           this.result.examQuestionExamsList[j].count = totalCount
-          this.dialogVisible = false
-          return
+          break
         }
       }
-
+      this.dialogVisible = false
       // // 将每类题型的个数及总分带出
       // let categoryList = this.categoryList
       // // 获取题型

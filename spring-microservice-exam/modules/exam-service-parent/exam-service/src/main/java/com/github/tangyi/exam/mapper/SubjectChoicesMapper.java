@@ -59,4 +59,10 @@ public interface SubjectChoicesMapper extends CrudMapper<SubjectChoices> {
      */
     List<Map<String, Object>> getTotalChoicesMap();
 
+    /**
+     * 根据题库id获取题目总数
+     * @param id
+     * @return
+     */
+    Map<String, Object> getTotalChoicesMapBySubjectId(Long id);
 }

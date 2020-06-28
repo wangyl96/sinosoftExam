@@ -58,4 +58,11 @@ public interface SubjectJudgementMapper extends CrudMapper<SubjectJudgement> {
      * @return
      */
     List<Map<String, Object>> getTotalJudgementMap();
+
+    /**
+     * 根据题库id获取题目总数
+     * @param id
+     * @return
+     */
+    Map<String, Object> getTotalJudgementMapBySubjectId(Long id);
 }

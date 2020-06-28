@@ -74,6 +74,11 @@
         SELECT category_id categoryId,COUNT(*) num,LEVEL as level  FROM exam_subject_short_answer  WHERE  del_flag = 0  GROUP BY category_id,LEVEL ORDER BY category_id,LEVEL
     </select>
 
+    <select id="getTotalShortAnswerMapBySubjectId" resultType="java.util.Map">
+        SELECT category_id categoryId,COUNT(*) num,LEVEL as level  FROM exam_subject_short_answer  WHERE  del_flag = 0 AND category_id = #{id} GROUP BY category_id,LEVEL ORDER BY category_id,LEVEL
+    </select>
+
+
     <select id="findAnswerById" resultType="java.lang.String">
         SELECT
             answer
