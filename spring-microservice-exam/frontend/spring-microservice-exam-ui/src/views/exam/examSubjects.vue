@@ -506,7 +506,7 @@ export default {
       let difficultyNum = row.difficultyNum
       return Number(simpleNum) + Number(commonlyNum) + Number(difficultyNum)
     },
-    
+
     determine (dialogList) {
       let questionTypeId;
       for (let i = 0; i < dialogList.length; i++) {
