@@ -19,7 +19,7 @@ import java.util.Map;
 public class PreviewConfigLoader extends CacheLoader<String, Map<String, String>> {
 
 	/**
-	 * 30秒刷新一次loadingCache
+	 * 30秒刷新一次loadingCache 
 	 */
 	public static final int REFRESH_CACHE_DURATION = 30;
 
