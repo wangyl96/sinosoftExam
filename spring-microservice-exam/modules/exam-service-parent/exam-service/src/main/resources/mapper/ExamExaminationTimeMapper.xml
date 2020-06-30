@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.tangyi.exam.mapper.ExamExaminationTimeMapper">
+    <resultMap id="examExaminationTimeResultMap" type="com.github.tangyi.exam.api.module.ExamExaminationTime">
+        <id column="id" property="id"/>
+        <result column="exam_id" property="examId"/>
+        <result column="time" property="time"/>
+    </resultMap>
+
+    <insert id="insert">
+        insert into exam_examination_time (
+            exam_id,
+            time
+        ) values ( #{examId}, #{time});
+    </insert>
+
+    <select id="getExamTime" resultType="java.lang.Integer">
+        SELECT time from exam_examination_time where exam_id = #{examId}
+    </select>
+
+</mapper>
