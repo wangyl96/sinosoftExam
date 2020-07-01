@@ -92,6 +92,9 @@
         FROM exam_question_examination a
         WHERE a.exam_id = #{examinationId} and a.question_type_id = #{type}
     </select>
+    <select id="getAnswerScoreByExamId" resultType="java.lang.Integer">
+     select a.score from exam_answer a where exam_record_id=#{recordId} and  subject_id=#{subjectId}
+    </select>
 
     <select id="getListByRecordId" resultMap="examQuestionExamMap">
         SELECT

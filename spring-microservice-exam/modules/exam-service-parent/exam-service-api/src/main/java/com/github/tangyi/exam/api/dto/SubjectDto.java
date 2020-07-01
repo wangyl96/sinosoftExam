@@ -56,7 +56,10 @@ public class SubjectDto extends BaseEntity<SubjectDto> {
      * 分值
      */
     private Double score;
-
+    /**
+     * 该题总分值
+     */
+    private Double answerScore;
 
     /**
      * 解析

@@ -85,11 +85,11 @@
                 <el-tag :type="scope.row.answerType | simpleTagStatusFilter(0)" effect="dark" size="small">{{ scope.row.answerType | correctTypeFilter }}</el-tag>
               </template>
             </el-table-column>
-            <el-table-column :label="$t('table.time')" min-width="90">
+            <!--<el-table-column :label="$t('table.time')" min-width="90">
               <template slot-scope="scope">
                 <span>{{ scope.row.duration }}</span>
               </template>
-            </el-table-column>
+            </el-table-column>-->
             <el-table-column :label="$t('table.score')" min-width="90">
               <template slot-scope="scope">
                 <span>{{ scope.row.score }}</span>

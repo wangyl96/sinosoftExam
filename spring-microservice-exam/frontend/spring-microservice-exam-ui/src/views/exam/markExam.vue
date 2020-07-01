@@ -22,11 +22,11 @@
                     <span>{{ tempAnswer.score }}</span>
                   </el-form-item>
                 </el-col>
-                <el-col :span="6">
+                <!--<el-col :span="6">
                   <el-form-item label="耗时：">
                     <span>{{ tempAnswer.duration }}</span>
                   </el-form-item>
-                </el-col>
+                </el-col>-->
                 <el-col :span="6">
                   <el-form-item label="状态：">
                     <el-tag :type="tempAnswer.markStatus | simpleTagStatusFilter(1) ">{{ tempAnswer.markStatus | submitStatusFilter }}</el-tag>
@@ -40,7 +40,7 @@
               <div class="subject-content-option">
                 <div class="subject-title">
                   <span class="subject-title-number">{{ subjectIndex }} .</span>
-                  {{ tempAnswer.subject.subjectName }}({{tempAnswer.subject.score}})分
+                  {{ tempAnswer.subject.subjectName }}({{tempAnswer.subject.answerScore}})分
                 </div>
                 <div v-if="tempAnswer.subject.type === 0 || tempAnswer.subject.type === 2 || tempAnswer.subject.type === 3">
                   <ul class="subject-options" v-for="option in tempAnswer.subject.options" :key="option.id">
@@ -101,8 +101,8 @@
             </el-row>
             <div class="subject-buttons" v-if="tempAnswer.subject.id !== ''">
               <el-button plain @click="last" :loading="loadingLast">上一题</el-button>
-              <el-button plain @click="next" :loading="loadingNext">下一题</el-button>
-              <el-button type="success" icon="el-icon-check" @click="completeMarking">批改完成</el-button>
+              <el-button plain @click="next" v-show="!lastOne()" :loading="loadingNext">下一题</el-button>
+              <el-button type="success" icon="el-icon-check" v-show="lastOne()"  @click="completeMarking">批改完成</el-button>
             </div>
           </el-form>
         </el-col>
@@ -218,6 +218,10 @@ export default {
             messageSuccess(this, '已经是第一题了')
             break
           }
+          if (this.score === '') {
+            messageSuccess(this, '得分不能为空')
+            break
+          }
           let { subjectId, type, index } = this.subjectIds[--i]
           this.subjectIndex = index
           this.saveCurrentAnswerAndNext(subjectId, type, nextSubjectType.last)
@@ -233,11 +237,27 @@ export default {
             messageSuccess(this, '已经是最后一题了')
             break
           }
+          if (this.score === '') {
+            messageSuccess(this, '得分不能为空')
+            break
+          }
+          /*for(let j = 0; j < this.subjectIds.length; j++) {
+
+          }*/
           let { subjectId, type, index } = this.subjectIds[++i]
+          console.log(i)
           this.subjectIndex = index
-          console.log(22)
           this.saveCurrentAnswerAndNext(subjectId, type, nextSubjectType.next)
           break
+        }
+      }
+    },
+    lastOne () {
+      for (let i = 0; i < this.subjectIds.length; i++) {
+        if (this.subjectIds[i].subjectId === this.subjectId) {
+          if (i === this.subjectIds.length - 1) {
+            return true
+          }
         }
       }
     },
