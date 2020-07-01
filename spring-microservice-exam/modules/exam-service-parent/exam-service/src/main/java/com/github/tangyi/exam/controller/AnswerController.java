@@ -8,6 +8,7 @@ import com.github.tangyi.common.core.web.BaseController;
 import com.github.tangyi.common.log.annotation.Log;
 import com.github.tangyi.common.security.utils.SysUtil;
 import com.github.tangyi.exam.api.dto.AnswerDto;
+import com.github.tangyi.exam.api.dto.JudgeAnswerDTO;
 import com.github.tangyi.exam.api.dto.RankInfoDto;
 import com.github.tangyi.exam.api.dto.SubjectDto;
 import com.github.tangyi.exam.api.module.Answer;
@@ -284,6 +285,26 @@ public class AnswerController extends BaseController {
     @Log("提交答题")
     public ResponseBean<Boolean> anonymousUserSubmit(@RequestBody Answer answer) {
         return new ResponseBean<>(answerService.submitAsync(answer));
+    }
+
+    /**
+     * 判断该题是否答过
+     * @param judgeAnswerDTO
+     * @return
+     */
+    @PostMapping("/judgeAnswer")
+    public ResponseBean<Boolean> judgeAnswer(@RequestBody JudgeAnswerDTO judgeAnswerDTO) {
+        return new ResponseBean<>(answerService.judgeAnswer(judgeAnswerDTO));
+    }
+
+    /**
+     * 判断该题是否答过
+     * @param judgeAnswerDTO
+     * @return
+     */
+    @PostMapping("/judgeAnswerQuestion")
+    public ResponseBean<Boolean> judgeAnswerQuestion(@RequestBody JudgeAnswerDTO judgeAnswerDTO) {
+        return new ResponseBean<>(answerService.judgeAnswerQuestion(judgeAnswerDTO));
     }
 
     /**

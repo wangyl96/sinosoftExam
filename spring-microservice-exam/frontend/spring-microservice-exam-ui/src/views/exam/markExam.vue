@@ -40,7 +40,7 @@
               <div class="subject-content-option">
                 <div class="subject-title">
                   <span class="subject-title-number">{{ subjectIndex }} .</span>
-                  {{ tempAnswer.subject.subjectName }}({{tempAnswer.subject.score}})分
+                  {{ tempAnswer.subject.subjectName }}({{tempAnswer.subject.answerScore}})分
                 </div>
                 <div v-if="tempAnswer.subject.type === 0 || tempAnswer.subject.type === 2 || tempAnswer.subject.type === 3">
                   <ul class="subject-options" v-for="option in tempAnswer.subject.options" :key="option.id">
@@ -101,8 +101,8 @@
             </el-row>
             <div class="subject-buttons" v-if="tempAnswer.subject.id !== ''">
               <el-button plain @click="last" :loading="loadingLast">上一题</el-button>
-              <el-button plain @click="next" :loading="loadingNext">下一题</el-button>
-              <el-button type="success" icon="el-icon-check" @click="completeMarking">批改完成</el-button>
+              <el-button plain @click="next" v-show="!lastOne()" :loading="loadingNext">下一题</el-button>
+              <el-button type="success" icon="el-icon-check" v-show="lastOne()"  @click="completeMarking">批改完成</el-button>
             </div>
           </el-form>
         </el-col>
@@ -177,6 +177,7 @@ export default {
         examinationName: ''
       }
     },
+
     handleMarking () {
       getAnswerByRecordId(this.examRecordId, undefined, undefined).then(response => {
         if (response.data.data === null) {
@@ -202,7 +203,16 @@ export default {
       })
     },
     // 完成批改
+
     completeMarking () {
+      if (this.score === '') {
+        messageWarn(this, '得分不能为空')
+        return
+      }
+      if (this.score > this.tempAnswer.subject.answerScore) {
+        messageWarn(this, '分数设置超总分, 请重新打分')
+        return
+      }
       this.saveCurrentAnswerAndNext()
       completeMarking({ id: this.examRecordId }).then(response => {
         if (response.data.data) {
@@ -212,10 +222,18 @@ export default {
     },
     // 上一题
     last () {
+      if (this.score > this.tempAnswer.subject.answerScore) {
+        messageWarn(this, '分数设置超总分, 请重新打分')
+        return
+      }
       for (let i = 0; i < this.subjectIds.length; i++) {
         if (this.subjectIds[i].subjectId === this.subjectId) {
           if (i === 0) {
             messageSuccess(this, '已经是第一题了')
+            break
+          }
+          if (this.score === '') {
+            messageWarn(this, '得分不能为空')
             break
           }
           let { subjectId, type, index } = this.subjectIds[--i]
@@ -227,17 +245,34 @@ export default {
     },
     // 下一题
     next () {
+    if (this.score > this.tempAnswer.subject.answerScore) {
+        messageWarn(this, '分数设置超总分, 请重新打分')
+        return
+      }
       for (let i = 0; i < this.subjectIds.length; i++) {
         if (this.subjectIds[i].subjectId === this.subjectId) {
           if (i === this.subjectIds.length - 1) {
             messageSuccess(this, '已经是最后一题了')
             break
           }
+          if (this.score === '') {
+            messageWarn(this, '得分不能为空')
+            break
+          }
           let { subjectId, type, index } = this.subjectIds[++i]
+          console.log(i)
           this.subjectIndex = index
-          console.log(22)
           this.saveCurrentAnswerAndNext(subjectId, type, nextSubjectType.next)
           break
+        }
+      }
+    },
+    lastOne () {
+      for (let i = 0; i < this.subjectIds.length; i++) {
+        if (this.subjectIds[i].subjectId === this.subjectId) {
+          if (i === this.subjectIds.length - 1) {
+            return true
+          }
         }
       }
     },

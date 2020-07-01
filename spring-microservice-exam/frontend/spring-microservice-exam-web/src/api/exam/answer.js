@@ -64,6 +64,32 @@ export function save (obj) {
   })
 }
 
+export function judgeAnswer (subjectId, examRecordId, userId) {
+  let url = baseAnswerUrl + 'judgeAnswer'
+  return request({
+    url: url,
+    method: 'post',
+    data: {
+      'subjectId': subjectId,
+      'examRecordId': examRecordId,
+      'userId': userId
+    }
+  })
+}
+
+export function judgeAnswerQuestion (userId, examinationId, examRecordId) {
+  let url = baseAnswerUrl + 'judgeAnswerQuestion'
+  return request({
+    url: url,
+    method: 'post',
+    data: {
+      'userId': userId,
+      'examinationId': examinationId,
+      'examRecordId': examRecordId
+    }
+  })
+}
+
 export function saveAndNext (obj, nextType, nextSubjectId, nextSubjectType) {
   let url = baseAnswerUrl + 'saveAndNext?nextType=' + nextType
   if (nextSubjectId !== undefined) {

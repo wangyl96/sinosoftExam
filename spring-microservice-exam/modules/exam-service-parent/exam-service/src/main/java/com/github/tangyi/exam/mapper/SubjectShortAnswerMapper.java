@@ -64,5 +64,5 @@ public interface SubjectShortAnswerMapper extends CrudMapper<SubjectShortAnswer>
      * @param id
      * @return
      */
-    Map<String, Object> getTotalShortAnswerMapBySubjectId(Long id);
+    List<Map<String, Object>> getTotalShortAnswerMapBySubjectId(Long id);
 }
