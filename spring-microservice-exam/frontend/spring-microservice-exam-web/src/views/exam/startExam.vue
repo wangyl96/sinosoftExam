@@ -86,6 +86,7 @@ export default {
       startTimeWyl: 1,
       disableSubmit: true,
       subjectIndex: 1,
+      startDate: new Date(),
       query: {
         examinationId: undefined,
         examRecordId: undefined,
@@ -291,10 +292,10 @@ export default {
             messageWarn(this, '请将题目填写完整, 考题有遗漏')
             return
           }
-          store.dispatch('SubmitExam', { examinationId, examRecordId, userId: userInfo.id }).then(() => {
-            messageSuccess(this, '提交成功')
-            if (toExamRecord) {
-              this.$router.push({ name: 'exam-record' })
+         store.dispatch('SubmitExam', { startTime: this.startDate, endTime: new Date(), examinationId, examRecordId, userId: userInfo.id }).then(() => {
+          messageSuccess(this, '提交成功')
+          if (toExamRecord) {
+            this.$router.push({ name: 'exam-record' })
             }
           }).catch(() => {
             // this.disableSubmit = false

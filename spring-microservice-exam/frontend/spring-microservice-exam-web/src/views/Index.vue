@@ -8,9 +8,10 @@
               <a class="nav-brand hidden-sm-only" href="/">考试系统</a>
               <div class="classy-menu">
                 <div class="classynav">
-                  <div class="search-area hidden-sm-only">
-                    <el-input type="search" prefix-icon="el-icon-search" v-model="query" name="search" id="search" placeholder="搜索" @keyup.enter="search()"/>
-                  </div>
+<!--                  <div class="search-area hidden-sm-only">-->
+<!--                    <el-input type="search" prefix-icon="el-icon-search" v-model="query" name="search" id="search" placeholder="搜索" @keyup.enter="search()"/>-->
+<!--                  </div>-->
+<!--                  </div>-->
                   <el-menu :default-active="activeIndex"
                            mode="horizontal"
                            text-color="rgba(0, 0, 0, 0.45)"
