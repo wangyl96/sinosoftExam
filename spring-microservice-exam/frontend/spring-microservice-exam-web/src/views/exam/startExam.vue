@@ -16,7 +16,8 @@
           <div class="answer-card">
             <el-button type="text" icon="el-icon-date" @click="answerCard">答题卡</el-button>
           </div>
-          <el-button type="success" icon="el-icon-date" @click="submitExam" v-bind:disabled="disableSubmit">提交</el-button>
+          <!--v-bind:disabled="disableSubmit"-->
+          <el-button v-show="subjectIndex === subjectIds.length" type="success" icon="el-icon-date" @click="submitExam" >提交</el-button>
         </div>
       </el-col>
       <el-col :span="18">
@@ -30,7 +31,8 @@
           <div class="subject-buttons" v-if="query.subjectId !== ''">
             <el-button plain @click="last" :loading="loadingLast">上一题</el-button>
             <el-button plain @click="next" :loading="loadingNext">下一题</el-button>
-            <el-button type="success" @click="submitExam" v-bind:disabled="disableSubmit">提交</el-button>
+            <!--v-bind:disabled="disableSubmit"-->
+            <el-button type="success" v-show="subjectIndex === subjectIds.length" @click="submitExam" >提交</el-button>
           </div>
         </div>
       </el-col>
@@ -39,7 +41,8 @@
       <div class="answer-card-title" >{{exam.examinationName}}（共{{subjectIds.length}}题，合计{{exam.totalScore}}分）</div>
       <div class="answer-card-split"></div>
       <el-row class="answer-card-content">
-        <el-button circle v-for="(value, index) in subjectIds" :key="index" @click="toSubject(value.subjectId, value.type, index)" >&nbsp;{{index + 1}}&nbsp;</el-button>
+        <!--根据是否有答案来判断该题目是否已经答过 :class="{ 'button-hcolor': judgeAnswer(value) }"-->
+        <el-button circle v-for="(value, index) in subjectIds" :key="index" @click="toSubject(value, value.subjectId, value.type, index)" >&nbsp;{{index + 1}}&nbsp;</el-button>
       </el-row>
     </el-dialog>
   </div>
@@ -47,8 +50,8 @@
 <script>
 import { mapState, mapGetters } from 'vuex'
 import CountDown from 'vue2-countdown'
-import { saveAndNext } from '@/api/exam/answer'
-import { getSubjectIds, getExamTime } from '@/api/exam/exam'
+import { saveAndNext, judgeAnswer, judgeAnswerQuestion } from '@/api/exam/answer'
+import { getSubjectIds } from '@/api/exam/exam'
 import { getCurrentTime } from '@/api/exam/examRecord'
 import { getSubjectAnswer } from '@/api/exam/subject'
 import store from '@/store'
@@ -218,12 +221,16 @@ export default {
         }
       }
     },
+    judgeAnswer (value) {
+      // 根据用户id 考试id 考题id去数据库查询是否有答案, 若有则return ture
+      judgeAnswer(value.subjectId, this.query.examRecordId, this.query.userId).then(response => {
+        return true
+      })
+    },
     // 保存当前题目，同时根据序号加载下一题
     saveCurrentSubjectAndGetNextSubject (nextType, nextSubjectId, subjectType) {
-      console.log(this.tempAnswer)
       const answerId = isNotEmpty(this.tempAnswer) ? this.tempAnswer.id : ''
       const answer = this.getAnswer(answerId)
-      console.log(answer)
       this.startLoading(nextType)
       saveAndNext(answer, nextType, nextSubjectId, subjectType).then(response => {
         if (response.data.data !== null) {
@@ -234,9 +241,9 @@ export default {
           this.tempAnswer = answer
           this.tempAnswer.index = this.subjectIndex
           this.setSubjectInfo(subject)
-          /*if (type === 0 || type === 3) {
-            this.getSubjectRef().userAnswer = []
-          }*/
+          // if (type === 0 || type === 3) {
+          //   this.getSubjectRef().userAnswer = []
+          // }
           store.dispatch('SetSubjectInfo', subject).then(() => {})
           this.updateSubjectIndex()
         }
@@ -256,7 +263,7 @@ export default {
       this.dialogVisible = true
     },
     // 跳转题目
-    toSubject (subjectId, subjectType, index) {
+    toSubject (value, subjectId, subjectType, index) {
       this.subjectIndex = index + 1
       // 保存当前题目，同时加载下一题
       this.saveCurrentSubjectAndGetNextSubject(nextSubjectType.current, subjectId, subjectType)
@@ -277,18 +284,26 @@ export default {
     doSubmitExam (answer, examinationId, examRecordId, userInfo, toExamRecord) {
       const answerId = isNotEmpty(answer) ? answer.id : ''
       saveAndNext(this.getAnswer(answerId), 0).then(response => {
-        // 提交到后台                 startTime
-        store.dispatch('SubmitExam', { startTime: this.startDate, endTime: new Date(), examinationId, examRecordId, userId: userInfo.id }).then(() => {
+        // 根据考试id查询考题数量,根据考试记录查询考题数量判断是否一致并判断考题答案是否填写
+        judgeAnswerQuestion(userInfo.id, examinationId, examRecordId).then(res => {
+          // 提交到后台
+          console.log(res.data.data)
+          if (!res.data.data) {
+            messageWarn(this, '请将题目填写完整, 考题有遗漏')
+            return
+          }
+         store.dispatch('SubmitExam', { startTime: this.startDate, endTime: new Date(), examinationId, examRecordId, userId: userInfo.id }).then(() => {
           messageSuccess(this, '提交成功')
           if (toExamRecord) {
             this.$router.push({ name: 'exam-record' })
-          }
-        }).catch(() => {
-          this.disableSubmit = false
-          messageFail(this, '提交题目失败')
+            }
+          }).catch(() => {
+            // this.disableSubmit = false
+            messageFail(this, '提交题目失败')
+          })
         })
       }).catch(() => {
-        this.disableSubmit = false
+        // this.disableSubmit = false
         messageFail(this, '提交题目失败')
       })
     },
@@ -402,7 +417,13 @@ export default {
     color: #FF0000;
     font-weight: 400;
   }
+  .button-hcolor {
+    background-color: #1e6abc;
+  }
 
+  .button-ncolor {
+    background-color: #e3d21b;
+  }
   /* 答题卡 */
   .answer-card-title {
     font-size: 13px;

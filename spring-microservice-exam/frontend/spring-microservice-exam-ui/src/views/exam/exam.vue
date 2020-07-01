@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input :placeholder="$t('table.examinationName')" v-model="listQuery.examinationName" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.search') }}</el-button>
+      <!--<el-input :placeholder="$t('table.examinationName')" v-model="listQuery.examinationName" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.search') }}</el-button>-->
       <el-button v-if="exam_btn_add" class="filter-item" type="primary" style="margin-left: 10px;" icon="el-icon-check" @click="handleCreate">{{ $t('table.add') }}</el-button>
       <el-button v-if="exam_btn_del" class="filter-item" type="danger" icon="el-icon-delete" @click="handleDeletes">{{ $t('table.del') }}</el-button>
     </div>
@@ -59,11 +59,11 @@
               操作<i class="el-icon-caret-bottom el-icon--right"></i>
             </span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item v-if="exam_btn_edit">
-                <a @click="handleUpdate(scope.row)">
-                  <span><i class="el-icon-edit"></i>{{ $t('table.edit') }}</span>
-                </a>
-              </el-dropdown-item>
+<!--              <el-dropdown-item v-if="exam_btn_edit">-->
+<!--                <a @click="handleUpdate(scope.row)">-->
+<!--                  <span><i class="el-icon-edit"></i>{{ $t('table.edit') }}</span>-->
+<!--                </a>-->
+<!--              </el-dropdown-item>-->
               <el-dropdown-item v-if="exam_btn_edit && scope.row.status == 1">
                 <a @click="handlePublic(scope.row, 0)">
                   <span><i class="el-icon-check"></i>{{ $t('table.public') }}</span>

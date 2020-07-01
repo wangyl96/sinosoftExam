@@ -33,4 +33,27 @@ public interface AnswerMapper extends CrudMapper<Answer> {
      * @date 2020/2/21 1:08 下午
      */
     List<Answer> findListByExamRecordId(Long examRecordId);
+
+    /**
+     *
+     * @param examRecordId
+     * @param subjectId
+     * @param userId
+     * @return
+     */
+    String findAnswer(Long examRecordId, Long subjectId, Long userId);
+
+    /**
+     * 获取某场考试记录中的考题数量
+     * @param examRecordId
+     * @return
+     */
+    List<Answer> findQuestionCountByRecordId(String examRecordId);
+
+    /**
+     * 获取某考试所有考题数量
+     * @param examinationId
+     * @return
+     */
+    Integer findExamTotalCount(String examinationId, String userId);
 }

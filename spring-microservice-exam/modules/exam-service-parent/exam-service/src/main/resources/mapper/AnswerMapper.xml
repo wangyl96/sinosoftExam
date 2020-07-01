@@ -101,6 +101,18 @@
         AND a.exam_record_id = #{examRecordId}
      </select>
 
+    <select id="findQuestionCountByRecordId" resultType="com.github.tangyi.exam.api.module.Answer">
+       SELECT * FROM exam_answer WHERE exam_record_id = #{examRecordId}
+    </select>
+
+    <select id="findExamTotalCount" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM exam_examination_subject WHERE examination_id = #{examinationId} and user_id = #{userId}
+    </select>
+
+    <select id="findAnswer" resultType="java.lang.String">
+        SELECT answer FROM exam_answer WHERE exam_record_id = #{examRecordId} AND subject_id = #{subjectId}
+    </select>
+
     <insert id="insert">
         insert into exam_answer (
             id,
