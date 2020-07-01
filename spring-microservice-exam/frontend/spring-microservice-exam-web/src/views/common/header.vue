@@ -7,9 +7,9 @@
             <a class="nav-brand" href="/">硕果云</a>
             <div class="classy-menu">
               <div class="classynav">
-                <div class="search-area">
-                  <el-input type="search" prefix-icon="el-icon-search" v-model="query" name="search" id="search" placeholder="搜索" @keyup.enter="search()"/>
-                </div>
+<!--                <div class="search-area">-->
+<!--                  <el-input type="search" prefix-icon="el-icon-search" v-model="query" name="search" id="search" placeholder="搜索" @keyup.enter="search()"/>-->
+<!--                </div>-->
                 <el-menu :default-active="activeIndex"
                          mode="horizontal"
                          text-color="rgba(0, 0, 0, 0.45)"
