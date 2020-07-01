@@ -344,7 +344,10 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         // 保存成绩
         record.setCommonValue(currentUsername, SysUtil.getSysCode(), SysUtil.getTenantCode());
         record.setId(answer.getExamRecordId());
-        record.setEndTime(record.getCreateDate());
+		//开始考试时间
+		record.setStartTime(answer.getStartTime());
+		// 提交时间
+        record.setEndTime(answer.getEndTime());
         examRecordService.update(record);
         // 更新排名数据
 		updateRank(record);
@@ -386,13 +389,16 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         ExaminationRecord examRecord = new ExaminationRecord();
         examRecord.setCommonValue(currentUsername, applicationCode, tenantCode);
         examRecord.setId(answer.getExamRecordId());
+        //开始考试时间
+		examRecord.setStartTime(answer.getStartTime());
         // 提交时间
-        examRecord.setEndTime(examRecord.getCreateDate());
+        examRecord.setEndTime(answer.getEndTime());
         examRecord.setSubmitStatus(SubmitStatusEnum.SUBMITTED.getValue());
         // 1. 发送消息
         amqpTemplate.convertAndSend(MqConstant.SUBMIT_EXAMINATION_QUEUE, answer);
         // 2. 更新考试状态
-        boolean success = examRecordService.update(examRecord) > 0;
+        //boolean success = examRecordService.update(examRecord) > 0;
+		examRecordService.update(examRecord);
 		log.debug("Submit examination, username: {}，time consuming: {}ms", currentUsername, System.currentTimeMillis() - start);
 		return true;
     }
