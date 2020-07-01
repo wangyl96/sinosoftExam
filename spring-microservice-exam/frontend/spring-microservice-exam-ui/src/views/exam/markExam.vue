@@ -177,6 +177,7 @@ export default {
         examinationName: ''
       }
     },
+
     handleMarking () {
       getAnswerByRecordId(this.examRecordId, undefined, undefined).then(response => {
         if (response.data.data === null) {
@@ -244,7 +245,7 @@ export default {
     },
     // 下一题
     next () {
-      if (this.score > this.tempAnswer.subject.answerScore) {
+    if (this.score > this.tempAnswer.subject.answerScore) {
         messageWarn(this, '分数设置超总分, 请重新打分')
         return
       }
