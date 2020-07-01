@@ -22,6 +22,23 @@
             <el-form-item prop="credential">
               <el-input placeholder="密码" :type="register.passwordType" v-model="register.form.credential" name="credential" auto-complete="off" @keyup.enter.native="handleRegister"/>
             </el-form-item>
+            <el-form-item prop="name">
+              <el-input placeholder="姓名" v-model="register.form.name" name="name" type="text" auto-complete="off"/>
+            </el-form-item>
+            <el-form-item prop="company">
+              <el-input placeholder="公司" v-model="register.form.company" name="company" type="text" auto-complete="off"/>
+            </el-form-item>
+            <el-form-item prop="stationId">
+              <el-select style="width: 300px" v-model="register.form.stationId" placeholder="请选择岗位">
+                <el-option v-for="item in options"
+                           :label="item.station"
+                           :key="item.id"
+                           :value="item.id"
+                >
+                </el-option>
+              </el-select>
+<!--              <el-input placeholder="岗位" v-model="register.form.station" name="station" type="text" auto-complete="off"/>-->
+            </el-form-item>
             <el-form-item prop="code">
               <el-row :span="24">
                 <el-col :span="14">
@@ -49,13 +66,13 @@
               </el-form-item>
               <el-form-item prop="credential">
                 <el-input placeholder="密码" :type="login.passwordType" v-model="login.form.credential" name="credential" auto-complete="on" @keyup.enter.native="handleLogin"/>
-                <span class="forgot-suffix">
-                <span class="forgot-link">
-                  <router-link to="/reset-password">
-                    <span>忘记密码?</span>
-                  </router-link>
-                </span>
-              </span>
+<!--                <span class="forgot-suffix">-->
+<!--                <span class="forgot-link">-->
+<!--                  <router-link to="/reset-password">-->
+<!--                    <span>忘记密码?</span>-->
+<!--                  </router-link>-->
+<!--                </span>-->
+<!--              </span>-->
               </el-form-item>
               <el-form-item prop="code">
                 <el-row :span="24">
@@ -116,11 +133,11 @@
 import { randomLenNum, isNotEmpty, isValidPhone } from '@/utils/util'
 import { mapGetters } from 'vuex'
 import { getToken, getTenantCode } from '@/utils/auth'
-import { checkExist } from '@/api/admin/user'
+import { checkExist, getStation } from '@/api/admin/user'
 import { sendSms } from '@/api/admin/mobile'
 
 export default {
-  data () {
+  data: function () {
     let checkRegisterUsername = (rule, value, callback) => {
       if (!isNotEmpty(value)) {
         return callback(new Error('请输入用户名'))
@@ -145,6 +162,7 @@ export default {
       }
     }
     return {
+      options: [],
       useSmsLogin: false,
       activeName: '/login',
       login: {
@@ -156,13 +174,13 @@ export default {
           rememberMe: false
         },
         rules: {
-          identifier: [{ required: true, trigger: 'blur', message: '请输入用户名' }],
+          identifier: [{required: true, trigger: 'blur', message: '请输入用户名'}],
           credential: [
-            { required: true, trigger: 'blur', message: '请输入密码' },
-            { min: 6, trigger: 'blur', message: '密码长度最少为6位' }],
+            {required: true, trigger: 'blur', message: '请输入密码'},
+            {min: 6, trigger: 'blur', message: '密码长度最少为6位'}],
           code: [
-            { required: true, message: '请输入验证码', trigger: 'blur' },
-            { min: 4, max: 4, message: '验证码长度为4位', trigger: 'blur' }
+            {required: true, message: '请输入验证码', trigger: 'blur'},
+            {min: 4, max: 4, message: '验证码长度为4位', trigger: 'blur'}
           ]
         },
         loading: false,
@@ -179,19 +197,24 @@ export default {
           identifier: '',
           email: '',
           credential: '',
+          name: '',
+          company: '',
+          stationId: '',
           code: '',
           randomStr: '',
           rememberMe: false
         },
         rules: {
-          identifier: [{ validator: checkRegisterUsername, trigger: 'blur' }],
-          email: [{ required: true, trigger: 'blur', message: '请输入邮箱地址' }],
+          identifier: [{validator: checkRegisterUsername, trigger: 'blur'}],
+          email: [{required: true, trigger: 'blur', message: '请输入邮箱地址'}],
           credential: [
-            { required: true, trigger: 'blur', message: '请输入密码' },
-            { min: 6, trigger: 'blur', message: '密码长度最少为6位' }],
+            {required: true, trigger: 'blur', message: '请输入密码'},
+            {min: 6, trigger: 'blur', message: '密码长度最少为6位'}],
+          username: [{required: true, trigger: 'blur', message: '请输入姓名'}],
+          company: [{required: true, trigger: 'blur', message: '请输入公司名称'}],
           code: [
-            { required: true, message: '请输入验证码', trigger: 'blur' },
-            { min: 4, max: 4, message: '验证码长度为4位', trigger: 'blur' }
+            {required: true, message: '请输入验证码', trigger: 'blur'},
+            {min: 4, max: 4, message: '验证码长度为4位', trigger: 'blur'}
           ]
         },
         loading: false,
@@ -211,7 +234,7 @@ export default {
         loading: false,
         sending: false,
         rules: {
-          phone: [{ required: true, message: '请输入手机号码', trigger: 'blur', validator: validPhone }]
+          phone: [{required: true, message: '请输入手机号码', trigger: 'blur', validator: validPhone}]
         }
       }
     }
@@ -247,6 +270,16 @@ export default {
         ? (this.register.code.value = randomLenNum(this.register.code.len))
         : (this.register.code.src = `/api/user/v1/code/${this.register.form.randomStr}?tenantCode=` + getTenantCode())
     },
+    // 获取岗位信息
+    getStationList: function (callback) {
+      getStation().then(response => {
+        if (response.data.code === 200) {
+          this.options = response.data.data
+        } else {
+          callback(new Error('查询岗位是报错！'))
+        }
+      })
+    },
     handleLogin () {
       if (getToken()) {
         // 已经登录，重定向到首页
@@ -272,6 +305,7 @@ export default {
     },
     // 注册
     handleRegister () {
+      console.log(this.register.form)
       this.$refs.registerForm.validate(valid => {
         if (valid) {
           this.register.loading = true
@@ -328,6 +362,9 @@ export default {
     openMsg () {
       this.$message.warning('你咋忘不了吃呢？')
     }
+  },
+  mounted () {
+    this.getStationList()
   }
 }
 </script>

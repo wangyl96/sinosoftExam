@@ -79,3 +79,11 @@ export function checkExist (username, tenantCode) {
     params: { tenantCode, identityType: 1 }
   })
 }
+
+export function getStation (query) {
+  return request({
+    url: baseUserUrl + 'anonymousUser/checkExist/getStation',
+    method: 'get',
+    params: query
+  })
+}

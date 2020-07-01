@@ -83,7 +83,7 @@ const user = {
           key: '1234567887654321',
           param: ['credential']
         })
-        registerByUsername(user.identifier, user.email, user.credential, user.code, user.randomStr).then(response => {
+        registerByUsername(user.identifier, user.email, user.credential, user.code, user.randomStr, user.name, user.company, user.stationId).then(response => {
           resolve()
         }).catch(error => {
           reject(error)

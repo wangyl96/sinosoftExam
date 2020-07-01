@@ -18,10 +18,7 @@ import com.github.tangyi.user.api.dto.UserInfoDto;
 import com.github.tangyi.user.api.module.*;
 import com.github.tangyi.user.excel.listener.UserImportListener;
 import com.github.tangyi.user.excel.model.UserExcelModel;
-import com.github.tangyi.user.service.DeptService;
-import com.github.tangyi.user.service.UserAuthsService;
-import com.github.tangyi.user.service.UserRoleService;
-import com.github.tangyi.user.service.UserService;
+import com.github.tangyi.user.service.*;
 import com.github.tangyi.user.utils.UserUtils;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.*;
@@ -61,6 +58,8 @@ public class UserController extends BaseController {
     private final DeptService deptService;
 
     private final UserAuthsService userAuthsService;
+
+    private final StationService stationService;
 
     /**
      * 根据id获取
@@ -488,4 +487,14 @@ public class UserController extends BaseController {
         }
         return new ResponseBean<>(success);
     }
+
+
+
+    @GetMapping("anonymousUser/checkExist/getStation")
+    public ResponseBean<List<Station>> getStation() {
+        return new ResponseBean<>(stationService.getStation());
+    }
+
+
+
 }
