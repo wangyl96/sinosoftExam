@@ -30,12 +30,12 @@
                 <div class="description-score">{{ examRecord.score }}</div>
               </div>
             </el-col>
-            <!--<el-col :span="3">-->
-              <!--<div class="description">-->
-                <!--&lt;!&ndash;<div>总耗时</div>&ndash;&gt;-->
-                <!--&lt;!&ndash;<div class="description-score">{{ examRecord.duration }}</div>&ndash;&gt;-->
-              <!--</div>-->
-            <!--</el-col>-->
+            <el-col :span="3">
+              <div class="description">
+                <div>总耗时</div>
+                <div class="description-score">{{ examRecord.duration }}</div>
+              </div>
+            </el-col>
             <el-col :span="6">
               <div class="score-chart">
                 <div class="chart" ref="chart" style="height: 150px; width: 100%;"></div>
@@ -85,11 +85,11 @@
                 <el-tag :type="scope.row.answerType | simpleTagStatusFilter(0)" effect="dark" size="small">{{ scope.row.answerType | correctTypeFilter }}</el-tag>
               </template>
             </el-table-column>
-            <!--<el-table-column :label="$t('table.time')" min-width="90">
+            <el-table-column :label="$t('table.time')" min-width="90">
               <template slot-scope="scope">
                 <span>{{ scope.row.duration }}</span>
               </template>
-            </el-table-column>-->
+            </el-table-column>
             <el-table-column :label="$t('table.score')" min-width="90">
               <template slot-scope="scope">
                 <span>{{ scope.row.score }}</span>

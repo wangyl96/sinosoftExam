@@ -22,11 +22,11 @@
                     <span>{{ tempAnswer.score }}</span>
                   </el-form-item>
                 </el-col>
-                <!--<el-col :span="6">
+                <el-col :span="6">
                   <el-form-item label="耗时：">
                     <span>{{ tempAnswer.duration }}</span>
                   </el-form-item>
-                </el-col>-->
+                </el-col>
                 <el-col :span="6">
                   <el-form-item label="状态：">
                     <el-tag :type="tempAnswer.markStatus | simpleTagStatusFilter(1) ">{{ tempAnswer.markStatus | submitStatusFilter }}</el-tag>
@@ -259,9 +259,6 @@ export default {
             messageWarn(this, '得分不能为空')
             break
           }
-          /*for(let j = 0; j < this.subjectIds.length; j++) {
-
-          }*/
           let { subjectId, type, index } = this.subjectIds[++i]
           console.log(i)
           this.subjectIndex = index
