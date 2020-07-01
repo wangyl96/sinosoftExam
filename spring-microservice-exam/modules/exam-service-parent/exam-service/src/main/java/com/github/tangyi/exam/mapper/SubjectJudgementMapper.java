@@ -64,5 +64,5 @@ public interface SubjectJudgementMapper extends CrudMapper<SubjectJudgement> {
      * @param id
      * @return
      */
-    Map<String, Object> getTotalJudgementMapBySubjectId(Long id);
+    List<Map<String, Object>> getTotalJudgementMapBySubjectId(Long id);
 }

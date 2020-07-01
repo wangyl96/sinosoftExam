@@ -409,10 +409,10 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
 		// 将questionType为null的进行id填充
 		temp.stream().forEach(e -> {
 			if (null == e.getQuestionTypeId()) {
-				Map<String, Object> maptChoices = subjectChoicesMapper.getTotalChoicesMapBySubjectId(e.getId());
-				Map<String, Object> mapJudgement = subjectJudgementMapper.getTotalJudgementMapBySubjectId(e.getId());
-				Map<String, Object> mapShortAnswer = subjectShortAnswerMapper.getTotalShortAnswerMapBySubjectId(e.getId());
-				if  (maptChoices != null && !maptChoices.isEmpty()) {
+				List<Map<String, Object>> maptChoices = subjectChoicesMapper.getTotalChoicesMapBySubjectId(e.getId());
+				List<Map<String, Object>>  mapJudgement = subjectJudgementMapper.getTotalJudgementMapBySubjectId(e.getId());
+				List<Map<String, Object>>  mapShortAnswer = subjectShortAnswerMapper.getTotalShortAnswerMapBySubjectId(e.getId());
+				if  (maptChoices != null && maptChoices.size() > 0) {
 					ExamRuleVO examRuleVO = new ExamRuleVO().setId(e.getId()).setExamId(e.getExamId()).setQuestionTypeId(1).setCategoryName(e.getCategoryName());
 					examRuleList.add(examRuleVO);
 				}

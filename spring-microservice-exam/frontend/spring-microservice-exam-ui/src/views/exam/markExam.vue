@@ -177,6 +177,7 @@ export default {
         examinationName: ''
       }
     },
+
     handleMarking () {
       getAnswerByRecordId(this.examRecordId, undefined, undefined).then(response => {
         if (response.data.data === null) {
@@ -212,6 +213,11 @@ export default {
     },
     // 上一题
     last () {
+      if (this.score > this.tempAnswer.score) {
+        messageFail(this, '分数设置超总分, 请重新打分')
+        this.score = 0
+        return
+      }
       for (let i = 0; i < this.subjectIds.length; i++) {
         if (this.subjectIds[i].subjectId === this.subjectId) {
           if (i === 0) {
@@ -227,17 +233,23 @@ export default {
     },
     // 下一题
     next () {
-      for (let i = 0; i < this.subjectIds.length; i++) {
-        if (this.subjectIds[i].subjectId === this.subjectId) {
-          if (i === this.subjectIds.length - 1) {
-            messageSuccess(this, '已经是最后一题了')
+      if (this.score > this.tempAnswer.score) {
+        messageFail(this, '分数设置超总分, 请重新打分')
+        this.score = 0
+        return
+      }
+      if (key === 0) {
+        for (let i = 0; i < this.subjectIds.length; i++) {
+          if (this.subjectIds[i].subjectId === this.subjectId) {
+            if (i === this.subjectIds.length - 1) {
+              messageSuccess(this, '已经是最后一题了')
+              break
+            }
+            let { subjectId, type, index } = this.subjectIds[++i]
+            this.subjectIndex = index
+            this.saveCurrentAnswerAndNext(subjectId, type, nextSubjectType.next)
             break
           }
-          let { subjectId, type, index } = this.subjectIds[++i]
-          this.subjectIndex = index
-          console.log(22)
-          this.saveCurrentAnswerAndNext(subjectId, type, nextSubjectType.next)
-          break
         }
       }
     },

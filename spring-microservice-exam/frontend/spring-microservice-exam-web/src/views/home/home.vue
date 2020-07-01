@@ -5,7 +5,7 @@
         <div class="hero-content">
           <h2>考试系统</h2>
           <h4>提供考试、培训等功能</h4>
-          <router-link to="/courses" class="btn clever-btn">开始使用</router-link>
+          <router-link to="/exams" class="btn clever-btn">开始使用</router-link>
         </div>
       </el-col>
     </el-row>
