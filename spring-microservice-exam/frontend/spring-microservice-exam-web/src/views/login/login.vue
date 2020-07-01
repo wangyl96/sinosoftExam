@@ -114,15 +114,15 @@
             </el-form>
           </div>
           <!-- 第三方登录 -->
-          <div class="third-login">
-            <el-row>
-              <el-col :span="24" class="third-link">
-                <a title="微信登录" href="">
-                  <span class="wechat"></span>微信
-                </a>
-              </el-col>
-            </el-row>
-          </div>
+<!--          <div class="third-login">-->
+<!--            <el-row>-->
+<!--              <el-col :span="24" class="third-link">-->
+<!--                <a title="微信登录" href="">-->
+<!--                  <span class="wechat"></span>微信-->
+<!--                </a>-->
+<!--              </el-col>-->
+<!--            </el-row>-->
+<!--          </div>-->
         </el-tab-pane>
       </el-tabs>
     </div>

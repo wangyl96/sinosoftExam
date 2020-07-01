@@ -1,6 +1,7 @@
 <template>
   <div class="content-container">
     <!-- 搜索框 -->
+<!--
     <div class="search-form">
       <el-form ref="examForm" :inline="true" :model="query" label-width="100px" class="examForm">
         <el-form-item label="考试名称" prop="examinationName">
@@ -12,16 +13,17 @@
         </el-form-item>
       </el-form>
     </div>
+-->
 
     <!-- 分类 -->
-    <div class="category-list">
+  <!--  <div class="category-list">
       <ul>
         <li :class="activeTag === '1' ? 'active' : ''" @click="changeTag('1')">全部</li>
         <li :class="activeTag === '2' ? 'active' : ''" @click="changeTag('2')">最新发布</li>
         <li :class="activeTag === '3' ? 'active' : ''" @click="changeTag('3')">最多点击</li>
         <li :class="activeTag === '4' ? 'active' : ''" @click="changeTag('4')">参数人数</li>
       </ul>
-    </div>
+    </div>-->
     <!-- 考试卡片列表 -->
     <div class="exam-card-list">
       <transition name="fade-transform" mode="out-in" v-for="exam in examList" :key="exam.id">
