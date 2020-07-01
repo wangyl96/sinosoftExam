@@ -9,7 +9,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 /**
- * 系统启动时的一些处理11
+ * 系统启动时的一些处理
  *
  * @author tangyi
  * @date 2019/07/14 16:09

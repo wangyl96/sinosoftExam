@@ -83,6 +83,7 @@ export default {
       startTimeWyl: 1,
       disableSubmit: true,
       subjectIndex: 1,
+      startDate: new Date(),
       query: {
         examinationId: undefined,
         examRecordId: undefined,
@@ -233,9 +234,9 @@ export default {
           this.tempAnswer = answer
           this.tempAnswer.index = this.subjectIndex
           this.setSubjectInfo(subject)
-          if (type === 0 || type === 3) {
+          /*if (type === 0 || type === 3) {
             this.getSubjectRef().userAnswer = []
-          }
+          }*/
           store.dispatch('SetSubjectInfo', subject).then(() => {})
           this.updateSubjectIndex()
         }
@@ -276,8 +277,8 @@ export default {
     doSubmitExam (answer, examinationId, examRecordId, userInfo, toExamRecord) {
       const answerId = isNotEmpty(answer) ? answer.id : ''
       saveAndNext(this.getAnswer(answerId), 0).then(response => {
-        // 提交到后台
-        store.dispatch('SubmitExam', { examinationId, examRecordId, userId: userInfo.id }).then(() => {
+        // 提交到后台                 startTime
+        store.dispatch('SubmitExam', { startTime: this.startDate, endTime: new Date(), examinationId, examRecordId, userId: userInfo.id }).then(() => {
           messageSuccess(this, '提交成功')
           if (toExamRecord) {
             this.$router.push({ name: 'exam-record' })
