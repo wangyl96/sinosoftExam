@@ -76,7 +76,7 @@
             </el-col>
             <el-col :span="6">
               <div class="course-sidebar">
-                <el-button type="primary" class="clever-btn mb-30 w-100" @click="buyCourse">购买课程</el-button>
+<!--                <el-button type="primary" class="clever-btn mb-30 w-100" @click="buyCourse">购买课程</el-button>-->
                 <div class="sidebar-widget">
                   <h4>课程特色</h4>
                   <ul class="features-list">
@@ -98,18 +98,18 @@
                     </li>
                   </ul>
                 </div>
-                <div class="sidebar-widget">
-                  <h4>猜你喜欢</h4>
-                  <div class="single--courses d-flex align-items-center" v-for="course in likes" :key="course.id">
-                    <div class="thumb">
-                      <img src="static/img/bg-img/yml.jpg" alt="">
-                    </div>
-                    <div class="content">
-                      <h5>{{ course.courseName }}</h5>
-                      <h6>{{ course.price }}</h6>
-                    </div>
-                  </div>
-                </div>
+<!--                <div class="sidebar-widget">-->
+<!--                  <h4>猜你喜欢</h4>-->
+<!--                  <div class="single&#45;&#45;courses d-flex align-items-center" v-for="course in likes" :key="course.id">-->
+<!--                    <div class="thumb">-->
+<!--                      <img src="static/img/bg-img/yml.jpg" alt="">-->
+<!--                    </div>-->
+<!--                    <div class="content">-->
+<!--                      <h5>{{ course.courseName }}</h5>-->
+<!--                      <h6>{{ course.price }}</h6>-->
+<!--                    </div>-->
+<!--                  </div>-->
+<!--                </div>-->
               </div>
             </el-col>
           </el-row>
