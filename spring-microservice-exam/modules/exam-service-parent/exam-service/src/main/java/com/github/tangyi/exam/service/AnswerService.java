@@ -13,10 +13,7 @@ import com.github.tangyi.common.core.utils.PageUtil;
 import com.github.tangyi.common.core.utils.ResponseUtil;
 import com.github.tangyi.common.security.utils.SysUtil;
 import com.github.tangyi.exam.api.constants.AnswerConstant;
-import com.github.tangyi.exam.api.dto.AnswerDto;
-import com.github.tangyi.exam.api.dto.RankInfoDto;
-import com.github.tangyi.exam.api.dto.StartExamDto;
-import com.github.tangyi.exam.api.dto.SubjectDto;
+import com.github.tangyi.exam.api.dto.*;
 import com.github.tangyi.exam.api.enums.SubmitStatusEnum;
 import com.github.tangyi.exam.api.module.*;
 import com.github.tangyi.exam.enums.SubjectTypeEnum;
@@ -94,8 +91,11 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
 
     @Resource
     private SubjectShortAnswerMapper subjectShortAnswerMapper;
+  
+	  @Resource
+    private AnswerMapper answerMapper;
 
-    /**
+	/**
      * 查找答题
      *
      * @param answer answer
@@ -927,5 +927,42 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
             subjectDto.setAnswer(answer);
         }
         return startExamDto;
+    }
+
+    /**
+     * 判断该题是否答过
+     * @param judgeAnswerDTO
+     * @return
+     */
+    public Boolean judgeAnswer(JudgeAnswerDTO judgeAnswerDTO) {
+        String answer = answerMapper.findAnswer(Long.valueOf(judgeAnswerDTO.getExamRecordId()), Long.valueOf(judgeAnswerDTO.getSubjectId()), Long.valueOf(judgeAnswerDTO.getUserId()));
+        if (null != answer && !StringUtils.equals("", answer) && !StringUtils.equals("答:", answer)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 判断考题是否答完整
+     * @param judgeAnswerDTO
+     * @return
+     */
+    public Boolean judgeAnswerQuestion(JudgeAnswerDTO judgeAnswerDTO) {
+        // 某考试记录下所有考题数量
+        List<Answer> answerList = answerMapper.findQuestionCountByRecordId(judgeAnswerDTO.getExamRecordId());
+        // 某考试下所有考题数量
+        Integer totalCount = answerMapper.findExamTotalCount(judgeAnswerDTO.getExaminationId(), judgeAnswerDTO.getUserId());
+        // 判断开始记录里是否有答案为空的
+        for (Answer answer : answerList) {
+            if (null == answer.getAnswer() || StringUtils.equals("", answer.getAnswer())) {
+                return false;
+            }
+        }
+        if (answerList.size() < totalCount) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

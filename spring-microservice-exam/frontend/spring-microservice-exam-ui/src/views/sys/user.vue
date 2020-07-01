@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input placeholder="输入姓名查询" v-model="listQuery.name" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.query') }}</el-button>
+      <!--<el-input placeholder="输入姓名查询" v-model="listQuery.name" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.query') }}</el-button>-->
       <el-button v-if="user_btn_add" class="filter-item" icon="el-icon-check" type="primary" @click="handleCreate">{{ $t('table.add') }}</el-button>
       <el-button v-if="user_btn_del" class="filter-item" icon="el-icon-delete" type="danger" @click="handleDeletes">{{ $t('table.del') }}</el-button>
       <el-button v-if="user_btn_import" class="filter-item" icon="el-icon-upload2" type="success" @click="handleImport">{{ $t('table.import') }}</el-button>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.tangyi.user.mapper.StationMapper">
+
+    <resultMap id="stationResultMap" type="com.github.tangyi.user.api.module.Station">
+        <id column="id" property="id"/>
+        <result column="station" property="station"/>
+    </resultMap>
+
+    <sql id="stationColumns">
+        a.id,
+        a.station
+    </sql>
+
+    <select id="findAllList" resultMap="stationResultMap">
+        SELECT
+        <include refid="stationColumns"/>
+        FROM sys_station a
+    </select>
+
+</mapper>

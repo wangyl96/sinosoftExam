@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div class="clever-category bg-img" style="background-image: url(static/img/bg-img/bg2.jpg);">
-      <h3>艺术 & 设计</h3>
-    </div>
+<!--    <div class="clever-category bg-img" style="background-image: url(static/img/bg-img/bg2.jpg);">-->
+<!--      <h3>艺术 & 设计</h3>-->
+<!--    </div>-->
     <div class="content-container">
       <div class="course-card-list">
         <transition name="fade-transform" mode="out-in" v-for="course in courseList" :key="course.id">

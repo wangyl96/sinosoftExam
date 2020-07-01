@@ -22,11 +22,11 @@
                     <span>{{ tempAnswer.score }}</span>
                   </el-form-item>
                 </el-col>
-                <!--<el-col :span="6">
+                <el-col :span="6">
                   <el-form-item label="耗时：">
                     <span>{{ tempAnswer.duration }}</span>
                   </el-form-item>
-                </el-col>-->
+                </el-col>
                 <el-col :span="6">
                   <el-form-item label="状态：">
                     <el-tag :type="tempAnswer.markStatus | simpleTagStatusFilter(1) ">{{ tempAnswer.markStatus | submitStatusFilter }}</el-tag>
@@ -177,6 +177,7 @@ export default {
         examinationName: ''
       }
     },
+
     handleMarking () {
       getAnswerByRecordId(this.examRecordId, undefined, undefined).then(response => {
         if (response.data.data === null) {
@@ -202,7 +203,16 @@ export default {
       })
     },
     // 完成批改
+
     completeMarking () {
+      if (this.score === '') {
+        messageWarn(this, '得分不能为空')
+        return
+      }
+      if (this.score > this.tempAnswer.subject.answerScore) {
+        messageWarn(this, '分数设置超总分, 请重新打分')
+        return
+      }
       this.saveCurrentAnswerAndNext()
       completeMarking({ id: this.examRecordId }).then(response => {
         if (response.data.data) {
@@ -212,6 +222,10 @@ export default {
     },
     // 上一题
     last () {
+      if (this.score > this.tempAnswer.subject.answerScore) {
+        messageWarn(this, '分数设置超总分, 请重新打分')
+        return
+      }
       for (let i = 0; i < this.subjectIds.length; i++) {
         if (this.subjectIds[i].subjectId === this.subjectId) {
           if (i === 0) {
@@ -219,7 +233,7 @@ export default {
             break
           }
           if (this.score === '') {
-            messageSuccess(this, '得分不能为空')
+            messageWarn(this, '得分不能为空')
             break
           }
           let { subjectId, type, index } = this.subjectIds[--i]
@@ -231,6 +245,10 @@ export default {
     },
     // 下一题
     next () {
+    if (this.score > this.tempAnswer.subject.answerScore) {
+        messageWarn(this, '分数设置超总分, 请重新打分')
+        return
+      }
       for (let i = 0; i < this.subjectIds.length; i++) {
         if (this.subjectIds[i].subjectId === this.subjectId) {
           if (i === this.subjectIds.length - 1) {
@@ -238,12 +256,9 @@ export default {
             break
           }
           if (this.score === '') {
-            messageSuccess(this, '得分不能为空')
+            messageWarn(this, '得分不能为空')
             break
           }
-          /*for(let j = 0; j < this.subjectIds.length; j++) {
-
-          }*/
           let { subjectId, type, index } = this.subjectIds[++i]
           console.log(i)
           this.subjectIndex = index

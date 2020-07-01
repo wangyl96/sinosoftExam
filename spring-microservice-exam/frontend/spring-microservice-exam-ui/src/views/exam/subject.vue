@@ -34,8 +34,8 @@
             <span>题目管理</span>
           </div>
           <div class="filter-container">
-            <el-input v-model="listQuery.subjectName" placeholder="题目名称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-            <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.search') }}</el-button>
+            <!--<el-input v-model="listQuery.subjectName" placeholder="题目名称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+            <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.search') }}</el-button>-->
             <el-button v-if="subject_bank_btn_add" class="filter-item" type="primary" style="margin-left: 10px;" icon="el-icon-check" @click="handleCreateSubject">{{ $t('table.add') }}</el-button>
             <el-button v-if="subject_bank_btn_del" class="filter-item" type="danger" icon="el-icon-delete" @click="handleDeletesSubject">{{ $t('table.del') }}</el-button>
             <el-button v-if="subject_bank_btn_import" class="filter-item" type="success" icon="el-icon-upload2" @click="handleImportSubject">{{ $t('table.import') }}</el-button>
