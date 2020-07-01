@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
 @Service
 public class AnswerService extends CrudService<AnswerMapper, Answer> {
 
-	private final UserServiceClient userServiceClient;
+    private final UserServiceClient userServiceClient;
 
     private final AmqpTemplate amqpTemplate;
 
@@ -72,30 +72,30 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
 
     private final ChoicesAnswerHandler choicesHandler;
 
-	private final MultipleChoicesAnswerHandler multipleChoicesHandler;
+    private final MultipleChoicesAnswerHandler multipleChoicesHandler;
 
-	private final JudgementAnswerHandler judgementHandler;
+    private final JudgementAnswerHandler judgementHandler;
 
-	private final ShortAnswerHandler shortAnswerHandler;
+    private final ShortAnswerHandler shortAnswerHandler;
 
-	private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
-	@Resource
-	private ExamQuestionExamMapper examQuestionExamMapper;
+    @Resource
+    private ExamQuestionExamMapper examQuestionExamMapper;
 
-	@Resource
+    @Resource
     private ExaminationSubjectMapper examinationSubjectMapper;
 
-	@Resource
+    @Resource
     private SubjectChoicesMapper subjectChoicesMapper;
 
-	@Resource
+    @Resource
     private SubjectJudgementMapper subjectJudgementMapper;
 
-	@Resource
+    @Resource
     private SubjectShortAnswerMapper subjectShortAnswerMapper;
 
-	/**
+    /**
      * 查找答题
      *
      * @param answer answer
@@ -133,7 +133,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
     @Transactional
     @CacheEvict(value = "answer", key = "#answer.id")
     public int update(Answer answer) {
-    	answer.setAnswer(AnswerHandlerUtil.replaceComma(answer.getAnswer()));
+        answer.setAnswer(AnswerHandlerUtil.replaceComma(answer.getAnswer()));
         return super.update(answer);
     }
 
@@ -218,8 +218,8 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
     @Transactional
     public int save(Answer answer) {
         answer.setCommonValue(SysUtil.getUser(), SysUtil.getSysCode(), SysUtil.getTenantCode());
-		answer.setAnswer(AnswerHandlerUtil.replaceComma(answer.getAnswer()));
-		return super.save(answer);
+        answer.setAnswer(AnswerHandlerUtil.replaceComma(answer.getAnswer()));
+        return super.save(answer);
     }
 
     /**
@@ -235,32 +235,32 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
      */
     @Transactional
     public SubjectDto saveAndNext(AnswerDto answerDto, Integer type, Long nextSubjectId, Integer nextSubjectType) {
-		String userCode = SysUtil.getUser();
-		String sysCode = SysUtil.getSysCode();
-		String tenantCode = SysUtil.getTenantCode();
-		if (this.save(answerDto, userCode, sysCode, tenantCode) > 0) {
-			// 查询下一题
-			return this.subjectAnswer(answerDto.getUserId().toString(), answerDto.getSubjectId(), answerDto.getExamRecordId(),
-					type, nextSubjectId, nextSubjectType);
-		}
+        String userCode = SysUtil.getUser();
+        String sysCode = SysUtil.getSysCode();
+        String tenantCode = SysUtil.getTenantCode();
+        if (this.save(answerDto, userCode, sysCode, tenantCode) > 0) {
+            // 查询下一题
+            return this.subjectAnswer(answerDto.getUserId().toString(), answerDto.getSubjectId(), answerDto.getExamRecordId(),
+                    type, nextSubjectId, nextSubjectType);
+        }
         return null;
     }
 
-	/**
-	 * 保存答题
-	 *
-	 * @param answerDto       answerDto
-	 * @param userCode       userCode
-	 * @param sysCode       sysCode
-	 * @param tenantCode       tenantCode
-	 * @return int
-	 * @author tangyi
-	 * @date 2019/05/01 11:42
-	 */
-	@Transactional
-	public int save(AnswerDto answerDto, String userCode, String sysCode, String tenantCode) {
-		Answer answer = new Answer();
-		BeanUtils.copyProperties(answerDto, answer);
+    /**
+     * 保存答题
+     *
+     * @param answerDto  answerDto
+     * @param userCode   userCode
+     * @param sysCode    sysCode
+     * @param tenantCode tenantCode
+     * @return int
+     * @author tangyi
+     * @date 2019/05/01 11:42
+     */
+    @Transactional
+    public int save(AnswerDto answerDto, String userCode, String sysCode, String tenantCode) {
+        Answer answer = new Answer();
+        BeanUtils.copyProperties(answerDto, answer);
         String subjectAnswer = "";
         Double score = 0.0;
         // 获取题型分数
@@ -296,22 +296,22 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
             score = StringUtils.equals(subjectAnswer, answer.getAnswer()) == true ? choicesScore : 0.0;
         }
         answer.setScore(score);
-		Answer tempAnswer = this.getAnswer(answer);
-		if (tempAnswer != null) {
-			tempAnswer.setCommonValue(userCode, sysCode, tenantCode);
-			tempAnswer.setAnswer(answer.getAnswer());
-			tempAnswer.setType(answer.getType());
-			tempAnswer.setEndTime(tempAnswer.getModifyDate());
+        Answer tempAnswer = this.getAnswer(answer);
+        if (tempAnswer != null) {
+            tempAnswer.setCommonValue(userCode, sysCode, tenantCode);
+            tempAnswer.setAnswer(answer.getAnswer());
+            tempAnswer.setType(answer.getType());
+            tempAnswer.setEndTime(tempAnswer.getModifyDate());
             tempAnswer.setScore(score);
-			return this.update(tempAnswer);
-		} else {
-			answer.setCommonValue(userCode, sysCode, tenantCode);
-			answer.setMarkStatus(AnswerConstant.TO_BE_MARKED);
-			answer.setAnswerType(AnswerConstant.WRONG);
-			answer.setEndTime(answer.getModifyDate());
-			return this.insert(answer);
-		}
-	}
+            return this.update(tempAnswer);
+        } else {
+            answer.setCommonValue(userCode, sysCode, tenantCode);
+            answer.setMarkStatus(AnswerConstant.TO_BE_MARKED);
+            answer.setAnswerType(AnswerConstant.WRONG);
+            answer.setEndTime(answer.getModifyDate());
+            return this.insert(answer);
+        }
+    }
 
     /**
      * 提交答卷，自动统计选择题得分
@@ -332,13 +332,13 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         ExaminationRecord record = new ExaminationRecord();
         // 分类题目
         Map<String, List<Answer>> distinctAnswer = this.distinctAnswer(answerList);
-		AnswerHandleResult result = handleAll(distinctAnswer);
-		// 记录总分、正确题目数、错误题目数
-		record.setScore(result.getScore());
-		record.setCorrectNumber(result.getCorrectNum());
-		record.setInCorrectNumber(result.getInCorrectNum());
-		// 更新答题状态
-		distinctAnswer.values().forEach(answers -> answers.forEach(this::update));
+        AnswerHandleResult result = handleAll(distinctAnswer);
+        // 记录总分、正确题目数、错误题目数
+        record.setScore(result.getScore());
+        record.setCorrectNumber(result.getCorrectNum());
+        record.setInCorrectNumber(result.getInCorrectNum());
+        // 更新答题状态
+        distinctAnswer.values().forEach(answers -> answers.forEach(this::update));
         // 更新状态为统计完成，否则需要阅卷完成后才更改统计状态
         record.setSubmitStatus(SubmitStatusEnum.CALCULATED.getValue());
         // 保存成绩
@@ -350,20 +350,21 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         record.setEndTime(answer.getEndTime());
         examRecordService.update(record);
         // 更新排名数据
-		updateRank(record);
+        updateRank(record);
         log.debug("Submit examination, username: {}，time consuming: {}ms", currentUsername, System.currentTimeMillis() - start);
     }
 
     /**
      * 更新排名信息
-	 * 基于Redis的sort set数据结构
+     * 基于Redis的sort set数据结构
+     *
      * @param record record
      * @author tangyi
      * @date 2019/12/8 23:21
      */
     private void updateRank(ExaminationRecord record) {
-		redisTemplate.opsForZSet().add(AnswerConstant.CACHE_PREFIX_RANK + record.getExaminationId(), JsonMapper.getInstance().toJson(record), record.getScore());
-	}
+        redisTemplate.opsForZSet().add(AnswerConstant.CACHE_PREFIX_RANK + record.getExaminationId(), JsonMapper.getInstance().toJson(record), record.getScore());
+    }
 
     /**
      * 通过mq异步处理
@@ -398,9 +399,9 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         amqpTemplate.convertAndSend(MqConstant.SUBMIT_EXAMINATION_QUEUE, answer);
         // 2. 更新考试状态
         //boolean success = examRecordService.update(examRecord) > 0;
-		examRecordService.update(examRecord);
-		log.debug("Submit examination, username: {}，time consuming: {}ms", currentUsername, System.currentTimeMillis() - start);
-		return true;
+        examRecordService.update(examRecord);
+        log.debug("Submit examination, username: {}，time consuming: {}ms", currentUsername, System.currentTimeMillis() - start);
+        return true;
     }
 
     /**
@@ -419,7 +420,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
             throw new CommonException("参数校验失败，考试id为空！");
         if (examRecord.getUserId() == null)
             throw new CommonException("参数校验失败，用户id为空！");
-		return this.start(examRecord.getUserId(), currentUsername, examRecord.getExaminationId(), SysUtil.getSysCode(), SysUtil.getTenantCode());
+        return this.start(examRecord.getUserId(), currentUsername, examRecord.getExaminationId(), SysUtil.getSysCode(), SysUtil.getTenantCode());
     }
 
     /**
@@ -436,8 +437,8 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
      */
     @Transactional
     public SubjectDto subjectAnswer(String userId, Long subjectId, Long examRecordId, Integer nextType, Long nextSubjectId, Integer nextSubjectType) {
-		// 查找考试记录
-    	ExaminationRecord examRecord = examRecordService.get(examRecordId);
+        // 查找考试记录
+        ExaminationRecord examRecord = examRecordService.get(examRecordId);
         if (examRecord == null)
             throw new CommonException("考试记录不存在.");
 
@@ -502,17 +503,17 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
                     case CHOICES:
                         distinctMap.put(SubjectTypeEnum.CHOICES.name(), temp);
                         break;
-					case MULTIPLE_CHOICES:
-						distinctMap.put(SubjectTypeEnum.MULTIPLE_CHOICES.name(), temp);
-						break;
+                    case MULTIPLE_CHOICES:
+                        distinctMap.put(SubjectTypeEnum.MULTIPLE_CHOICES.name(), temp);
+                        break;
                     case SHORT_ANSWER:
                         distinctMap.put(SubjectTypeEnum.SHORT_ANSWER.name(), temp);
                         break;
-					case JUDGEMENT:
-						distinctMap.put(SubjectTypeEnum.JUDGEMENT.name(), temp);
-						break;
-					default:
-						break;
+                    case JUDGEMENT:
+                        distinctMap.put(SubjectTypeEnum.JUDGEMENT.name(), temp);
+                        break;
+                    default:
+                        break;
                 }
             }
         });
@@ -534,6 +535,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         ExaminationRecord record = examRecordService.get(recordId);
         SubjectDto subjectDto;
         Double scoreSubject = 0.0;
+        Double answerSubject = 0.0;
         // 题目为空，则加载第一题
         if (currentSubjectId == null) {
             subjectDto = subjectService.findFirstSubjectByExaminationId(record.getExaminationId(), record.getUserId());
@@ -545,9 +547,14 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
             } else if (1 == type) {
                 type = 3;
             }
-            Integer score = examQuestionExamMapper.getScoreByExamIdAndTypeId(type, record.getExaminationId());
+            //页面评分
+            Integer score = examQuestionExamMapper.getAnswerScoreByExamId(recordId,subjectDto.getId());
+            //该题总分
+            Integer answerScore = examQuestionExamMapper.getScoreByExamIdAndTypeId(type, record.getExaminationId());
             scoreSubject = Double.valueOf(score.toString());
             subjectDto.setScore(scoreSubject);
+            answerSubject = Double.valueOf(answerScore.toString());
+            subjectDto.setAnswerScore(answerSubject);
         } else {
             ExaminationSubject examinationSubject = new ExaminationSubject();
             examinationSubject.setExaminationId(record.getExaminationId());
@@ -574,9 +581,14 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
             } else if (1 == type) {
                 type = 3;
             }
-            Integer score = examQuestionExamMapper.getScoreByExamIdAndTypeId(type, record.getExaminationId());
+            //该题总分
+            Integer answerScore = examQuestionExamMapper.getScoreByExamIdAndTypeId(type, record.getExaminationId());
+            //页面评分
+            Integer score = examQuestionExamMapper.getAnswerScoreByExamId(recordId,currentSubjectId);
             scoreSubject = Double.valueOf(score.toString());
             subjectDto.setScore(scoreSubject);
+            answerSubject = Double.valueOf(answerScore.toString());
+            subjectDto.setAnswerScore(answerSubject);
         }
         AnswerDto answerDto = new AnswerDto();
         answerDto.setSubject(subjectDto);
@@ -610,7 +622,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
                     break;
             }
         }
-        ResponseBean<List<UserVo>> userVoResponseBean = userServiceClient.findUserById(new Long[] {record.getUserId()});
+        ResponseBean<List<UserVo>> userVoResponseBean = userServiceClient.findUserById(new Long[]{record.getUserId()});
         if (ResponseUtil.isSuccess(userVoResponseBean) && CollectionUtils.isNotEmpty(userVoResponseBean.getData())) {
             UserVo userVo = userVoResponseBean.getData().get(0);
             answerDto.setUserName(userVo.getName());
@@ -618,6 +630,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         answerDto.setUserId(record.getUserId());
         return answerDto;
     }
+
 
     /**
      * 完成批改
@@ -653,46 +666,47 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
 
     /**
      * 获取排名数据
+     *
      * @param recordId recordId
      * @return List
      * @author tangyi
      * @date 2019/12/8 23:36
      */
-	public List<RankInfoDto> getRankInfo(Long recordId) {
-		List<RankInfoDto> rankInfos = new ArrayList<>();
-		// 查询缓存
-		Set<ZSetOperations.TypedTuple<String>> typedTuples = redisTemplate.opsForZSet()
-				.reverseRangeByScoreWithScores(AnswerConstant.CACHE_PREFIX_RANK + recordId, 0, Integer.MAX_VALUE);
-		if (typedTuples != null) {
-			// 用户ID列表
-			Set<Long> userIds = new HashSet<>();
-			typedTuples.forEach(typedTuple -> {
-				ExaminationRecord record = JsonMapper.getInstance()
-						.fromJson(typedTuple.getValue(), ExaminationRecord.class);
-				if (record != null) {
-					RankInfoDto rankInfo = new RankInfoDto();
-					rankInfo.setUserId(record.getUserId());
-					userIds.add(record.getUserId());
-					rankInfo.setScore(typedTuple.getScore());
-					rankInfos.add(rankInfo);
-				}
-			});
-			if (!userIds.isEmpty()) {
-				ResponseBean<List<UserVo>> userResponse = userServiceClient.findUserById(userIds.toArray(new Long[0]));
-				if (ResponseUtil.isSuccess(userResponse)) {
-					rankInfos.forEach(rankInfo -> {
-						userResponse.getData().stream().filter(user -> user.getId().equals(rankInfo.getUserId()))
-								.findFirst().ifPresent(user -> {
-							// 设置考生信息
-							rankInfo.setName(user.getName());
-							rankInfo.setAvatarUrl(user.getAvatarUrl());
-						});
-					});
-				}
-			}
-		}
-		return rankInfos;
-	}
+    public List<RankInfoDto> getRankInfo(Long recordId) {
+        List<RankInfoDto> rankInfos = new ArrayList<>();
+        // 查询缓存
+        Set<ZSetOperations.TypedTuple<String>> typedTuples = redisTemplate.opsForZSet()
+                .reverseRangeByScoreWithScores(AnswerConstant.CACHE_PREFIX_RANK + recordId, 0, Integer.MAX_VALUE);
+        if (typedTuples != null) {
+            // 用户ID列表
+            Set<Long> userIds = new HashSet<>();
+            typedTuples.forEach(typedTuple -> {
+                ExaminationRecord record = JsonMapper.getInstance()
+                        .fromJson(typedTuple.getValue(), ExaminationRecord.class);
+                if (record != null) {
+                    RankInfoDto rankInfo = new RankInfoDto();
+                    rankInfo.setUserId(record.getUserId());
+                    userIds.add(record.getUserId());
+                    rankInfo.setScore(typedTuple.getScore());
+                    rankInfos.add(rankInfo);
+                }
+            });
+            if (!userIds.isEmpty()) {
+                ResponseBean<List<UserVo>> userResponse = userServiceClient.findUserById(userIds.toArray(new Long[0]));
+                if (ResponseUtil.isSuccess(userResponse)) {
+                    rankInfos.forEach(rankInfo -> {
+                        userResponse.getData().stream().filter(user -> user.getId().equals(rankInfo.getUserId()))
+                                .findFirst().ifPresent(user -> {
+                            // 设置考生信息
+                            rankInfo.setName(user.getName());
+                            rankInfo.setAvatarUrl(user.getAvatarUrl());
+                        });
+                    });
+                }
+            }
+        }
+        return rankInfos;
+    }
 
     /**
      * 获取错题列表
@@ -707,7 +721,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
      * @author tangyi
      * @date 2020/02/19 22:50
      */
-	public PageInfo<AnswerDto> answerListInfo(String pageNum, String pageSize, String sort, String order, Long recordId, Answer answer) {
+    public PageInfo<AnswerDto> answerListInfo(String pageNum, String pageSize, String sort, String order, Long recordId, Answer answer) {
         List<AnswerDto> answerDtos = new ArrayList<>();
         answer.setExamRecordId(recordId);
         PageInfo<Answer> answerPageInfo = this.findPage(PageUtil.pageInfo(pageNum, pageSize, sort, order), answer);
@@ -748,26 +762,28 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         return answerDtoPageInfo;
     }
 
-	/**
-	 * 根据examRecordId查询
-	 * @param examRecordId examRecordId
-	 * @return List
-	 * @author tangyi
-	 * @date 2020/2/21 1:08 下午
-	 */
-	public List<Answer> findListByExamRecordId(Long examRecordId) {
-		return this.dao.findListByExamRecordId(examRecordId);
-	}
+    /**
+     * 根据examRecordId查询
+     *
+     * @param examRecordId examRecordId
+     * @return List
+     * @author tangyi
+     * @date 2020/2/21 1:08 下午
+     */
+    public List<Answer> findListByExamRecordId(Long examRecordId) {
+        return this.dao.findListByExamRecordId(examRecordId);
+    }
 
     /**
      * 移动端提交答题
+     *
      * @param examinationId examinationId
      * @return ResponseBean
      * @author tangyi
      * @date 2020/03/15 16:08
      */
     @Transactional
-	public boolean anonymousUserSubmit(Long examinationId, String identifier, List<SubjectDto> subjectDtos) {
+    public boolean anonymousUserSubmit(Long examinationId, String identifier, List<SubjectDto> subjectDtos) {
         long start = System.currentTimeMillis();
         if (StringUtils.isBlank(identifier) || CollectionUtils.isEmpty(subjectDtos)) {
             return false;
@@ -824,6 +840,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
 
     /**
      * 自动判分
+     *
      * @param distinctAnswer distinctAnswer
      * @return ResponseBean
      * @author tangyi
@@ -842,7 +859,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
      * 开始考试
      *
      * @param examinationId examinationId
-     * @param identifier identifier
+     * @param identifier    identifier
      * @return StartExamDto
      * @author tangyi
      * @date 2020/3/21 5:51 下午
@@ -867,11 +884,11 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
     /**
      * 开始考试
      *
-     * @param userId userId
-     * @param identifier identifier
-     * @param examinationId examinationId
+     * @param userId          userId
+     * @param identifier      identifier
+     * @param examinationId   examinationId
      * @param applicationCode applicationCode
-     * @param tenantCode tenantCode
+     * @param tenantCode      tenantCode
      * @return StartExamDto
      * @author tangyi
      * @date 2019/04/30 23:06

@@ -54,6 +54,12 @@ public interface ExamQuestionExamMapper extends CrudMapper<ExamQuestionExam> {
     Integer getScoreByExamIdAndTypeId(Integer type, Long examinationId);
 
     /**
+     * 根据答题id和考试id获取该题实际分数
+     * @param examinationId
+     * @return
+     */
+    Integer getAnswerScoreByExamId(Long recordId,Long subjectId);
+    /**
      * 获取题型分数
      * @param examRecordId
      * @return
