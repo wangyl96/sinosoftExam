@@ -40,7 +40,7 @@
               <div class="subject-content-option">
                 <div class="subject-title">
                   <span class="subject-title-number">{{ subjectIndex }} .</span>
-                  {{ tempAnswer.subject.subjectName }}({{tempAnswer.subject.score}})分
+                  {{ tempAnswer.subject.subjectName }}({{tempAnswer.subject.answerScore}})分
                 </div>
                 <div v-if="tempAnswer.subject.type === 0 || tempAnswer.subject.type === 2 || tempAnswer.subject.type === 3">
                   <ul class="subject-options" v-for="option in tempAnswer.subject.options" :key="option.id">
