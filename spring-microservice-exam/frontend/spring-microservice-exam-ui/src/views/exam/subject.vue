@@ -193,7 +193,7 @@
     <el-dialog title="预览题目" :visible.sync="dialogViewVisible" width="60%" top="10vh">
       <div class="subject-title">
         <span class="subject-title-content" v-html="tempSubject.subjectName"/>
-        <span class="subject-title-content">&nbsp;({{tempSubject.score}})分</span>
+        <!--<span class="subject-title-content">&nbsp;({{tempSubject.score}})分</span>-->
       </div>
       <ul v-if="tempSubject.type === 0 || tempSubject.type === 3" class="subject-options">
         <li class="subject-option" v-for="(option) in tempSubject.options" :key="option.id">
