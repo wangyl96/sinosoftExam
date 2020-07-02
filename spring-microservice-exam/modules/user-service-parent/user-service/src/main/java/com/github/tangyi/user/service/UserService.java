@@ -434,7 +434,7 @@ public class UserService extends CrudService<UserMapper, User> {
      * @date 2018/9/14 20:12
      */
     public void saveImageCode(String random, String imageCode) {
-        redisTemplate.opsForValue().set(CommonConstant.DEFAULT_CODE_KEY + LoginTypeEnum.PWD.getType() + "@" + random, imageCode, SecurityConstant.DEFAULT_IMAGE_EXPIRE, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(CommonConstant.DEFAULT_CODE_KEY + LoginTypeEnum.PWD.getType() + "@" + random, imageCode, SecurityConstant.DEFAULT_IMAGE_EXPIRE, TimeUnit.MINUTES);
     }
 
     /**
