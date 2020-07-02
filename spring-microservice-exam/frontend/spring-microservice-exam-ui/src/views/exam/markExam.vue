@@ -22,15 +22,18 @@
                     <span>{{ tempAnswer.score }}</span>
                   </el-form-item>
                 </el-col>
-                <el-col :span="6">
+                <!--<el-col :span="6">
                   <el-form-item label="耗时：">
                     <span>{{ tempAnswer.duration }}</span>
                   </el-form-item>
-                </el-col>
+                </el-col>-->
                 <el-col :span="6">
                   <el-form-item label="状态：">
                     <el-tag :type="tempAnswer.markStatus | simpleTagStatusFilter(1) ">{{ tempAnswer.markStatus | submitStatusFilter }}</el-tag>
                   </el-form-item>
+                </el-col>
+                <el-col :span="6">
+                  <el-button type="success" icon="el-icon-check"  @click="completeMarking">批改完成</el-button>
                 </el-col>
               </el-row>
             </div>
@@ -102,7 +105,6 @@
             <div class="subject-buttons" v-if="tempAnswer.subject.id !== ''">
               <el-button plain @click="last" :loading="loadingLast">上一题</el-button>
               <el-button plain @click="next" v-show="!lastOne()" :loading="loadingNext">下一题</el-button>
-              <el-button type="success" icon="el-icon-check" v-show="lastOne()"  @click="completeMarking">批改完成</el-button>
             </div>
           </el-form>
         </el-col>
@@ -159,7 +161,6 @@ export default {
   },
   created () {
     const ids = this.$route.params.id.split('-')
-    console.log(ids)
     this.examinationId = ids[0]
     this.examRecordId = ids[1]
     this.handleMarking()
@@ -189,7 +190,7 @@ export default {
         this.subjectId = id
         this.score = score
         this.correct = this.tempAnswer.answerType === 0
-        getSubjectIds(this.examinationId,this.tempAnswer.userId).then(response => {
+        getSubjectIds(this.examinationId, this.tempAnswer.userId).then(response => {
           const subjectData = response.data.data
           if (subjectData.length > 0) {
             for (let i = 0; i < subjectData.length; i++) {
@@ -214,6 +215,7 @@ export default {
         return
       }
       this.saveCurrentAnswerAndNext()
+      this.tempAnswer.score = this.score
       completeMarking({ id: this.examRecordId }).then(response => {
         if (response.data.data) {
           messageSuccess(this, '操作成功')
@@ -245,7 +247,7 @@ export default {
     },
     // 下一题
     next () {
-    if (this.score > this.tempAnswer.subject.answerScore) {
+      if (this.score > this.tempAnswer.subject.answerScore) {
         messageWarn(this, '分数设置超总分, 请重新打分')
         return
       }
@@ -260,7 +262,6 @@ export default {
             break
           }
           let { subjectId, type, index } = this.subjectIds[++i]
-          console.log(i)
           this.subjectIndex = index
           this.saveCurrentAnswerAndNext(subjectId, type, nextSubjectType.next)
           break

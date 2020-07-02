@@ -54,8 +54,8 @@ export default {
     return {
       loginForm: {
         tenantCode: 'gitee',
-        identifier: 'preview',
-        credential: '123456',
+        identifier: '',
+        credential: '',
         code: '',
         randomStr: '',
         rememberMe: false
