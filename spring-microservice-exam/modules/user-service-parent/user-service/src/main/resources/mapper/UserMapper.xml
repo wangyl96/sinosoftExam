@@ -4,6 +4,8 @@
     <resultMap id="userResultMap" type="com.github.tangyi.user.api.module.User">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
+        <result column="company" property="company"/>
+        <result column="station_id" property="stationId"/>
         <result column="phone" property="phone"/>
         <result column="avatar_id" property="avatarId"/>
         <result column="email" property="email"/>
@@ -34,6 +36,8 @@
     <sql id="userColumns">
         a.id,
         a.name,
+        a.company,
+        a.station_id,
         a.phone,
         a.avatar_id,
         a.email,
@@ -128,6 +132,8 @@
         insert into sys_user (
             id,
             name,
+            company,
+            station_id,
             phone,
             avatar_id,
             email,
@@ -156,6 +162,8 @@
         ) values (
             #{id},
             #{name},
+            #{company},
+            #{stationId},
             #{phone},
             #{avatarId},
             #{email},

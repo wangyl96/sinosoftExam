@@ -403,9 +403,11 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 	 * @date 2020/2/21 9:26 上午
 	 */
 	public ExaminationRecordDto details(Long id) {
+		//获取该条考试记录
 		ExaminationRecord examRecord = this.get(id);
 		if (examRecord == null)
 			throw new CommonException("ExamRecord is not exist");
+		//获取考试表记录
 		Examination examination = examinationService.get(examRecord.getExaminationId());
 		if (examination == null)
 			throw new CommonException("Examination is not exist");

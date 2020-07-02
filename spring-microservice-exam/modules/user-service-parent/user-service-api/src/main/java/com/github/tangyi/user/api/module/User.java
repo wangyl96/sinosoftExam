@@ -2,6 +2,7 @@ package com.github.tangyi.user.api.module;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.github.tangyi.common.core.persistence.BaseEntity;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.Email;
@@ -22,6 +23,17 @@ public class User extends BaseEntity<User> {
      * 姓名
      */
     private String name;
+
+
+    /**
+     * 公司名称
+     */
+    private String company;
+
+    /**
+     * 岗位
+     */
+    private Long stationId;
 
     /**
      * 电话
