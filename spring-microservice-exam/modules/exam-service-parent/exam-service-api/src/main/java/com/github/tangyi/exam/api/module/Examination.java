@@ -7,6 +7,7 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 考试
@@ -76,7 +77,10 @@ public class Examination extends BaseEntity<Examination> {
      * 考试题目类型(选择,判断,简答)
      */
     private String questionStyle;
-
+    /**
+     * 考试题目类型集合(选择,判断,简答)
+     */
+    private List<String> questionStyleMap;
     /**
      * 考试时长
      */

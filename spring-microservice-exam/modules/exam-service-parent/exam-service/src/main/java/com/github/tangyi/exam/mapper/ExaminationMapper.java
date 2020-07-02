@@ -39,4 +39,10 @@ public interface ExaminationMapper extends CrudMapper<Examination> {
      * @return
      */
     Integer getScore(Long examinationId);
+
+    /**
+     * 根据题型名称查询题型id
+     * @return
+     */
+    Integer  selectQuestionId(String typeName);
 }
