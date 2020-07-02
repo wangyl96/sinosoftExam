@@ -4,8 +4,8 @@
       <!--<el-input :placeholder="$t('table.subjectName')" v-model="subject.listQuery.subjectName" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilterSubject"/>-->
       <!--<el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilterSubject">{{ $t('table.search') }}</el-button>-->
       <el-button v-if="exam_btn_subject_add" style="margin-bottom: 20px; float: right" class="filter-item" type="primary" icon="el-icon-check" @click="save()">保存</el-button>
-      <!--<el-button v-if="exam_btn_subject_import" class="filter-item" type="success" icon="el-icon-upload2" @click="handleImportSubject">{{ $t('table.import') }}</el-button>-->
-      <!--<el-button v-if="exam_btn_subject_export" class="filter-item" type="success" icon="el-icon-download" @click="handleExportSubject">{{ $t('table.export') }}</el-button>-->
+      <el-button v-if="exam_btn_subject_import" class="filter-item" type="success" icon="el-icon-upload2" @click="handleImportSubject">{{ $t('table.import') }}</el-button>
+      <el-button v-if="exam_btn_subject_export" class="filter-item" type="success" icon="el-icon-download" @click="handleExportSubject">{{ $t('table.export') }}</el-button>
     <!--</div>-->
     <!--需要先从数据库查出本考试的题型, 再让客户根据题型选择每种题型的个数及分数-->
     <spinner-loading v-if="subject.listLoading"/>
