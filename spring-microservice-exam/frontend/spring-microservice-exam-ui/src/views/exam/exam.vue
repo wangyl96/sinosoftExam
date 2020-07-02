@@ -59,11 +59,11 @@
               操作<i class="el-icon-caret-bottom el-icon--right"></i>
             </span>
             <el-dropdown-menu slot="dropdown">
-<!--              <el-dropdown-item v-if="exam_btn_edit">-->
-<!--                <a @click="handleUpdate(scope.row)">-->
-<!--                  <span><i class="el-icon-edit"></i>{{ $t('table.edit') }}</span>-->
-<!--                </a>-->
-<!--              </el-dropdown-item>-->
+              <el-dropdown-item v-if="exam_btn_edit">
+                <a @click="handleUpdate(scope.row)">
+                  <span><i class="el-icon-edit"></i>{{ $t('table.edit') }}</span>
+                </a>
+              </el-dropdown-item>
               <el-dropdown-item v-if="exam_btn_edit && scope.row.status == 1">
                 <a @click="handlePublic(scope.row, 0)">
                   <span><i class="el-icon-check"></i>{{ $t('table.public') }}</span>
@@ -171,10 +171,10 @@
               <el-col :span="24">
                 <el-form-item :label="$t('table.subjectType')" prop="subjectType">
                   <el-checkbox-group
-                    v-model="temp.questionStyle"
+                    v-model="temp.questionStyleMap"
                     :min="1"
                   >
-                    <el-checkbox v-for="subject in temp.subjectType" :label="subject" :key="subject">{{subject.questionTypeName}}</el-checkbox>
+                    <el-checkbox v-for="subject in temp.subjectType" :label="subject" :key="subject">{{subject}}</el-checkbox>
                   </el-checkbox-group>
                 </el-form-item>
               </el-col>
@@ -326,17 +326,8 @@ export default {
         duration: '',
         totalScore: '',
         totalSubject: '0',
-        questionStyle: [],
-        subjectType: [{
-          'id': '1',
-          'questionTypeName': '选择题'
-        }, {
-          'id': '2',
-          'questionTypeName': '判断题'
-        }, {
-          'id': '3',
-          'questionTypeName': '简答题'
-        }],
+        questionStyleMap: [],
+        subjectType: ['选择题', '判断题', '简答题'],
         status: 1,
         avatarId: null,
         collegeId: '',
@@ -419,7 +410,6 @@ export default {
         for (let i = 0; i < this.list.length; i++) {
           this.list[i].type = 1
         }
-        console.log(this.list)
         this.total = parseInt(response.data.total)
         setTimeout(() => {
           this.listLoading = false
@@ -468,17 +458,8 @@ export default {
         duration: '',
         totalScore: '',
         status: 1,
-        questionStyle: [],
-        subjectType: [{
-          'id': '1',
-          'questionTypeName': '选择题'
-        }, {
-          'id': '2',
-          'questionTypeName': '判断题'
-        }, {
-          'id': '3',
-          'questionTypeName': '简答题'
-        }],
+        questionStyleMap: [],
+        subjectType: ['选择题', '判断题', '简答题'],
         avatar: '',
         collegeId: '',
         majorId: '',
@@ -501,8 +482,6 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           this.temp.totalScore = parseInt(this.temp.totalScore)
-          this.temp.questionStyle = JSON.stringify(this.temp.questionStyle)
-          console.log(this.temp)
           addObj(this.temp).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
@@ -522,6 +501,8 @@ export default {
     },
     handleUpdate (row) {
       this.temp = Object.assign({}, row)
+      this.temp.subjectType = ['选择题', '判断题', '简答题']
+      // this.temp.questionStyleMap = ["判断题", "简答题"]
       this.avatar = ''
       if (!isNotEmpty(this.temp.course)) {
         this.temp.course = {
