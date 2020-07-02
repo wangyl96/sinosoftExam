@@ -184,6 +184,9 @@
         <if test="delFlag != null">
             del_flag = #{delFlag},
         </if>
+        <if test="questionStyle != null">
+            question_style = #{questionStyle},
+        </if>
         modifier = #{modifier},
         modify_date = #{modifyDate, jdbcType=TIMESTAMP, javaType=java.util.Date}
         WHERE id = #{id}
@@ -199,4 +202,7 @@
                  separator="," close=")">#{item}
         </foreach>
     </delete>
+    <select id="selectQuestionId" parameterType="string" resultType="java.lang.Integer">
+      SELECT id from exam_question_type where quesrtion_type_name =#{typeName}
+    </select>
 </mapper>
