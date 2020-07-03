@@ -329,14 +329,15 @@ export default {
     },
     // 注册
     handleRegister () {
-      console.log(this.register.form)
       this.$refs.registerForm.validate(valid => {
         if (valid) {
           this.register.loading = true
-          this.$store.dispatch('RegisterByUsername', this.register.form).then(() => {
+          this.$store.dispatch('RegisterByUsername', this.register.form).then((res) => {
             this.register.loading = false
-            this.$message.success('注册成功！')
-            this.$router.push({ path: '/login' })
+            if(res.data.code === 200){
+              this.$message.success('注册成功！')
+              this.$router.push({ path: '/login' })
+            }
           }).catch(() => {
             this.register.loading = false
             this.refreshRegisterCode()

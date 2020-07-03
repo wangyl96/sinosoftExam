@@ -73,6 +73,11 @@
                   <span><i class="el-icon-check"></i>{{ $t('table.examRecord.marking') }}</span>
                 </a>
               </el-dropdown-item>
+              <el-dropdown-item>
+                <a @click="deleteExam(scope.row)">
+                  <span><i class="el-icon-delete"></i>{{ $t('table.examRecord.deleteExam') }}</span>
+                </a>
+              </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </template>
@@ -108,17 +113,18 @@
 </template>
 
 <script>
-import { fetchExamRecordList, exportObj } from '@/api/exam/examRecord'
+import { fetchExamRecordList, exportObj,examRecordDelete} from '@/api/exam/examRecord'
 import waves from '@/directive/waves'
 import { mapGetters } from 'vuex'
-import { exportExcel } from '@/utils/util'
 import SpinnerLoading from '@/components/SpinnerLoading'
+import { exportExcel,checkMultipleSelect, notifySuccess, isNotEmpty } from '@/utils/util'
 
 export default {
   name: 'ExamRecordManagement',
   components: {
     SpinnerLoading
   },
+  inject: ["reload"], //注入reload方法
   directives: {
     waves
   },
@@ -259,7 +265,22 @@ export default {
       this.$router.push({
         path: `/exam/mark/${row.examinationId}-${row.id}`
       })
+    },
+    // 删除
+    deleteExam (row) {
+      this.$confirm('确定要删除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        examRecordDelete(row.id).then(() => {
+          notifySuccess(this, '删除成功')
+          this.reload()
+        })
+      })
     }
+    //删除多个
+
   }
 }
 </script>

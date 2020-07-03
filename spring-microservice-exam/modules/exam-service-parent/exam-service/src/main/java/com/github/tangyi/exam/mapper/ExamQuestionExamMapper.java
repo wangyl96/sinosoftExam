@@ -46,6 +46,11 @@ public interface ExamQuestionExamMapper extends CrudMapper<ExamQuestionExam> {
     int insertForeach(List<ExamQuestionExam> examQuestionExamList);
 
     /**
+     *根据考试id删除已插入的考试类型
+     * @return
+     */
+    int deleteById(Long id);
+    /**
      * 获取指定考试考题的分数
      * @param type
      * @param examinationId
