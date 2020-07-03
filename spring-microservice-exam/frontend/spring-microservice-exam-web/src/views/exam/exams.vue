@@ -47,9 +47,9 @@
               <div class="card-item-course-detail mb-12">
                 <a href="#">{{ exam.course.courseName }}</a>
               </div>
-              <div class="card-item-course-detail mb-12">
-                <a href="#">{{ exam.startTime | timeFilter }}~{{ exam.endTime | timeFilter }}</a>
-              </div>
+<!--              <div class="card-item-course-detail mb-12">-->
+<!--                <a href="#">{{ exam.startTime | timeFilter }}~{{ exam.endTime | timeFilter }}</a>-->
+<!--              </div>-->
             </div>
           </div>
         </div>
@@ -205,10 +205,10 @@ export default {
             }).then(() => {
               // 考题入库
               addSubjectExamList({'examinationId': exam.id, 'userId': this.userInfo.id}).then(response => {
-                // if (response.data.data === -1) {
-                //   messageWarn(this, '您已经参加过本考试')
-                //   return
-                // }
+                if (response.data.data === -1) {
+                   messageWarn(this, '您已经参加过本考试')
+                   return
+                }
                 // 开始考试
                 store.dispatch('StartExam', this.tempExamRecord).then(() => {
                   if (this.examRecord === undefined || this.subject === undefined) {
