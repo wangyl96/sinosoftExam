@@ -37,7 +37,7 @@
       </div>
       <el-row style="text-align: center; margin-bottom: 50px;">
         <el-col :span="24">
-          <el-button type="default" @click="scrollList" :loading="loading" style="margin-bottom: 100px;">加载更多</el-button>
+          <el-button type="default" v-show="loadingMore()" @click="scrollList" :loading="loading" style="margin-bottom: 100px;">加载更多</el-button>
         </el-col>
       </el-row>
     </div>
@@ -109,6 +109,14 @@ export default {
           this.loading = false
         })
       }, 500)
+    },
+    loadingMore(){
+      if(this.courseList.length === this.total){
+        return false
+      }
+      if(this.total > 3){
+        return true
+      }
     },
     updateCourseList (list) {
       if (list === undefined || list.length === 0) {
