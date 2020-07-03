@@ -226,6 +226,8 @@ export default {
       deptName: '部门',
       score: '成绩',
       examTime: '考试时间',
+      company: '公司',
+      station: '岗位',
       submitStatus: '状态',
       details: '详情',
       marking: '批改',

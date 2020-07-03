@@ -26,6 +26,16 @@
           <span>{{ scope.row.userName }}</span>
         </template>
       </el-table-column>
+      <el-table-column :label="$t('table.examRecord.company')" min-width="90">
+        <template slot-scope="scope">
+          <span>{{ scope.row.company }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="$t('table.examRecord.station')" min-width="90">
+        <template slot-scope="scope">
+          <span>{{ scope.row.station }}</span>
+        </template>
+      </el-table-column>
       <el-table-column :label="$t('table.examRecord.deptName')" min-width="90">
         <template slot-scope="scope">
           <span>{{ scope.row.deptName }}</span>
@@ -165,7 +175,9 @@ export default {
       this.listLoading = true
       fetchExamRecordList(this.listQuery).then(response => {
         this.list = response.data.list
+        console.log(this.list)
         this.total = parseInt(response.data.total)
+        console.log(this.total)
         setTimeout(() => {
           this.listLoading = false
         }, 500)

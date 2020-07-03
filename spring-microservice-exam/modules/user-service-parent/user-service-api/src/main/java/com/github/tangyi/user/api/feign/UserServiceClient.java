@@ -3,6 +3,7 @@ package com.github.tangyi.user.api.feign;
 import com.github.tangyi.common.basic.model.Log;
 import com.github.tangyi.common.basic.vo.AttachmentVo;
 import com.github.tangyi.common.basic.vo.DeptVo;
+import com.github.tangyi.common.basic.vo.UserRecordVo;
 import com.github.tangyi.common.basic.vo.UserVo;
 import com.github.tangyi.common.core.constant.ServiceConstant;
 import com.github.tangyi.common.core.model.ResponseBean;
@@ -69,7 +70,7 @@ public interface UserServiceClient {
      * @return UserVo
      */
     @RequestMapping(value = "/v1/user/findById", method = RequestMethod.POST)
-    ResponseBean<List<UserVo>> findUserById(@RequestBody Long[] ids);
+    ResponseBean<List<UserRecordVo>> findUserById(@RequestBody Long[] ids);
 
     /**
      * 查询用户数量

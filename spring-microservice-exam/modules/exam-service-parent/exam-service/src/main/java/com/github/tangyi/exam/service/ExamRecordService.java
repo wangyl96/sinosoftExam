@@ -3,6 +3,7 @@ package com.github.tangyi.exam.service;
 import com.github.pagehelper.PageInfo;
 import com.github.tangyi.common.basic.utils.excel.ExcelToolUtil;
 import com.github.tangyi.common.basic.vo.DeptVo;
+import com.github.tangyi.common.basic.vo.UserRecordVo;
 import com.github.tangyi.common.basic.vo.UserVo;
 import com.github.tangyi.common.core.constant.CommonConstant;
 import com.github.tangyi.common.core.exceptions.CommonException;
@@ -226,18 +227,24 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 	 */
     public void fillExamUserInfo(List<ExaminationRecordDto> examRecordDtoList, Long[] userIds) {
 		// 查询用户信息
-		ResponseBean<List<UserVo>> returnT = userServiceClient.findUserById(userIds);
+		ResponseBean<List<UserRecordVo>> returnT = userServiceClient.findUserById(userIds);
 		if (ResponseUtil.isSuccess(returnT)) {
 			// 查询部门信息
-			ResponseBean<List<DeptVo>> deptResponseBean = userServiceClient.findDeptById(returnT.getData().stream().map(UserVo::getDeptId).distinct().toArray(Long[]::new));
+			ResponseBean<List<DeptVo>> deptResponseBean = userServiceClient.findDeptById(returnT.getData().stream().map(UserRecordVo::getDeptId).distinct().toArray(Long[]::new));
 			if (ResponseUtil.isSuccess(deptResponseBean)) {
 				examRecordDtoList.forEach(tempExamRecordDto -> {
 					// 查询、设置用户信息
-					UserVo examRecordDtoUserVo = returnT.getData().stream()
+					UserRecordVo examRecordDtoUserVo = returnT.getData().stream()
 							.filter(tempUserVo -> tempExamRecordDto.getUserId().equals(tempUserVo.getId()))
 							.findFirst().orElse(null);
 					if (examRecordDtoUserVo != null) {
-						// 设置用户名
+						//设置用户名
+						tempExamRecordDto.setName(examRecordDtoUserVo.getUsername());
+						//设置公司
+						tempExamRecordDto.setCompany(examRecordDtoUserVo.getCompany());
+						//设置岗位
+						tempExamRecordDto.setStation(examRecordDtoUserVo.getStation());
+						// 设置姓名
 						tempExamRecordDto.setUserName(examRecordDtoUserVo.getName());
 						// 查询、设置部门信息
 						if (CollectionUtils.isNotEmpty(deptResponseBean.getData())) {

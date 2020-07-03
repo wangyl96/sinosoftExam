@@ -2,6 +2,7 @@ package com.github.tangyi.user.controller;
 
 import com.github.pagehelper.PageInfo;
 import com.github.tangyi.common.basic.utils.excel.ExcelToolUtil;
+import com.github.tangyi.common.basic.vo.UserRecordVo;
 import com.github.tangyi.common.basic.vo.UserVo;
 import com.github.tangyi.common.core.constant.CommonConstant;
 import com.github.tangyi.common.core.exceptions.CommonException;
@@ -383,7 +384,7 @@ public class UserController extends BaseController {
     @PostMapping(value = "findById")
     @ApiOperation(value = "根据ID查询用户", notes = "根据ID查询用户")
     @ApiImplicitParam(name = "ids", value = "用户ID", required = true, paramType = "Long")
-    public ResponseBean<List<UserVo>> findById(@RequestBody Long[] ids) {
+    public ResponseBean<List<UserRecordVo>> findById(@RequestBody Long[] ids) {
         return new ResponseBean<>(userService.findUserVoListById(ids));
     }
 
@@ -489,7 +490,10 @@ public class UserController extends BaseController {
     }
 
 
-
+    /**
+     * 获取所有的岗位信息
+     * @return
+     */
     @GetMapping("anonymousUser/checkExist/getStation")
     public ResponseBean<List<Station>> getStation() {
         return new ResponseBean<>(stationService.getStation());

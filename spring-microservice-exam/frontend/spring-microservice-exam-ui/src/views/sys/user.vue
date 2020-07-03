@@ -95,12 +95,31 @@
         <el-row>
           <el-col :span="12">
             <el-form-item :label="$t('login.identifier')" prop="identifier">
-              <el-input v-model="temp.identifier" :readonly="temp.readonly"/>
+              <el-input v-model="temp.identifier" :readonly="temp.readonly" placeholder="请输入账号" type="text"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('table.name')" prop="name">
               <el-input v-model="temp.name" placeholder="姓名"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item :label="$t('table.examRecord.company')" prop="company">
+              <el-input v-model="temp.company" placeholder="公司"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item :label="$t('table.examRecord.station')" prop="station">
+              <el-select style="width: 300px" v-model="temp.stationId" placeholder="请选择岗位">
+                <el-option v-for="item in options"
+                           :label="item.station"
+                           :key="item.id"
+                           :value="item.id"
+                >
+                </el-option>
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
@@ -165,7 +184,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">{{ $t('table.cancel') }}</el-button>
-        <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">{{ $t('table.confirm') }}</el-button>
+        <el-button v-if="dialogStatus=='create'" type="primary" @click.native.prevent="createData">{{ $t('table.confirm') }}</el-button>
         <el-button v-else type="primary" @click="updateData">{{ $t('table.confirm') }}</el-button>
       </div>
     </el-dialog>
@@ -253,7 +272,7 @@
 </template>
 
 <script>
-import { fetchList, addObj, putObj, delObj, delAllObj, exportObj, resetPassword, updateObjInfo } from '@/api/admin/user'
+import { fetchList, addObj, putObj, delObj, delAllObj, exportObj, resetPassword, updateObjInfo, checkExist, getStation } from '@/api/admin/user'
 import { allRoles } from '@/api/admin/role'
 import waves from '@/directive/waves'
 import { fetchTree } from '@/api/admin/dept'
@@ -289,7 +308,50 @@ export default {
       return sexMap[type]
     }
   },
-  data () {
+  data: function () {
+    let checkRegisterUsername = (rule, value, callback) => {
+      if (!isNotEmpty(value)) {
+        return callback(new Error('请输入账号'))
+      }
+      if (value !== value.replace(/[^\d]/g, '')) {
+        return callback(new Error('只能输入数字'))
+      }
+      if (this.dialogStatus === 'create') {
+        // 检查用户名是否存在
+        checkExist(value).then(response => {
+          if (isNotEmpty(response.data) && response.data.data) {
+            callback(new Error('用户名已存在！'))
+          } else {
+            callback()
+          }
+        })
+      } else {
+        callback()
+      }
+    }
+
+    let checkName = (rule, value, callback) => {
+      if (!isNotEmpty(value)) {
+        return callback(new Error('请输入姓名'))
+      } else {
+        callback()
+      }
+    }
+
+    let checkMail = (rule, value, callback) => {
+      if (isNotEmpty(value)) {
+        var szReg = /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,5}$/
+        var bChk = szReg.test(value)
+        console.log(bChk)
+        if (bChk) {
+          callback()
+        } else {
+          return callback(new Error('邮箱格式不正确'))
+        }
+      } else {
+        return callback(new Error('请输入邮箱'))
+      }
+    }
     return {
       tableKey: 0,
       list: null,
@@ -305,9 +367,11 @@ export default {
         order: 'descending'
       },
       temp: {
-        id: '',
-        username: 1,
+        identifier: '',
+        // username: 1,
         name: '',
+        company: '',
+        stationId: '',
         phone: '',
         email: '',
         born: '',
@@ -329,10 +393,13 @@ export default {
         create: '新建'
       },
       rules: {
-        identifier: [{ required: true, message: '请输入账号', trigger: 'change' }]
+        identifier: [{ validator: checkRegisterUsername, trigger: 'blur' }],
+        name: [{ validator: checkName, trigger: 'blur' }],
+        email: [{ validator: checkMail, trigger: 'blur' }]
       },
       downloadLoading: false,
       treeDeptData: [],
+      options: [],
       roleData: [],
       defaultDeptProps: {
         children: 'children',
@@ -484,6 +551,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
+          console.log(tempData)
           putObj(tempData).then(() => {
             this.dialogFormVisible = false
             this.getList()
@@ -586,6 +654,11 @@ export default {
       this.listQuery.order = column.order
       this.getList()
     },
+    handleSelectStation: function () {
+      getStation().then(response => {
+        this.options = response.data.data
+      })
+    },
     handleSelectDept () {
       fetchTree().then(response => {
         this.treeDeptData = response.data
@@ -621,6 +694,9 @@ export default {
         this.temp.roleId = this.tempRole.id
         this.temp.role = [].concat(this.tempRole.id)
         this.temp.roleName = this.tempRole.roleName
+      } else {
+        this.tempRole = this.roleData[0]
+        this.updateRoleData()
       }
     },
     // 上传前
@@ -647,6 +723,9 @@ export default {
       this.getList()
       notifySuccess(this, '导入成功')
     }
+  },
+  mounted () {
+    this.handleSelectStation()
   }
 }
 </script>
