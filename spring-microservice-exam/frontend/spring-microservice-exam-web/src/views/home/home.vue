@@ -1,6 +1,6 @@
 <template>
-<!--  <div>-->
-    <el-row class="hero-area" type="flex" justify="center" align="middle" style="height: 100%;">
+  <div>
+    <el-row class="hero-area" type="flex" justify="center" align="middle">
       <el-col :span="24">
         <div class="hero-content">
           <h2 style="font-size: 60px">考试系统</h2>
@@ -10,7 +10,7 @@
       </el-col>
     </el-row>
     <!--统计数据-->
-    <!--<div class="cool-facts-area padding-80-0">
+    <div class="cool-facts-area padding-80-0">
       <el-row type="flex" justify="center" :gutter="50">
         <el-col :span="4">
           <transition name="fade-transform" mode="out-in">
@@ -18,10 +18,10 @@
               <div class="icon">
                 <img src="static/img/core-img/star.png" alt="">
               </div>
-              <h2>
+              <!--<h2>
                 <count-to :start-val="0" :end-val="200" :duration="2600" class="counter"/>
               </h2>
-              <h5>用户数</h5>
+              <h5>用户数</h5>-->
             </div>
           </transition>
         </el-col>
@@ -31,10 +31,10 @@
               <div class="icon">
                 <img src="static/img/core-img/star.png" alt="">
               </div>
-              <h2>
+              <!--<h2>
                 <count-to :start-val="0" :end-val="500" :duration="2600" class="counter"/>
               </h2>
-              <h5>考试数</h5>
+              <h5>考试数</h5>-->
             </div>
           </transition>
         </el-col>
@@ -44,10 +44,10 @@
               <div class="icon">
                 <img src="static/img/core-img/star.png" alt="">
               </div>
-              <h2>
+              <!--<h2>
                 <count-to :start-val="0" :end-val="233" :duration="2600" class="counter"/>
               </h2>
-              <h5>题目数</h5>
+              <h5>题目数</h5>-->
             </div>
           </transition>
         </el-col>
@@ -57,15 +57,15 @@
               <div class="icon">
                 <img src="static/img/core-img/star.png" alt="">
               </div>
-              <h2>
+              <!--<h2>
                 <count-to :start-val="0" :end-val="300" :duration="2600" class="counter"/>
               </h2>
-              <h5>课程数</h5>
+              <h5>课程数</h5>-->
             </div>
           </transition>
         </el-col>
       </el-row>
-    </div>-->
+    </div>
     <!--多余信息-->
     <!-- <div class="popular-courses-area padding-80-0">
       <el-row>
@@ -217,7 +217,7 @@
       <i class="top-icon el-icon-caret-top"></i>
     </div>
     <o-footer></o-footer>-->
-<!--  </div>-->
+  </div>
 </template>
 
 <script>
