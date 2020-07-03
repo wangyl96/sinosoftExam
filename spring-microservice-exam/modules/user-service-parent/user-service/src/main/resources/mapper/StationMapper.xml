@@ -18,4 +18,11 @@
         FROM sys_station a
     </select>
 
+    <select id="getById" resultMap="stationResultMap">
+        SELECT
+        <include refid="stationColumns"/>
+        FROM sys_station a
+        WHERE a.id = #{id}
+    </select>
+
 </mapper>

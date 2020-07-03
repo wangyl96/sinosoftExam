@@ -287,6 +287,7 @@ export default {
   directives: {
     waves
   },
+  inject: ["reload"], //注入reload方法
   data () {
     return {
       headers: {
@@ -577,7 +578,7 @@ export default {
         let flag = response.data.data === -1 ? false : true
         if (flag) {
           notifySuccess(this, '保存成功')
-          this.$router.go(0)
+          this.reload()
         } else {
           notifyFail(this, '题目总分设置失败, 请检查总分是否一致')
         }

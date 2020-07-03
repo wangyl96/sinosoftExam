@@ -142,6 +142,9 @@ export default {
       if (!isNotEmpty(value)) {
         return callback(new Error('请输入用户名'))
       }
+      if (value !== value.replace(/[^\d]/g, '')) {
+        return callback(new Error('只能输入数字'))
+      }
       // 检查用户名是否存在
       checkExist(value).then(response => {
         if (isNotEmpty(response.data) && response.data.data) {
@@ -150,6 +153,27 @@ export default {
           callback()
         }
       })
+    }
+    let checkName = (rule, value, callback) => {
+      if (!isNotEmpty(value)) {
+        return callback(new Error('请输入姓名'))
+      } else {
+        callback()
+      }
+    }
+    let checkMail = (rule, value, callback) => {
+      if (isNotEmpty(value)) {
+        var szReg = /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,5}$/
+        var bChk = szReg.test(value)
+        console.log(bChk)
+        if (bChk) {
+          callback()
+        } else {
+          return callback(new Error('邮箱格式不正确'))
+        }
+      } else {
+        return callback(new Error('请输入邮箱'))
+      }
     }
     // 校验手机号
     let validPhone = (rule, value, callback) => {
@@ -206,12 +230,12 @@ export default {
         },
         rules: {
           identifier: [{validator: checkRegisterUsername, trigger: 'blur'}],
-          email: [{required: true, trigger: 'blur', message: '请输入邮箱地址'}],
+          email: [{ validator: checkMail, trigger: 'blur' }],
           credential: [
             {required: true, trigger: 'blur', message: '请输入密码'},
             {min: 6, trigger: 'blur', message: '密码长度最少为6位'}],
-          username: [{required: true, trigger: 'blur', message: '请输入姓名'}],
-          company: [{required: true, trigger: 'blur', message: '请输入公司名称'}],
+          name: [{ validator: checkName, trigger: 'blur' }],
+          // company: [{required: true, trigger: 'blur', message: '请输入公司名称'}],
           code: [
             {required: true, message: '请输入验证码', trigger: 'blur'},
             {min: 4, max: 4, message: '验证码长度为4位', trigger: 'blur'}

@@ -109,12 +109,13 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
     @Transactional(rollbackFor = Exception.class)
     public int insert(ExaminationDto examinationDto) {
         List<String> questionType = examinationDto.getQuestionStyleMap();
-//        StringBuffer str=new StringBuffer();
-//        str.append("[");
-//        for (String type : questionType) {
-//
-//        }
-        examinationDto.setQuestionStyle(questionType.toString());
+        StringBuffer str = new StringBuffer();
+        for (String type : questionType) {
+            str.append(type);
+            str.append(",");
+        }
+        String strType = str.substring(0, str.length() - 1);
+        examinationDto.setQuestionStyle(strType);
         this.initExaminationLogo(examinationDto);
         Examination examination = new Examination();
         BeanUtils.copyProperties(examinationDto, examination);
@@ -137,14 +138,6 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
                     .setScore(0);
             examQuestionExamList.add(examQuestionExam);
         }
-//        jsonArray.stream().forEach(e -> {
-//            ExamQuestionExam examQuestionExam = new ExamQuestionExam()
-//                    .setQuestionTypeId(JSONUtil.parseObj(e).getInt("id"))
-//                    .setExamId(id)
-//                    .setCount(0)
-//                    .setScore(0);
-//            examQuestionExamList.add(examQuestionExam);
-//        });
         // 将examQuestionExamList入库
         int add = examQuestionExamMapper.insertForeach(examQuestionExamList);
 
@@ -333,8 +326,47 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
         if (examinationDto.getCourse() != null)
             examination.setCourseId(examinationDto.getCourse().getId());
         examination.setCommonValue(SysUtil.getUser(), SysUtil.getSysCode(), SysUtil.getTenantCode());
-        String style = examination.getQuestionStyleMap().toString();
-        examination.setQuestionStyle(style);
+        List<String> questionType = examinationDto.getQuestionStyleMap();
+        StringBuffer str = new StringBuffer();
+        for (String type : questionType) {
+            str.append(type);
+            str.append(",");
+        }
+        String strType = str.substring(0, str.length() - 1);
+        examination.setQuestionStyle(strType);
+        /************/
+        Long id = examination.getId();
+        // 将考试与考题关联
+        List<ExamQuestionExam> examQuestionExamList = new ArrayList<>();
+        for (int i = 0; i < questionType.size(); i++) {
+            String style = questionType.get(i);
+            Integer typeId = examinationMapper.selectQuestionId(style);
+            ExamQuestionExam examQuestionExam = new ExamQuestionExam()
+                    .setQuestionTypeId(typeId)
+                    .setExamId(id)
+                    .setCount(0)
+                    .setScore(0);
+            examQuestionExamList.add(examQuestionExam);
+        }
+        examQuestionExamMapper.deleteById(id);
+        examQuestionExamMapper.insertForeach(examQuestionExamList);
+        // 查出所有的题库
+        List<SubjectCategory> subjectCategoryList = subjectCategoryMapper.getList();
+        // exam_question_category入库
+        List<Map<String, Object>> mapList = new ArrayList<>();
+        examQuestionExamList.stream().forEach(e -> {
+            subjectCategoryList.stream().forEach(m -> {
+                Map<String, Object> categoryMap = new HashMap<>();
+                categoryMap.put("questionTypeId", e.getQuestionTypeId());
+                categoryMap.put("examId", id);
+                categoryMap.put("categoryId", m.getId());
+                mapList.add(categoryMap);
+            });
+        });
+        // 先删除  再入库
+        examQuestionCategoryMapper.deleteById(id);
+        examQuestionCategoryMapper.insertForeachCategory(mapList);
+        /************/
         return super.update(examination);
     }
 

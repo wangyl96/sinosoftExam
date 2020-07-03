@@ -28,8 +28,30 @@ public class ExamRecordExcelModel {
 	@ExcelProperty(value = "考生ID", converter = LongStringConverter.class)
 	private Long userId;
 
-	@ExcelProperty(value = "考试ID", converter = LongStringConverter.class)
-	private Long examinationId;
+	@ExcelProperty("考生名称")
+	private String userName;
+
+	@ExcelProperty("用户名")
+	private String name;
+
+//	@ExcelProperty(value = "考试ID", converter = LongStringConverter.class)
+//	private Long examinationId;
+
+	@ExcelProperty("岗位")
+	private String station;
+
+	@ExcelProperty("公司")
+	private String company;
+
+	@ExcelProperty("部门")
+	private String deptName;
+
+	@ExcelProperty("考试名称")
+	private String examinationName;
+
+	@ExcelProperty("成绩")
+	@NumberFormat("#.##")
+	private Double score;
 
 	@ExcelProperty("开始时间")
 	@DateTimeFormat("yyyy年MM月dd日HH时mm分ss秒")
@@ -39,16 +61,17 @@ public class ExamRecordExcelModel {
 	@DateTimeFormat("yyyy年MM月dd日HH时mm分ss秒")
 	private Date endTime;
 
-	@ExcelProperty("成绩")
-	@NumberFormat("#.##")
-	private Double score;
+	@ExcelProperty("总耗时")
+	private String duration;
 
-	@ExcelProperty("错题数")
-	private Integer inCorrectNumber;
 
-	@ExcelProperty("正确题数")
-	private Integer correctNumber;
 
-	@ExcelProperty(value = "提交状态", converter = SubmitStatusConverter.class)
-	private Integer submitStatus;
+//	@ExcelProperty("错题数")
+//	private Integer inCorrectNumber;
+//
+//	@ExcelProperty("正确题数")
+//	private Integer correctNumber;
+//
+//	@ExcelProperty(value = "提交状态", converter = SubmitStatusConverter.class)
+//	private Integer submitStatus;
 }
