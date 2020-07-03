@@ -229,6 +229,7 @@ export default {
       submitStatus: '状态',
       details: '详情',
       marking: '批改',
+      deleteExam: '删除',
       markStatus: '批改状态'
     },
     knowledge: {

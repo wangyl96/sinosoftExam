@@ -63,4 +63,11 @@ public interface ExamQuestionCategoryMapper extends CrudMapper<ExamQuestionCateg
     List<QestionTypesChartVO> questionTypesChart(Long examinationId);
 
     Integer insertForeachCategory(List<Map<String, Object>> mapList);
+
+    /**
+     * 根据id删除已插入的对应类型题目
+     * @param id
+     * @return
+     */
+    int deleteById(Long id);
 }

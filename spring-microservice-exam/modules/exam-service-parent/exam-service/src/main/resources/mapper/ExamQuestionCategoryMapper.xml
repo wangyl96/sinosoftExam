@@ -84,6 +84,9 @@
             )
         </foreach>
     </insert>
+    <delete id="deleteById" >
+        delete from exam_question_category where examination_id=#{id}
+    </delete>
 
     <select id="questionTypesChart" resultMap="questionTypesChartMap">
         SELECT a.quesrtion_type_name AS NAME, b.value FROM exam_question_type a JOIN

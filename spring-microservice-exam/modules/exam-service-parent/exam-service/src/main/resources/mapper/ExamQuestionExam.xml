@@ -55,7 +55,9 @@
             )
         </foreach>
     </insert>
-
+    <delete id="deleteById">
+    delete from exam_question_examination where exam_id=#{id}
+    </delete>
 
 
     <insert id="insertForeachExamQuestionExam" parameterType="java.util.List" useGeneratedKeys="false">
