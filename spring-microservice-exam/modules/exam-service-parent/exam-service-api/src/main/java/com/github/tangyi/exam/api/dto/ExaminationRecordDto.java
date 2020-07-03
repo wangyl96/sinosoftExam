@@ -48,6 +48,21 @@ public class ExaminationRecordDto extends BaseEntity<ExaminationRecordDto> {
     private String attention;
 
     /**
+     * 公司名称
+     */
+    private String company;
+
+    /**
+     * 岗位
+     */
+    private String station;
+
+    /**
+     * 用户名
+     */
+    private String name;
+
+    /**
      * 当前时间
      */
     private Date currentTime;

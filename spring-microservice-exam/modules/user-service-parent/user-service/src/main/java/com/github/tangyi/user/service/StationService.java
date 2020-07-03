@@ -36,4 +36,20 @@ public class StationService extends CrudService<StationMapper, Station> {
         return stations;
     }
 
+    /**
+     * 获取所有的岗位信息
+     * @return
+     */
+    public String getStationById(Long id) {
+
+
+        Station stations = stationMapper.getById(id);
+
+        String stationString = stations.getStation() == null ? "" : stations.getStation();
+
+        return stationString;
+    }
+
+
+
 }

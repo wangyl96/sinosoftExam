@@ -198,6 +198,12 @@
         <if test="name != null">
             name = #{name} ,
         </if>
+        <if test="company != null">
+            company = #{company} ,
+        </if>
+        <if test="stationId != null">
+            station_id = #{stationId} ,
+        </if>
         <if test="phone != null">
             phone = #{phone} ,
         </if>
