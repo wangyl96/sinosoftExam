@@ -3,6 +3,7 @@ package com.github.tangyi.user.api.feign.fallback;
 import com.github.tangyi.common.basic.model.Log;
 import com.github.tangyi.common.basic.vo.AttachmentVo;
 import com.github.tangyi.common.basic.vo.DeptVo;
+import com.github.tangyi.common.basic.vo.UserRecordVo;
 import com.github.tangyi.common.basic.vo.UserVo;
 import com.github.tangyi.common.core.model.ResponseBean;
 import com.github.tangyi.user.api.dto.UserDto;
@@ -75,7 +76,7 @@ public class UserServiceClientFallbackImpl implements UserServiceClient {
      * @return ResponseBean
      */
     @Override
-    public ResponseBean<List<UserVo>> findUserById(@RequestBody Long[] ids) {
+    public ResponseBean<List<UserRecordVo>> findUserById(@RequestBody Long[] ids) {
         log.error("Call findUserById error: {}", ids, throwable);
         return null;
     }

@@ -59,7 +59,7 @@
     </div>
     <el-row style="text-align: center; margin-bottom: 50px;">
       <el-col :span="24">
-        <el-button type="default" @click="scrollList" :loading="loading" style="margin-bottom: 100px;">加载更多</el-button>
+        <el-button type="default" v-show="loadingMore()" @click="scrollList" :loading="loading" style="margin-bottom: 100px;">加载更多</el-button>
       </el-col>
     </el-row>
   </div>
@@ -153,7 +153,7 @@ export default {
     // 列表滚动
     scrollList () {
       if (this.isLastPage) {
-        messageWarn(this, '暂无更多数据！')
+        messageWarn(this, '暂无更多数据！');
         return
       }
       if (this.loading) {
@@ -173,6 +173,14 @@ export default {
           messageWarn(this, '加载考试失败！')
         })
       }, 1000)
+    },
+    loadingMore(){
+      if(this.examList.length === this.total){
+        return false
+      }
+      if(this.total > 6){
+        return true
+      }
     },
     // 开始考试
     startExam (exam) {
