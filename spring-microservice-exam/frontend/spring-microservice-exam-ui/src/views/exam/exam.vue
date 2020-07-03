@@ -125,16 +125,18 @@
               </el-col>
             </el-row>
             <el-row>
-              <!--<el-col :span="12">-->
-                <!--<el-form-item :label="$t('table.startTime')" prop="startTime">-->
-                  <!--<el-date-picker v-model="temp.startTime" :placeholder="$t('table.startTime')" type="datetime" format="yyyy-MM-dd HH:mm" value-format="timestamp"/>-->
-                <!--</el-form-item>-->
-              <!--</el-col>-->
-              <!--<el-col :span="12">-->
-                <!--<el-form-item :label="$t('table.endTime')" prop="endTime">-->
-                  <!--<el-date-picker v-model="temp.endTime" :placeholder="$t('table.endTime')" type="datetime" format="yyyy-MM-dd HH:mm" value-format="timestamp"/>-->
-                <!--</el-form-item>-->
-              <!--</el-col>-->
+              <!--<el-col :span="12">
+                <el-form-item :label="$t('table.startTime')" prop="startTime">
+                  <el-date-picker v-model="temp.startTime" :placeholder="$t('table.startTime')" type="datetime" format="yyyy-MM-dd HH:mm" value-format="timestamp"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item :label="$t('table.endTime')" prop="endTime">
+                  <el-date-picker v-model="temp.endTime" :placeholder="$t('table.endTime')" type="datetime" format="yyyy-MM-dd HH:mm" value-format="timestamp"/>
+                </el-form-item>
+              </el-col>-->
+            </el-row>
+            <el-row>
               <el-col :span="12">
                 <el-form-item label='考试时长' prop="totalTime">
                   <el-row>
@@ -148,8 +150,6 @@
                   </el-row>
                 </el-form-item>
               </el-col>
-            </el-row>
-            <el-row>
               <el-col :span="12">
                 <el-form-item :label="$t('table.examinationType')" prop="type">
                   <el-select v-model="temp.type" clearable class="filter-item">
@@ -157,14 +157,14 @@
                   </el-select>
                 </el-form-item>
               </el-col>
-              <el-col :span="12">
+              <!--<el-col :span="12">
                 <el-form-item :label="$t('table.status')">
                   <el-radio-group v-model="temp.status">
                     <el-radio :label="0">已发布</el-radio>
                     <el-radio :label="1">草稿</el-radio>
                   </el-radio-group>
                 </el-form-item>
-              </el-col>
+              </el-col>-->
             </el-row>
             <el-row>
               <!--这里需要将考试与题型存库-->

@@ -1,7 +1,7 @@
 <template>
-  <section class="main">
-    <div class="main-wrapper">
-      <div class="main-content">
+  <section class="main" style="height: 90%;">
+    <div class="main-wrapper" style="height: 100%;">
+      <div class="main-content" style="height: 100%;">
         <transition name="el-fade-in">
           <router-view :key="key"/>
         </transition>
