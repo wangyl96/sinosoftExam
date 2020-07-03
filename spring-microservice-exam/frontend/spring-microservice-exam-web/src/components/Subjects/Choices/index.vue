@@ -70,7 +70,11 @@ export default {
     },
     // 选中选项
     toggleOption (option) {
-      this.userAnswer = option.optionName
+      if (this.userAnswer === option.optionName) {
+        this.userAnswer = ''
+      } else {
+        this.userAnswer = option.optionName
+      }
     }
   }
 }

@@ -2,6 +2,7 @@ package com.github.tangyi.user.service;
 
 import com.github.tangyi.common.basic.enums.LoginTypeEnum;
 import com.github.tangyi.common.basic.properties.SysProperties;
+import com.github.tangyi.common.basic.vo.UserRecordVo;
 import com.github.tangyi.common.basic.vo.UserVo;
 import com.github.tangyi.common.core.constant.CommonConstant;
 import com.github.tangyi.common.core.exceptions.CommonException;
@@ -68,6 +69,8 @@ public class UserService extends CrudService<UserMapper, User> {
     private final SysProperties sysProperties;
 
     private final UserAuthsService userAuthsService;
+
+    private final StationService stationService;
 
     /**
      * 新建用户
@@ -434,7 +437,7 @@ public class UserService extends CrudService<UserMapper, User> {
      * @date 2018/9/14 20:12
      */
     public void saveImageCode(String random, String imageCode) {
-        redisTemplate.opsForValue().set(CommonConstant.DEFAULT_CODE_KEY + LoginTypeEnum.PWD.getType() + "@" + random, imageCode, SecurityConstant.DEFAULT_IMAGE_EXPIRE, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(CommonConstant.DEFAULT_CODE_KEY + LoginTypeEnum.PWD.getType() + "@" + random, imageCode, SecurityConstant.DEFAULT_IMAGE_EXPIRE, TimeUnit.MINUTES);
     }
 
     /**
@@ -651,14 +654,30 @@ public class UserService extends CrudService<UserMapper, User> {
      * @author tangyi
      * @date 2019/07/03 13:59:32
      */
-    public List<UserVo> findUserVoListById(Long[] ids) {
-        List<UserVo> userVos = Lists.newArrayList();
+    public List<UserRecordVo> findUserVoListById(Long[] ids) {
+        List<UserRecordVo> userRecordVos = Lists.newArrayList();
         Stream<User> userStream = this.findListById(ids).stream();
         if (Optional.ofNullable(userStream).isPresent()) {
 			Attachment attachment = new Attachment();
-            userVos = userStream.map(tempUser -> {
-                UserVo tempUserVo = new UserVo();
+            userRecordVos = userStream.map(tempUser -> {
+                UserRecordVo tempUserVo = new UserRecordVo();
                 BeanUtils.copyProperties(tempUser, tempUserVo);
+                if(tempUser.getStationId() != null) {
+                    Long userStationId = tempUser.getStationId();
+                    String station = stationService.getStationById(userStationId);
+                    tempUserVo.setStation(station);
+                }
+                //获取用户id
+                List<User> userList = Lists.newArrayList();
+                userList.add(tempUser);
+                List<UserAuths> listByUsers = userAuthsService.getListByUsers(userList);
+                if(listByUsers.size() > 0) {
+                     if(listByUsers.get(0).getIdentifier() != null) {
+                         tempUserVo.setUsername(listByUsers.get(0).getIdentifier());
+                     }
+                }
+
+
                 if (tempUser.getAvatarId() != null) {
                     attachment.setId(tempUser.getAvatarId());
                     tempUserVo.setAvatarUrl(attachmentService.getPreviewUrl(attachment));
@@ -666,7 +685,7 @@ public class UserService extends CrudService<UserMapper, User> {
                 return tempUserVo;
             }).collect(Collectors.toList());
         }
-        return userVos;
+        return userRecordVos;
     }
 
     /**

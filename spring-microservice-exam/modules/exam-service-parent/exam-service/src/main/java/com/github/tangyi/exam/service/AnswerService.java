@@ -1,6 +1,7 @@
 package com.github.tangyi.exam.service;
 
 import com.github.pagehelper.PageInfo;
+import com.github.tangyi.common.basic.vo.UserRecordVo;
 import com.github.tangyi.common.basic.vo.UserVo;
 import com.github.tangyi.common.core.constant.CommonConstant;
 import com.github.tangyi.common.core.constant.MqConstant;
@@ -622,9 +623,9 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
                     break;
             }
         }
-        ResponseBean<List<UserVo>> userVoResponseBean = userServiceClient.findUserById(new Long[]{record.getUserId()});
+        ResponseBean<List<UserRecordVo>> userVoResponseBean = userServiceClient.findUserById(new Long[]{record.getUserId()});
         if (ResponseUtil.isSuccess(userVoResponseBean) && CollectionUtils.isNotEmpty(userVoResponseBean.getData())) {
-            UserVo userVo = userVoResponseBean.getData().get(0);
+            UserRecordVo userVo = userVoResponseBean.getData().get(0);
             answerDto.setUserName(userVo.getName());
         }
         answerDto.setUserId(record.getUserId());
@@ -692,7 +693,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
                 }
             });
             if (!userIds.isEmpty()) {
-                ResponseBean<List<UserVo>> userResponse = userServiceClient.findUserById(userIds.toArray(new Long[0]));
+                ResponseBean<List<UserRecordVo>> userResponse = userServiceClient.findUserById(userIds.toArray(new Long[0]));
                 if (ResponseUtil.isSuccess(userResponse)) {
                     rankInfos.forEach(rankInfo -> {
                         userResponse.getData().stream().filter(user -> user.getId().equals(rankInfo.getUserId()))

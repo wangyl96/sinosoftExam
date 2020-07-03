@@ -91,3 +91,19 @@ export function resetPassword (obj) {
     data: obj
   })
 }
+
+export function checkExist (username, tenantCode) {
+  return request({
+    url: baseUserUrl + 'anonymousUser/checkExist/' + username,
+    method: 'get',
+    params: { tenantCode, identityType: 1 }
+  })
+}
+
+export function getStation (query) {
+  return request({
+    url: baseUserUrl + 'anonymousUser/checkExist/getStation',
+    method: 'get',
+    params: query
+  })
+}

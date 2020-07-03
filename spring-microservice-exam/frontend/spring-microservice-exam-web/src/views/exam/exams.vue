@@ -47,9 +47,9 @@
               <div class="card-item-course-detail mb-12">
                 <a href="#">{{ exam.course.courseName }}</a>
               </div>
-              <div class="card-item-course-detail mb-12">
-                <a href="#">{{ exam.startTime | timeFilter }}~{{ exam.endTime | timeFilter }}</a>
-              </div>
+<!--              <div class="card-item-course-detail mb-12">-->
+<!--                <a href="#">{{ exam.startTime | timeFilter }}~{{ exam.endTime | timeFilter }}</a>-->
+<!--              </div>-->
             </div>
           </div>
         </div>
@@ -59,7 +59,7 @@
     </div>
     <el-row style="text-align: center; margin-bottom: 50px;">
       <el-col :span="24">
-        <el-button type="default" @click="scrollList" :loading="loading" style="margin-bottom: 100px;">加载更多</el-button>
+        <el-button type="default" v-show="loadingMore()" @click="scrollList" :loading="loading" style="margin-bottom: 100px;">加载更多</el-button>
       </el-col>
     </el-row>
   </div>
@@ -153,7 +153,7 @@ export default {
     // 列表滚动
     scrollList () {
       if (this.isLastPage) {
-        messageWarn(this, '暂无更多数据！')
+        messageWarn(this, '暂无更多数据！');
         return
       }
       if (this.loading) {
@@ -173,6 +173,14 @@ export default {
           messageWarn(this, '加载考试失败！')
         })
       }, 1000)
+    },
+    loadingMore(){
+      if(this.examList.length === this.total){
+        return false
+      }
+      if(this.total > 6){
+        return true
+      }
     },
     // 开始考试
     startExam (exam) {
@@ -197,10 +205,10 @@ export default {
             }).then(() => {
               // 考题入库
               addSubjectExamList({'examinationId': exam.id, 'userId': this.userInfo.id}).then(response => {
-                // if (response.data.data === -1) {
-                //   messageWarn(this, '您已经参加过本考试')
-                //   return
-                // }
+                if (response.data.data === -1) {
+                   messageWarn(this, '您已经参加过本考试')
+                   return
+                }
                 // 开始考试
                 store.dispatch('StartExam', this.tempExamRecord).then(() => {
                   if (this.examRecord === undefined || this.subject === undefined) {
