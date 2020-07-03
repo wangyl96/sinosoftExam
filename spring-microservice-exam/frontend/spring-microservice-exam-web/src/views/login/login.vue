@@ -14,16 +14,16 @@
         <el-tab-pane label="注册" name="/register" class="login-wrap-title">
           <el-form ref="registerForm" :model="register.form" :rules="register.rules" class="register-form" label-position="left" auto-complete="off">
             <el-form-item prop="identifier">
-              <el-input placeholder="用户名" v-model="register.form.identifier" name="identifier" type="text" auto-complete="off"/>
+              <el-input placeholder="用户名 (优先使用4A)" v-model="register.form.identifier" name="identifier" type="text" auto-complete="off"/>
+            </el-form-item>
+            <el-form-item prop="name">
+              <el-input placeholder="姓名" v-model="register.form.name" name="name" type="text" auto-complete="off"/>
             </el-form-item>
             <el-form-item prop="email">
               <el-input placeholder="邮箱" v-model="register.form.email" name="email" type="text" auto-complete="off"/>
             </el-form-item>
             <el-form-item prop="credential">
               <el-input placeholder="密码" :type="register.passwordType" v-model="register.form.credential" name="credential" auto-complete="off" @keyup.enter.native="handleRegister"/>
-            </el-form-item>
-            <el-form-item prop="name">
-              <el-input placeholder="姓名" v-model="register.form.name" name="name" type="text" auto-complete="off"/>
             </el-form-item>
             <el-form-item prop="company">
               <el-input placeholder="公司" v-model="register.form.company" name="company" type="text" auto-complete="off"/>
