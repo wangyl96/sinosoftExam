@@ -195,12 +195,20 @@
         <span class="subject-title-content" v-html="tempSubject.subjectName"/>
         <!--<span class="subject-title-content">&nbsp;({{tempSubject.score}})分</span>-->
       </div>
+<!--      单选和多选-->
       <ul v-if="tempSubject.type === 0 || tempSubject.type === 3" class="subject-options">
         <li class="subject-option" v-for="(option) in tempSubject.options" :key="option.id">
           <input class="toggle" type="checkbox">
           <label><span class="subject-option-prefix">{{option.optionName}}&nbsp;</span><span v-html="option.optionContent" class="subject-option-prefix"></span></label>
         </li>
+        <li>
+          <label><span class="subject-option-prefix">解析:&nbsp;</span><span v-html="tempSubject.analysis" class="subject-option-prefix"></span></label>
+        </li>
+        <li>
+          <label><span class="subject-option-prefix">参考答案:&nbsp;</span><span v-html="tempSubject.answer.answer" class="subject-option-prefix"></span></label>
+        </li>
       </ul>
+<!--      判断-->
       <ul v-if="tempSubject.type === 2" class="subject-options">
         <li class="subject-option">
           <input class="toggle" type="checkbox">
@@ -211,6 +219,16 @@
           <label><span class="subject-option-prefix">错误</span></label>
         </li>
       </ul>
+<!--      简单-->
+      <ul v-if="tempSubject.type === 1" class="subject-options">
+        <li>
+          <label><span class="subject-option-prefix">解析:&nbsp;</span><span v-html="tempSubject.analysis" class="subject-option-prefix"></span></label>
+        </li>
+        <li>
+          <label><span class="subject-option-prefix">参考答案:&nbsp;</span><span v-html="tempSubject.answer.answer" class="subject-option-prefix"></span></label>
+        </li>
+      </ul>
+
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="dialogViewVisible = false">{{ $t('table.confirm') }}</el-button>
       </div>
