@@ -478,7 +478,9 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 			return -1;
 		}
         Long examinationId = addSubjectExamDTO.getExaminationId();
-        Long userId = addSubjectExamDTO.getUserId();
+		//修改考试状态
+		examRecordMapper.updateStatusById(examinationId);
+		Long userId = addSubjectExamDTO.getUserId();
 		List<QuestionCategoryVO> resultList = new ArrayList<>();
 		// 1.根据考试id查询本考试所涉及的考试内容,根据题目类型排序
 		List<ExamQuestionCategory> examQuestionCategoryList = examQuestionCategoryMapper.findRuleByExaminationId(examinationId);
