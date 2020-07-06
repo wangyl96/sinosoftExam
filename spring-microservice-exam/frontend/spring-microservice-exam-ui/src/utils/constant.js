@@ -5,8 +5,10 @@ export const dialogStatusConstant = {
 }
 
 export const statusType = {
-  0: 'success',
-  1: 'warning'
+  0: 'primary', //已发布
+  1: 'warning', //草稿
+  2: 'success', //考试中
+  3: 'info'     //已关闭
 }
 
 // 考试类型
