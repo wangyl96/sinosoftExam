@@ -59,7 +59,12 @@
               操作<i class="el-icon-caret-bottom el-icon--right"></i>
             </span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item v-if="exam_btn_edit">
+              <el-dropdown-item v-if="exam_btn_edit && scope.row.status == 0">
+                <a @click="handlePublic(scope.row, 1)">
+                  <span><i class="el-icon-close"></i>{{ $t('table.withdraw') }}</span>
+                </a>
+              </el-dropdown-item>
+              <el-dropdown-item v-if="exam_btn_edit && scope.row.status == 1">
                 <a @click="handleUpdate(scope.row)">
                   <span><i class="el-icon-edit"></i>{{ $t('table.edit') }}</span>
                 </a>
@@ -69,15 +74,25 @@
                   <span><i class="el-icon-check"></i>{{ $t('table.public') }}</span>
                 </a>
               </el-dropdown-item>
-              <el-dropdown-item v-if="exam_btn_edit && scope.row.status == 0">
-                <a @click="handlePublic(scope.row, 1)">
-                  <span><i class="el-icon-close"></i>{{ $t('table.withdraw') }}</span>
-                </a>
-              </el-dropdown-item>
-              <el-dropdown-item v-if="exam_btn_subject">
+              <el-dropdown-item v-if="exam_btn_edit && scope.row.status == 1">
                 <a @click="handleSubjectManagement(scope.row)">
                   <span><i class="el-icon-document"></i>{{ $t('table.subjectManagement') }}</span>
                 </a>
+              </el-dropdown-item>
+              <el-dropdown-item v-if="exam_btn_edit && scope.row.status == 2">
+                <a @click="handleExamEnd(scope.row, 3)">
+                  <span><i class="el-icon-edit"></i>{{ $t('table.examEnd') }}</span>
+                </a>
+              </el-dropdown-item>
+              <el-dropdown-item v-if="exam_btn_edit && scope.row.status == 3">
+                <a @click="handlePublic(scope.row, 0)">
+                  <span><i class="el-icon-check"></i>{{ $t('table.againPublic') }}</span>
+                </a>
+              </el-dropdown-item>
+              <el-dropdown-item v-if="exam_btn_subject">
+                <!--<a @click="handleSubjectManagement(scope.row)">
+                  <span><i class="el-icon-document"></i>{{ $t('table.subjectManagement') }}</span>
+                </a>-->
               </el-dropdown-item>
               <!--<el-dropdown-item>-->
               <!--<a @click="handleShare(scope.row)">-->
@@ -596,6 +611,15 @@ export default {
     },
     // 发布考试
     handlePublic (row, status) {
+      const tempData = Object.assign({}, row)
+      tempData.status = status
+      putObj(tempData).then(() => {
+        this.getList()
+        notifySuccess(this, '更新成功')
+      })
+    },
+    // 结束考试
+    handleExamEnd (row, status) {
       const tempData = Object.assign({}, row)
       tempData.status = status
       putObj(tempData).then(() => {

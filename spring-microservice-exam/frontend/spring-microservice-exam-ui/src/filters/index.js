@@ -51,7 +51,17 @@ export function examTypeFilter (type) {
  * @returns {string}
  */
 export function publicStatusFilter (status) {
-  return parseInt(status) === 0 ? '已发布' : '草稿'
+  var state;
+  if(parseInt(status) === 0){
+    state='已发布'
+  }else if(parseInt(status) === 1){
+    state='草稿'
+  }else if(parseInt(status) === 2){
+    state='考试中'
+  }else{
+    state='已关闭'
+  }
+  return state
 }
 
 /**
