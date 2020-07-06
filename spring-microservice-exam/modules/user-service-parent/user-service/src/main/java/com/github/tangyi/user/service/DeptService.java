@@ -1,6 +1,7 @@
 package com.github.tangyi.user.service;
 
 import cn.hutool.core.collection.CollUtil;
+import com.github.tangyi.common.basic.vo.DeptVo;
 import com.github.tangyi.common.core.constant.CommonConstant;
 import com.github.tangyi.common.core.service.CrudService;
 import com.github.tangyi.common.core.utils.TreeUtil;
@@ -9,6 +10,8 @@ import com.github.tangyi.user.api.dto.DeptDto;
 import com.github.tangyi.user.api.module.Dept;
 import com.github.tangyi.user.api.module.User;
 import com.github.tangyi.user.mapper.DeptMapper;
+import com.github.tangyi.user.mapper.StationMapper;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +28,11 @@ import java.util.stream.Stream;
  * @author tangyi
  * @date 2018/8/26 22:46
  */
+@AllArgsConstructor
 @Service
 public class DeptService extends CrudService<DeptMapper, Dept> {
+
+	private final DeptMapper deptMapper;
 
     /**
      * 删除部门
@@ -73,5 +79,23 @@ public class DeptService extends CrudService<DeptMapper, Dept> {
 					.buildTree(CollUtil.sort(deptTreeList, Comparator.comparingInt(DeptDto::getSort)), CommonConstant.ROOT);
 		}
 		return new ArrayList<>();
+	}
+
+	/**
+	 * 获取所用的部门数据
+	 * @return
+	 */
+	public List<DeptVo> getDeptDataList() {
+		List<DeptVo> deptVoList = new ArrayList<>();
+
+		List<Dept> deptDataList = deptMapper.getDeptDataList();
+		for (Dept dept : deptDataList) {
+			DeptVo deptVo = new DeptVo();
+			deptVo.setDeptId(dept.getId().toString());
+			deptVo.setDeptName(dept.getDeptName());
+			deptVoList.add(deptVo);
+		}
+
+		return deptVoList;
 	}
 }

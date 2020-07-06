@@ -2,6 +2,7 @@ package com.github.tangyi.user.controller;
 
 import com.github.pagehelper.PageInfo;
 import com.github.tangyi.common.basic.utils.excel.ExcelToolUtil;
+import com.github.tangyi.common.basic.vo.DeptVo;
 import com.github.tangyi.common.basic.vo.UserRecordVo;
 import com.github.tangyi.common.basic.vo.UserVo;
 import com.github.tangyi.common.core.constant.CommonConstant;
@@ -499,6 +500,24 @@ public class UserController extends BaseController {
         return new ResponseBean<>(stationService.getStation());
     }
 
+    /**
+     * 获取所有的部门的id和名称
+     * @return
+     */
+    @GetMapping("anonymousUser/checkExist/getDeptDataList")
+    public ResponseBean<List<DeptVo>> getDeptDataList() {
+        return new ResponseBean<>(deptService.getDeptDataList());
+    }
+
+    /**
+     * 获取所有的部门的id和名称
+     * @return
+     */
+    @PutMapping("anonymousUser/checkExist/getIdList")
+    @ApiImplicitParam(name = "userDto", value = "用户实体user", required = true, dataType = "UserDto")
+    public ResponseBean<List<String>> getIdList(@RequestBody UserDto userDto) {
+        return new ResponseBean<>(userService.getIdList(userDto.getName()));
+    }
 
 
 }
