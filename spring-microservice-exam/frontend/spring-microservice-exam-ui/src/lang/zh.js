@@ -216,6 +216,8 @@ export default {
       analysis: '解析'
     },
     public: '发布',
+    againPublic: '重新发布',
+    examEnd: '考试结束',
     withdraw: '撤回',
     categoryName: '分类名称',
     categoryDesc: '分类描述',
