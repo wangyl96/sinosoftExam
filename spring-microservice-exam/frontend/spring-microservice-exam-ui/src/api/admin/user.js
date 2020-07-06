@@ -107,3 +107,11 @@ export function getStation (query) {
     params: query
   })
 }
+
+export function getIdList (obj) {
+  return request({
+    url: baseUserUrl + 'anonymousUser/checkExist/getIdList',
+    method: 'put',
+    data: obj
+  })
+}

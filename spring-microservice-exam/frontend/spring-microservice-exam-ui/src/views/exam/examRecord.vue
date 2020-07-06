@@ -1,8 +1,9 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <!--<el-input v-model="listQuery.examinationName" placeholder="考试名称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.search') }}</el-button>-->
+      <el-input v-model="listQuery.examinationName" placeholder="考试名称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-input v-model="listQuery.creator" placeholder="账号" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.search') }}</el-button>
       <el-button v-if="exam_record_btn_export" class="filter-item" type="success" icon="el-icon-download" @click="handleExportExamRecord">{{ $t('table.export') }}</el-button>
     </div>
     <spinner-loading v-if="listLoading"/>
@@ -113,7 +114,8 @@
 </template>
 
 <script>
-import { fetchExamRecordList, exportObj,examRecordDelete} from '@/api/exam/examRecord'
+import { fetchExamRecordList, exportObj, examRecordDelete} from '@/api/exam/examRecord'
+import { getIdList } from '@/api/admin/user'
 import waves from '@/directive/waves'
 import { mapGetters } from 'vuex'
 import SpinnerLoading from '@/components/SpinnerLoading'
@@ -124,7 +126,7 @@ export default {
   components: {
     SpinnerLoading
   },
-  inject: ["reload"], //注入reload方法
+  inject: ["reload"],
   directives: {
     waves
   },
@@ -138,6 +140,8 @@ export default {
         pageNum: 1,
         pageSize: 10,
         examinationName: undefined,
+        creator: '',
+        userIdList: [],
         sort: 'id',
         order: 'descending'
       },
@@ -179,6 +183,7 @@ export default {
   methods: {
     getList () {
       this.listLoading = true
+      console.log(this.listQuery)
       fetchExamRecordList(this.listQuery).then(response => {
         this.list = response.data.list
         console.log(this.list)
@@ -191,7 +196,7 @@ export default {
         this.listLoading = false
       })
     },
-    handleFilter () {
+    handleFilter: function () {
       this.listQuery.pageNum = 1
       this.getList()
     },
@@ -279,7 +284,6 @@ export default {
         })
       })
     }
-    //删除多个
 
   }
 }

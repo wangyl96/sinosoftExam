@@ -12,5 +12,7 @@ import lombok.Data;
 @Data
 public class DeptVo extends BaseEntity<DeptVo> {
 
+    private String deptId;
+
     private String deptName;
 }

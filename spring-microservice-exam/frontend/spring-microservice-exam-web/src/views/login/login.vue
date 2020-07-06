@@ -25,8 +25,21 @@
             <el-form-item prop="credential">
               <el-input placeholder="密码" :type="register.passwordType" v-model="register.form.credential" name="credential" auto-complete="off" @keyup.enter.native="handleRegister"/>
             </el-form-item>
+            <el-form-item prop="credential2">
+              <el-input placeholder="确认密码" :type="register.passwordType" v-model="register.form.credential2" name="credential2" auto-complete="off" @keyup.enter.native="handleRegister"/>
+            </el-form-item>
             <el-form-item prop="company">
               <el-input placeholder="公司" v-model="register.form.company" name="company" type="text" auto-complete="off"/>
+            </el-form-item>
+            <el-form-item prop="deptId">
+              <el-select style="width: 300px" v-model="register.form.deptId" placeholder="请选择部门">
+                <el-option v-for="item in deptData"
+                           :label="item.deptName"
+                           :key="item.deptId"
+                           :value="item.deptId"
+                >
+                </el-option>
+              </el-select>
             </el-form-item>
             <el-form-item prop="stationId">
               <el-select style="width: 300px" v-model="register.form.stationId" placeholder="请选择岗位">
@@ -133,7 +146,7 @@
 import { randomLenNum, isNotEmpty, isValidPhone } from '@/utils/util'
 import { mapGetters } from 'vuex'
 import { getToken, getTenantCode } from '@/utils/auth'
-import { checkExist, getStation } from '@/api/admin/user'
+import { checkExist, getStation, getDeptDataList } from '@/api/admin/user'
 import { sendSms } from '@/api/admin/mobile'
 
 export default {
@@ -175,6 +188,17 @@ export default {
         return callback(new Error('请输入邮箱'))
       }
     }
+    let credential1 = (rule, value, callback) => {
+      if (isNotEmpty(value)) {
+        if (value !== this.register.form.credential) {
+          callback(new Error('两次输入密码不一致!'))
+        } else {
+          callback()
+        }
+      } else {
+        callback(new Error('请再次输入密码'))
+      }
+    }
     // 校验手机号
     let validPhone = (rule, value, callback) => {
       if (!value) {
@@ -187,6 +211,7 @@ export default {
     }
     return {
       options: [],
+      deptData: [],
       useSmsLogin: false,
       activeName: '/login',
       login: {
@@ -221,8 +246,10 @@ export default {
           identifier: '',
           email: '',
           credential: '',
+          credential2: '',
           name: '',
           company: '',
+          deptId: '',
           stationId: '',
           code: '',
           randomStr: '',
@@ -234,6 +261,7 @@ export default {
           credential: [
             {required: true, trigger: 'blur', message: '请输入密码'},
             {min: 6, trigger: 'blur', message: '密码长度最少为6位'}],
+          credential2: [{ required: true, validator: credential1, trigger: 'blur' }],
           name: [{ validator: checkName, trigger: 'blur' }],
           // company: [{required: true, trigger: 'blur', message: '请输入公司名称'}],
           code: [
@@ -295,12 +323,22 @@ export default {
         : (this.register.code.src = `/api/user/v1/code/${this.register.form.randomStr}?tenantCode=` + getTenantCode())
     },
     // 获取岗位信息
-    getStationList: function (callback) {
+    getStationList: function () {
       getStation().then(response => {
         if (response.data.code === 200) {
           this.options = response.data.data
         } else {
-          callback(new Error('查询岗位是报错！'))
+          alert(new Error('查询岗位是报错！'))
+        }
+      })
+    },
+    getDeptDataList: function () {
+      getDeptDataList().then(response => {
+        if (response.data.code === 200) {
+          this.deptData = response.data.data
+          console.log(this.deptData)
+        } else {
+          alert(new Error('查询岗位是报错！'))
         }
       })
     },
@@ -332,9 +370,10 @@ export default {
       this.$refs.registerForm.validate(valid => {
         if (valid) {
           this.register.loading = true
+          console.log(this.register.form)
           this.$store.dispatch('RegisterByUsername', this.register.form).then((res) => {
             this.register.loading = false
-            if(res.data.code === 200){
+            if (res.data.code === 200) {
               this.$message.success('注册成功！')
               this.$router.push({ path: '/login' })
             }
@@ -390,6 +429,7 @@ export default {
   },
   mounted () {
     this.getStationList()
+    this.getDeptDataList()
   }
 }
 </script>
