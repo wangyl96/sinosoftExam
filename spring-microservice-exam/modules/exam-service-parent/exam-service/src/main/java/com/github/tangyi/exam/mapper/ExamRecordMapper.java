@@ -52,4 +52,10 @@ public interface ExamRecordMapper extends CrudMapper<ExaminationRecord> {
 	 * @return
 	 */
 	Integer findRecordIdByExaminationIdAndUserId(Long examinationId, Long userId);
+
+	/**
+	 * 当有人开始考试时修改考试记录的状态
+	 * @param examinationId
+	 */
+	void updateStatusById(Long examinationId);
 }

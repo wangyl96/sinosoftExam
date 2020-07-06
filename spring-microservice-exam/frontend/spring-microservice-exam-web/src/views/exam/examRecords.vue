@@ -2,12 +2,12 @@
   <div class="my-content-container">
     <el-row>
       <el-col :span="20" :offset="2">
+<!--        双击事件 @cell-dblclick="handleDetail"-->
         <el-table
           v-loading="listLoading"
           :key="tableKey"
           :data="examRecodeList"
           :default-sort="{ prop: 'id', order: 'descending' }"
-          @cell-dblclick="handleDetail"
           highlight-current-row
           style="width: 100%;">
           <el-table-column label="考试名称" align="center">
@@ -35,11 +35,11 @@
               <span>{{ scope.row.score }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" align="center">
-            <template slot-scope="scope">
-              <el-button type="success" size="mini" @click="handleDetail(scope.row)" :disabled="scope.row.submitStatus !== 3">成绩详情</el-button>
-            </template>
-          </el-table-column>
+<!--          <el-table-column label="操作" align="center">-->
+<!--            <template slot-scope="scope">-->
+<!--              <el-button type="success" size="mini" @click="handleDetail(scope.row)" :disabled="scope.row.submitStatus !== 3">成绩详情</el-button>-->
+<!--            </template>-->
+<!--          </el-table-column>-->
         </el-table>
         <el-row style="text-align: center; margin-bottom: 50px;">
           <el-col :span="24">
