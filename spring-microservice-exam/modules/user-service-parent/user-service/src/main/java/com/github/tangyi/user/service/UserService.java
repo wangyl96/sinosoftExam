@@ -784,4 +784,22 @@ public class UserService extends CrudService<UserMapper, User> {
     public String encodeCredential(String credential) {
         return encoder.encode(credential);
     }
+
+    /**
+     * 更加名称获取id
+     * @param name
+     * @return
+     */
+    public List<String> getIdList(String name) {
+        List<String> result = new ArrayList<>();
+
+        User user = new User();
+        user.setName(name);
+        List<User> allList = this.findAllList(user);
+        for (int i = 0; i < allList.size(); i++) {
+            User user1 =  allList.get(i);
+            result.add(user1.getId().toString());
+        }
+        return result;
+    }
 }
