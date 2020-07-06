@@ -87,3 +87,11 @@ export function getStation (query) {
     params: query
   })
 }
+
+export function getDeptDataList (query) {
+  return request({
+    url: baseUserUrl + 'anonymousUser/checkExist/getDeptDataList',
+    method: 'get',
+    params: query
+  })
+}

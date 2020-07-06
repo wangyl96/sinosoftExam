@@ -6,6 +6,7 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 考试记录
@@ -29,6 +30,14 @@ public class ExaminationRecord extends BaseEntity<ExaminationRecord> {
     @NotBlank(message = "考试ID不能为空")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long examinationId;
+
+    /**
+     * 考试名称
+     */
+    private String examinationName;
+
+    private String creator;
+
 
     /**
      * 开始时间
