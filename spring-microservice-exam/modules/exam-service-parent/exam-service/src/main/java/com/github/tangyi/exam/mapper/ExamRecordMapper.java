@@ -1,5 +1,6 @@
 package com.github.tangyi.exam.mapper;
 
+import com.github.pagehelper.PageInfo;
 import com.github.tangyi.common.core.persistence.CrudMapper;
 import com.github.tangyi.exam.api.module.ExaminationRecord;
 import org.apache.ibatis.annotations.Mapper;
@@ -58,4 +59,11 @@ public interface ExamRecordMapper extends CrudMapper<ExaminationRecord> {
 	 * @param examinationId
 	 */
 	void updateStatusById(Long examinationId);
+
+	/**
+	 * 获取考试信息
+	 * @param examRecord
+	 * @return
+	 */
+	List<ExaminationRecord> findPageByUserId(ExaminationRecord examRecord);
 }

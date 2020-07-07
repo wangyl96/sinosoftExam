@@ -94,8 +94,36 @@
             and a.creator = #{creator}
         </if>
         <if test="examinationName != null and examinationName != ''">
-            and a.examination_id in(select id from exam_examination where examination_name = #{examinationName})
+            and a.examination_id in(select id from exam_examination where examination_name  like #{examinationName})
         </if>
+    </select>
+
+    <select id="findPageByUserId" resultMap="examRecordResultMap">
+        SELECT
+        <include refid="examRecordColumns"/>
+        FROM exam_examination_record a WHERE a.del_flag = 0
+        <if test="userId != null and userId != ''">
+            and a.user_id = #{userId}
+        </if>
+        <if test="examinationId != null and examinationId != ''">
+            and a.examination_id = #{examinationId}
+        </if>
+        <if test="submitStatus != null and submitStatus != ''">
+            and a.submit_status = #{submitStatus}
+        </if>
+        <if test="tenantCode != null and tenantCode != ''">
+            and a.tenant_code = #{tenantCode}
+        </if>
+        <if test="creator != null and creator != ''">
+            and a.creator = #{creator}
+        </if>
+        <if test="examinationName != null and examinationName != ''">
+            and a.examination_id in(select id from exam_examination where examination_name  like #{examinationName})
+        </if>
+        and a.user_id IN
+        <foreach collection="ids" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
     </select>
 
     <select id="findListById" resultMap="examRecordResultMap">
