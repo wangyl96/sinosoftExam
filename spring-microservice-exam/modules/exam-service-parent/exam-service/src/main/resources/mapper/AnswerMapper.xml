@@ -110,7 +110,7 @@
     </select>
 
     <select id="findAnswer" resultType="java.lang.String">
-        SELECT answer FROM exam_answer WHERE exam_record_id = #{examRecordId} AND subject_id = #{subjectId}
+        SELECT subject_id FROM exam_answer WHERE exam_record_id = #{examRecordId} and answer!='(NULL)' AND del_flag = 0
     </select>
 
     <insert id="insert">

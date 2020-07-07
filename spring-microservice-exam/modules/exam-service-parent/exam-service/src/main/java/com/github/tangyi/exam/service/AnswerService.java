@@ -29,6 +29,7 @@ import com.github.tangyi.exam.utils.ExamRecordUtil;
 import com.github.tangyi.user.api.feign.UserServiceClient;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -92,11 +93,11 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
 
     @Resource
     private SubjectShortAnswerMapper subjectShortAnswerMapper;
-  
-	  @Resource
+
+    @Resource
     private AnswerMapper answerMapper;
 
-	/**
+    /**
      * 查找答题
      *
      * @param answer answer
@@ -345,9 +346,9 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         // 保存成绩
         record.setCommonValue(currentUsername, SysUtil.getSysCode(), SysUtil.getTenantCode());
         record.setId(answer.getExamRecordId());
-		//开始考试时间
-		record.setStartTime(answer.getStartTime());
-		// 提交时间
+        //开始考试时间
+        record.setStartTime(answer.getStartTime());
+        // 提交时间
         record.setEndTime(answer.getEndTime());
         examRecordService.update(record);
         // 更新排名数据
@@ -392,7 +393,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         examRecord.setCommonValue(currentUsername, applicationCode, tenantCode);
         examRecord.setId(answer.getExamRecordId());
         //开始考试时间
-		examRecord.setStartTime(answer.getStartTime());
+        examRecord.setStartTime(answer.getStartTime());
         // 提交时间
         examRecord.setEndTime(answer.getEndTime());
         examRecord.setSubmitStatus(SubmitStatusEnum.SUBMITTED.getValue());
@@ -549,7 +550,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
                 type = 3;
             }
             //页面评分
-            Integer score = examQuestionExamMapper.getAnswerScoreByExamId(recordId,subjectDto.getId());
+            Integer score = examQuestionExamMapper.getAnswerScoreByExamId(recordId, subjectDto.getId());
             //该题总分
             Integer answerScore = examQuestionExamMapper.getScoreByExamIdAndTypeId(type, record.getExaminationId());
             scoreSubject = Double.valueOf(score.toString());
@@ -585,7 +586,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
             //该题总分
             Integer answerScore = examQuestionExamMapper.getScoreByExamIdAndTypeId(type, record.getExaminationId());
             //页面评分
-            Integer score = examQuestionExamMapper.getAnswerScoreByExamId(recordId,currentSubjectId);
+            Integer score = examQuestionExamMapper.getAnswerScoreByExamId(recordId, currentSubjectId);
             scoreSubject = Double.valueOf(score.toString());
             subjectDto.setScore(scoreSubject);
             answerSubject = Double.valueOf(answerScore.toString());
@@ -933,20 +934,22 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
 
     /**
      * 判断该题是否答过
+     *
      * @param judgeAnswerDTO
      * @return
      */
-    public Boolean judgeAnswer(JudgeAnswerDTO judgeAnswerDTO) {
-        String answer = answerMapper.findAnswer(Long.valueOf(judgeAnswerDTO.getExamRecordId()), Long.valueOf(judgeAnswerDTO.getSubjectId()), Long.valueOf(judgeAnswerDTO.getUserId()));
-        if (null != answer && !StringUtils.equals("", answer) && !StringUtils.equals("答:", answer)) {
-            return true;
-        } else {
-            return false;
+    public Map<String, Object> judgeAnswer(JudgeAnswerStatusDTO judgeAnswerDTO) {
+        Map<String, Object> map = new HashedMap();
+        List<String> subjectIds = answerMapper.findAnswer(Long.valueOf(judgeAnswerDTO.getExamRecordId()));
+        for (String subjectId : subjectIds) {
+            map.put(subjectId,true);
         }
+        return map;
     }
 
     /**
      * 判断考题是否答完整
+     *
      * @param judgeAnswerDTO
      * @return
      */
