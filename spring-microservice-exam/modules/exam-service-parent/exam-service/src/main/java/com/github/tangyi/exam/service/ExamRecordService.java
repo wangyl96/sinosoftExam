@@ -1,5 +1,6 @@
 package com.github.tangyi.exam.service;
 
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.tangyi.common.basic.utils.excel.ExcelToolUtil;
 import com.github.tangyi.common.basic.vo.DeptVo;
@@ -25,6 +26,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -124,9 +126,30 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 		examRecord.setTenantCode(SysUtil.getTenantCode());
 		PageInfo<ExaminationRecordDto> examRecordDtoPageInfo = new PageInfo<>();
 		List<ExaminationRecordDto> examRecordDtoList = new ArrayList<>();
+
+		if(StringUtils.isNotEmpty(examRecord.getExaminationName())) {
+			String examinationName = examRecord.getExaminationName();
+			examinationName = "%" + examinationName + "%";
+			examRecord.setExaminationName(examinationName);
+		}
+
 		// 查询考试记录
-		PageInfo<ExaminationRecord> examRecordPageInfo = this.findPage(
-				PageUtil.pageInfo(pageNum, pageSize, sort, order), examRecord);
+		PageInfo<ExaminationRecord> examRecordPageInfo = new PageInfo<>();
+		if(StringUtils.isNotEmpty(examRecord.getName())) {
+			ResponseBean<Long[]> userIdList = userServiceClient.getUserIdList(examRecord.getName());
+
+			if(ArrayUtils.isNotEmpty(userIdList.getData())) {
+
+				examRecord.setIds(userIdList.getData());
+				PageInfo<Object> pageInfo = PageUtil.pageInfo(pageNum, pageSize, sort, order);
+				PageHelper.startPage(pageInfo.getPageNum(), pageInfo.getPageSize());
+				examRecordPageInfo = new PageInfo<>(this.dao.findPageByUserId(examRecord));
+			}
+		} else {
+			 examRecordPageInfo = this.findPage(
+					PageUtil.pageInfo(pageNum, pageSize, sort, order), examRecord);
+		}
+
 		if (CollectionUtils.isNotEmpty(examRecordPageInfo.getList())) {
 			// 查询考试信息
 			List<Examination> examinations = examinationService.findListById(examRecordPageInfo.getList().stream().map(ExaminationRecord::getExaminationId).distinct().toArray(Long[]::new));
@@ -288,23 +311,34 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 	/**
 	 * 导出
 	 *
-	 * @param ids ids
 	 * @param request request
 	 * @param response response
 	 * @author tangyi
 	 * @date 2018/12/31 22:28
 	 */
-	public void exportExamRecord(Long[] ids, HttpServletRequest request, HttpServletResponse response) {
+	public void exportExamRecord(ExaminationRecord examRecord, HttpServletRequest request, HttpServletResponse response) {
 		try {
-			List<ExaminationRecord> examRecordList;
-			if (ArrayUtils.isNotEmpty(ids)) {
-				examRecordList = this.findListById(ids);
+			List<ExaminationRecord> examRecordList = new ArrayList<>();
+
+			if (ArrayUtils.isNotEmpty(examRecord.getIds())) {
+				examRecordList = this.findListById(examRecord.getIds());
 			} else {
-				// 导出全部
-				ExaminationRecord examRecord = new ExaminationRecord();
-				examRecord.setTenantCode(SysUtil.getTenantCode());
-				examRecordList = this.findList(examRecord);
+				if (StringUtils.isNotEmpty(examRecord.getName())) {
+					// 导出全部
+					examRecord.setTenantCode(SysUtil.getTenantCode());
+
+					ResponseBean<Long[]> userIdList = userServiceClient.getUserIdList(examRecord.getName());
+					if (ArrayUtils.isNotEmpty(userIdList.getData())) {
+						examRecord.setIds(userIdList.getData());
+						examRecordList = this.dao.findPageByUserId(examRecord);
+					}
+
+				} else {
+					examRecordList = this.findList(examRecord);
+				}
 			}
+
+
 			// 查询考试、用户、部门数据
 			if (CollectionUtils.isNotEmpty(examRecordList)) {
 				List<ExaminationRecordDto> examRecordDtoList = new ArrayList<>();

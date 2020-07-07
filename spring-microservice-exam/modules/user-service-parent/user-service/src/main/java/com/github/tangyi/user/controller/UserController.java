@@ -490,6 +490,18 @@ public class UserController extends BaseController {
         return new ResponseBean<>(success);
     }
 
+    /**
+     * 根据账号或姓名模糊查询用户id
+     * @param name
+     * @return
+     */
+    @GetMapping("anonymousUser/getUserIdList")
+    @ApiOperation(value = "查询用户id", notes = "根据账号或姓名模糊查询用户id")
+    public ResponseBean<Long[]> getUserIdList(@RequestParam String name) {
+        return new ResponseBean<>(userService.getUserIdList(name));
+    }
+
+
 
     /**
      * 获取所有的岗位信息

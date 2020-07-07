@@ -117,6 +117,14 @@
         <include refid="whereColumnList"/>
     </select>
 
+    <select id="getUserIdList" resultType="java.lang.Long">
+        select distinct a.id
+        from sys_user a
+        where (a.name like #{name}
+        or a.id in(select user_id from sys_user_auths where identifier like #{name}))
+    </select>
+
+
     <select id="findListById" resultMap="userResultMap">
         SELECT
         <include refid="userColumns"/>

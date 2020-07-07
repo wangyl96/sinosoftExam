@@ -802,4 +802,22 @@ public class UserService extends CrudService<UserMapper, User> {
         }
         return result;
     }
+
+    /**
+     * 更加用户id查询
+     * @param name
+     * @return
+     */
+    public Long[] getUserIdList(String name) {
+
+        name = "%" + name + "%";
+        List<Long> result = this.dao.getUserIdList(name);
+
+        Long[] arr = new Long[result.size()];
+        for (int i = 0; i < result.size(); i++) {
+            Long aLong = result.get(i);
+            arr[i] = aLong;
+        }
+        return arr;
+    }
 }
