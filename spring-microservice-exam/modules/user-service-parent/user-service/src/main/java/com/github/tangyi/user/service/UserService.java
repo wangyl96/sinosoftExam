@@ -10,6 +10,7 @@ import com.github.tangyi.common.core.service.CrudService;
 import com.github.tangyi.common.core.utils.AesUtil;
 import com.github.tangyi.common.core.utils.DateUtils;
 import com.github.tangyi.common.core.utils.IdGen;
+import com.github.tangyi.common.core.utils.ObjectUtil;
 import com.github.tangyi.common.security.constant.SecurityConstant;
 import com.github.tangyi.common.security.utils.SysUtil;
 import com.github.tangyi.user.api.constant.AttachmentConstant;
@@ -28,6 +29,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -703,6 +705,11 @@ public class UserService extends CrudService<UserMapper, User> {
     public UserDto getUserDtoByUserAndUserAuths(User tempUser, List<UserAuths> userAuths, List<Dept> deptList, List<UserRole> userRoles, List<Role> finalRoleList) {
         UserDto userDto = new UserDto();
         BeanUtils.copyProperties(tempUser, userDto);
+        //获取岗位信息
+        if (ObjectUtils.isNotEmpty(tempUser.getStationId())) {
+            Station station = stationService.get(tempUser.getStationId());
+            userDto.setStationName(station.getStation());
+        }
         // 设置账号信息
         if (CollectionUtils.isNotEmpty(userAuths)) {
             userAuths.stream().filter(tempUserAuths -> tempUserAuths.getUserId().equals(tempUser.getId()))
