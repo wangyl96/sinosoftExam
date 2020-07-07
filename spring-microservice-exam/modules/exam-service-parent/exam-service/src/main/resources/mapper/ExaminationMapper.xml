@@ -56,7 +56,7 @@
         <if test="status != null">
             and a.status = #{status}
         </if>
-        <if test="type != null and type != ''">
+        <if test="type != null ">
             and a.type = #{type}
         </if>
         <if test="tenantCode != null and tenantCode != ''">

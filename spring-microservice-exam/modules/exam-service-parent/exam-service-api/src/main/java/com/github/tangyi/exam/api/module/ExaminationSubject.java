@@ -39,4 +39,6 @@ public class ExaminationSubject extends BaseEntity<ExaminationSubject> {
     private Integer type;
 
     private Long userId;
+
+    private String subjectNme;
 }
