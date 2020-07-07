@@ -71,7 +71,11 @@
             and a.parent_uid = #{parentUid}
         </if>
         <if test="name != null and name != ''">
-            and a.name like CONCAT('%', #{name},'%')
+            and (a.name like CONCAT('%', #{name},'%')
+            or a.id in(select user_id from sys_user_auths where identifier like CONCAT('%', #{name},'%')))
+        </if>
+        <if test="stationId != null">
+            and a.station_id = #{stationId}
         </if>
         <if test="born != null and born != '' ">
             and a.born like #{born}

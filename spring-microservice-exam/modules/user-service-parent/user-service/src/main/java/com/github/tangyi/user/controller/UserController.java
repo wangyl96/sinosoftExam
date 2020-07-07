@@ -28,6 +28,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -143,6 +144,7 @@ public class UserController extends BaseController {
                                       @RequestParam(value = CommonConstant.SORT, required = false, defaultValue = CommonConstant.PAGE_SORT_DEFAULT) String sort,
                                       @RequestParam(value = CommonConstant.ORDER, required = false, defaultValue = CommonConstant.PAGE_ORDER_DEFAULT) String order,
                                       @RequestParam(value = "name", required = false, defaultValue = "") String name,
+                                      @RequestParam(value = "stationId", required = false, defaultValue = "") Long stationId,
                                       UserVo userVo) {
         PageInfo<UserDto> userDtoPageInfo = new PageInfo<>();
         List<UserDto> userDtos = Lists.newArrayList();
@@ -150,6 +152,7 @@ public class UserController extends BaseController {
         User user = new User();
         BeanUtils.copyProperties(userVo, user);
         user.setName(name);
+        user.setStationId(stationId);
         PageInfo<User> page = userService.findPage(PageUtil.pageInfo(pageNum, pageSize, sort, order), user);
         List<User> users = page.getList();
         if (CollectionUtils.isNotEmpty(users)) {
@@ -287,26 +290,29 @@ public class UserController extends BaseController {
     /**
      * 导出
      *
-     * @param ids ids
      * @author tangyi
      * @date 2018/11/26 22:11
      */
     @PostMapping("export")
     @AdminTenantTeacherAuthorization
     @ApiOperation(value = "导出用户", notes = "根据用户id导出用户")
-    @ApiImplicitParam(name = "userVo", value = "用户信息", required = true, dataType = "UserVo")
+    @ApiImplicitParam(name = "userRecordVo", value = "用户信息", required = true, dataType = "UserRecordVo")
     @Log("导出用户")
-    public void exportUser(@RequestBody Long[] ids, HttpServletRequest request, HttpServletResponse response) {
+    public void exportUser(@RequestBody UserRecordVo userRecordVo, HttpServletRequest request, HttpServletResponse response) {
         try {
             List<User> users;
-            if (ArrayUtils.isNotEmpty(ids)) {
-                users = userService.findListById(ids);
+            if (ArrayUtils.isNotEmpty(userRecordVo.getIds())) {
+                users = userService.findListById(userRecordVo.getIds());
             } else {
                 // 导出本租户下的全部用户
                 User user = new User();
                 user.setTenantCode(SysUtil.getTenantCode());
+                user.setName(userRecordVo.getName());
+                user.setStationId(userRecordVo.getStationId());
                 users = userService.findList(user);
             }
+
+
             if (CollectionUtils.isEmpty(users))
                 throw new CommonException("无用户数据.");
             // 查询用户授权信息
@@ -314,6 +320,17 @@ public class UserController extends BaseController {
             // 组装数据，转成dto
             List<UserInfoDto> userInfoDtos = users.stream().map(tempUser -> {
                 UserInfoDto userDto = new UserInfoDto();
+                //获取岗位信息
+                if (ObjectUtils.isNotEmpty(tempUser.getStationId())) {
+                    Station station = stationService.get(tempUser.getStationId());
+                    userDto.setStationName(station.getStation());
+                }
+                //获取部门信息
+                if (ObjectUtils.isNotEmpty(tempUser.getDeptId())) {
+                    Dept dept = deptService.get(tempUser.getDeptId());
+                    userDto.setDeptName(dept.getDeptName());
+                }
+
                 userAuths.stream()
                         .filter(userAuth -> userAuth.getUserId().equals(tempUser.getId()))
                         .findFirst()
