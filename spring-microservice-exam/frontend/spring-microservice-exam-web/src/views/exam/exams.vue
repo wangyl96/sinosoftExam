@@ -194,10 +194,10 @@ export default {
           // 校验结束时间
           if (currentTime.isAfter(exam.endTime)) {
             messageWarn(this, '考试已结束')
-          } else if (currentTime.isBefore(exam.startTime)) {
+          } /*else if (currentTime.isBefore(exam.startTime)) {
             // 考试未开始
             messageWarn(this, '考试未开始')
-          } else {
+          } */else {
             this.$confirm('确定要开始吗?', '提示', {
               confirmButtonText: '确定',
               cancelButtonText: '取消',

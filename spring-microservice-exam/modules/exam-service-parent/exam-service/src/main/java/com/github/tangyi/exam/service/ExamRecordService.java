@@ -511,7 +511,7 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 		Integer addNum = examinationSubjectMapper.addNew(resultList);
 		return addNum;
 	}
-
+	//抽取试题
 	private List<QuestionCategoryVO> getResult(Long examinationId, Long userId, List<QuestionCategoryVO> resultList, List<ExamQuestionCategory> questionCategoryList, int type) {
 		if (questionCategoryList.size() > 0) {
 			// 根据考试难度及题库抽取试题
