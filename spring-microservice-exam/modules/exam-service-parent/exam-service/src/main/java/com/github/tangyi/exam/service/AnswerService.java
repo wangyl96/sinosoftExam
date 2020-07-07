@@ -901,6 +901,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         Examination examination = examinationService.get(examinationId);
         ExaminationRecord examRecord = new ExaminationRecord();
         examRecord.setCommonValue(identifier, applicationCode, tenantCode);
+        examRecord.setCreator(identifier);
         examRecord.setUserId(userId);
         examRecord.setExaminationId(examinationId);
         examRecord.setStartTime(examRecord.getCreateDate());

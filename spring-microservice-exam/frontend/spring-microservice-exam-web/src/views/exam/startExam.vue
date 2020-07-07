@@ -142,9 +142,9 @@ export default {
         const currentTime = moment(response.data.data)
         if (currentTime.isAfter(this.exam.endTime)) {
           messageWarn(this, '考试已结束')
-        } else if (currentTime.isBefore(this.exam.startTime)) {
+        } /*else if (currentTime.isBefore(this.exam.startTime)) {
           messageWarn(this, '考试未开始')
-        } else {
+        }*/ else {
           this.startExam()
           const current = currentTime.valueOf()
           this.currentTime = current
