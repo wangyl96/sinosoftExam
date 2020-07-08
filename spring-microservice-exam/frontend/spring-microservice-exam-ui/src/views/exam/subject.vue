@@ -34,8 +34,11 @@
             <span>题目管理</span>
           </div>
           <div class="filter-container">
-            <!--<el-input v-model="listQuery.subjectName" placeholder="题目名称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-            <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.search') }}</el-button>-->
+            <el-input v-model="listQuery.subjectName" placeholder="题目名称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+            <el-select  v-model="listQuery.type"  clearable="true" placeholder="请选择" style="width: 200px;" class="filter-item" >
+              <el-option v-for="item in subjectType" :key="item.key" :label="item.displayName" :value="item.key" />
+            </el-select>
+            <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.search') }}</el-button>
             <el-button v-if="subject_bank_btn_add" class="filter-item" type="primary" style="margin-left: 10px;" icon="el-icon-check" @click="handleCreateSubject">{{ $t('table.add') }}</el-button>
             <el-button v-if="subject_bank_btn_del" class="filter-item" type="danger" icon="el-icon-delete" @click="handleDeletesSubject">{{ $t('table.del') }}</el-button>
             <el-button v-if="subject_bank_btn_import" class="filter-item" type="success" icon="el-icon-upload2" @click="handleImportSubject">{{ $t('table.import') }}</el-button>
@@ -195,12 +198,20 @@
         <span class="subject-title-content" v-html="tempSubject.subjectName"/>
         <!--<span class="subject-title-content">&nbsp;({{tempSubject.score}})分</span>-->
       </div>
+<!--      单选和多选-->
       <ul v-if="tempSubject.type === 0 || tempSubject.type === 3" class="subject-options">
         <li class="subject-option" v-for="(option) in tempSubject.options" :key="option.id">
           <input class="toggle" type="checkbox">
           <label><span class="subject-option-prefix">{{option.optionName}}&nbsp;</span><span v-html="option.optionContent" class="subject-option-prefix"></span></label>
         </li>
+        <li>
+          <label><span class="subject-option-prefix">解析:&nbsp;</span><span v-html="tempSubject.analysis" class="subject-option-prefix"></span></label>
+        </li>
+        <li>
+          <label><span class="subject-option-prefix">参考答案:&nbsp;</span><span v-html="tempSubject.answer.answer" class="subject-option-prefix"></span></label>
+        </li>
       </ul>
+<!--      判断-->
       <ul v-if="tempSubject.type === 2" class="subject-options">
         <li class="subject-option">
           <input class="toggle" type="checkbox">
@@ -211,6 +222,16 @@
           <label><span class="subject-option-prefix">错误</span></label>
         </li>
       </ul>
+<!--      简单-->
+      <ul v-if="tempSubject.type === 1" class="subject-options">
+        <li>
+          <label><span class="subject-option-prefix">解析:&nbsp;</span><span v-html="tempSubject.analysis" class="subject-option-prefix"></span></label>
+        </li>
+        <li>
+          <label><span class="subject-option-prefix">参考答案:&nbsp;</span><span v-html="tempSubject.answer.answer" class="subject-option-prefix"></span></label>
+        </li>
+      </ul>
+
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="dialogViewVisible = false">{{ $t('table.confirm') }}</el-button>
       </div>
@@ -230,7 +251,7 @@ import SpinnerLoading from '@/components/SpinnerLoading'
 import Choices from '@/components/Subjects/Choices'
 import MultipleChoices from '@/components/Subjects/MultipleChoices'
 import ShortAnswer from '@/components/Subjects/ShortAnswer'
-
+import { subjectType } from '@/utils/constant'
 export default {
   name: 'SubjectManagement',
   components: { Tinymce, SpinnerLoading, Choices, MultipleChoices, ShortAnswer },
@@ -247,12 +268,14 @@ export default {
       showElement: false,
       typeOptions: ['0', '1'],
       listLoading: true,
+      subjectType: [],
       listQuery: {
         subjectName: undefined,
         categoryId: undefined,
         examinationId: undefined,
         sort: 'id',
-        order: 'descending'
+        order: 'descending',
+        type:[]
       },
       treeData: [],
       oExpandedKey: {
@@ -293,6 +316,7 @@ export default {
           { subjectChoicesId: '', optionName: 'C', optionContent: '' },
           { subjectChoicesId: '', optionName: 'D', optionContent: '' }
         ],
+        subjectType: [],
         answer: {
           subjectId: '',
           answer: '',
@@ -389,6 +413,9 @@ export default {
     this.subject_bank_btn_edit = this.permissions['exam:subject:bank:edit']
     this.subject_bank_btn_import = this.permissions['exam:subject:bank:import']
     this.subject_bank_btn_export = this.permissions['exam:subject:bank:export']
+    Object.keys(subjectType).forEach(key => {
+      this.subjectType.push({ key: parseInt(key), displayName: subjectType[key] })
+    })
   },
   computed: {
     ...mapGetters([
@@ -454,7 +481,7 @@ export default {
     },
     handleFilter () {
       this.listQuery.pageNum = 1
-      this.handleSubjectManagement()
+      this.handleSubjectSelect()
     },
     handleSizeChange (val) {
       this.listQuery.limit = val
@@ -618,6 +645,25 @@ export default {
         if (isNotEmpty(response.data) && response.data.list.length > 0) {
           for (let i = 0; i < response.data.list.length; i++) {
             const subject = response.data.list[i]
+            console.log(subject);
+            subject.type = parseInt(subject.type)
+            subject.level = parseInt(subject.level)
+          }
+        }
+        this.list = response.data.list
+        this.total = parseInt(response.data.total)
+        this.listLoading = false
+      }).catch(() => {
+        this.listLoading = false
+      })
+    },
+    handleSubjectSelect () {
+      this.listLoading = true
+      fetchSubjectList(this.listQuery).then(response => {
+        if (isNotEmpty(response.data) && response.data.list.length > 0) {
+          for (let i = 0; i < response.data.list.length; i++) {
+            const subject = response.data.list[i]
+            console.log(subject);
             subject.type = parseInt(subject.type)
             subject.level = parseInt(subject.level)
           }

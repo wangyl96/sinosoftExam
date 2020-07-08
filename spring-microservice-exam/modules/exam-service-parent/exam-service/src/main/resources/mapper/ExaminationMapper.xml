@@ -56,7 +56,7 @@
         <if test="status != null">
             and a.status = #{status}
         </if>
-        <if test="type != null and type != ''">
+        <if test="type != null ">
             and a.type = #{type}
         </if>
         <if test="tenantCode != null and tenantCode != ''">
@@ -80,7 +80,22 @@
         SELECT
         <include refid="examinationColumns"/>
         FROM exam_examination a WHERE a.del_flag = 0
-        <include refid="whereColumnList"/>
+        <if test="examinationName != null and examinationName != ''">
+            and a.examination_name like CONCAT('%',#{examinationName},'%')
+        </if>
+        <if test="courseId != null and courseId != ''">
+            and a.course_id = #{courseId}
+        </if>
+        <if test="status != null">
+            and (a.status = #{status} or a.status = '2')
+        </if>
+        <if test="type != null and type != ''">
+            and a.type = #{type}
+        </if>
+        <if test="tenantCode != null and tenantCode != ''">
+            and a.tenant_code = #{tenantCode}
+        </if>
+        order by a.modify_date desc
     </select>
 
     <select id="findListById" resultMap="examinationResultMap">

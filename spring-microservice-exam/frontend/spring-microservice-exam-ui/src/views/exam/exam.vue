@@ -1,6 +1,14 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
+      <el-input v-model="listQuery.examinationName" clearable="true" placeholder="考试名称" style="width: 200px;" class="filter-item"/>
+      <el-select  v-model="listQuery.type"  clearable="true" placeholder="请选择考试类型" style="width: 200px;" class="filter-item" >
+        <el-option v-for="item in examType" :key="item.key" :label="item.displayName" :value="item.key" />
+      </el-select>
+      <el-select  v-model="listQuery.status"  clearable="true" placeholder="请选择考试状态" style="width: 200px;" class="filter-item" >
+        <el-option v-for="item in statusTypeList" :key="item.key" :label="item.displayName" :value="item.key" />
+      </el-select>
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.search') }}</el-button>
       <!--<el-input :placeholder="$t('table.examinationName')" v-model="listQuery.examinationName" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.search') }}</el-button>-->
       <el-button v-if="exam_btn_add" class="filter-item" type="primary" style="margin-left: 10px;" icon="el-icon-check" @click="handleCreate">{{ $t('table.add') }}</el-button>
@@ -282,7 +290,7 @@ import Choices from '@/components/Subjects/Choices'
 import MultipleChoices from '@/components/Subjects/MultipleChoices'
 import ShortAnswer from '@/components/Subjects/ShortAnswer'
 import { apiList } from '@/const/constant'
-import { examType } from '@/utils/constant'
+import { examType,statusTypeList } from '@/utils/constant'
 
 export default {
   name: 'ExamManagement',
@@ -315,7 +323,10 @@ export default {
         pageNum: 1,
         pageSize: 10,
         sort: 'id',
-        order: 'descending'
+        order: 'descending',
+        examinationName:'',
+        type:[],
+        status:[]
       },
       // 课程
       course: {
@@ -388,6 +399,10 @@ export default {
       activeName: '0',
       qrCodeUrl: '',
       examType: [],
+      statusType:[],
+      type:[],
+      statusTypeList:[],
+      status:[],
       // 修改考试
       updateKey: ''
     }
@@ -407,6 +422,9 @@ export default {
     this.exam_btn_subject = this.permissions['exam:exam:subject']
     Object.keys(examType).forEach(key => {
       this.examType.push({ key: parseInt(key), displayName: examType[key] })
+    })
+    Object.keys(statusTypeList).forEach(key => {
+      this.statusTypeList.push({ key: parseInt(key), displayName: statusTypeList[key] })
     })
   },
   computed: {

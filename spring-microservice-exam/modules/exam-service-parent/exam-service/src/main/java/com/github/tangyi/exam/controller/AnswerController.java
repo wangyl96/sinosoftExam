@@ -7,10 +7,7 @@ import com.github.tangyi.common.core.utils.PageUtil;
 import com.github.tangyi.common.core.web.BaseController;
 import com.github.tangyi.common.log.annotation.Log;
 import com.github.tangyi.common.security.utils.SysUtil;
-import com.github.tangyi.exam.api.dto.AnswerDto;
-import com.github.tangyi.exam.api.dto.JudgeAnswerDTO;
-import com.github.tangyi.exam.api.dto.RankInfoDto;
-import com.github.tangyi.exam.api.dto.SubjectDto;
+import com.github.tangyi.exam.api.dto.*;
 import com.github.tangyi.exam.api.module.Answer;
 import com.github.tangyi.exam.service.AnswerService;
 import com.github.tangyi.exam.service.SubjectService;
@@ -24,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 答题controller
@@ -216,38 +214,38 @@ public class AnswerController extends BaseController {
     @ApiOperation(value = "保存答题", notes = "保存答题")
     @ApiImplicitParam(name = "answer", value = "答题信息", dataType = "Answer")
     public ResponseBean<SubjectDto> anonymousUserSaveAndNext(@RequestBody AnswerDto answer,
-                                                @RequestParam Integer nextType,
-                                                @RequestParam(required = false) Long nextSubjectId,
-                                                @RequestParam(required = false) Integer nextSubjectType) {
+                                                             @RequestParam Integer nextType,
+                                                             @RequestParam(required = false) Long nextSubjectId,
+                                                             @RequestParam(required = false) Integer nextSubjectType) {
         return new ResponseBean<>(answerService.saveAndNext(answer, nextType, nextSubjectId, nextSubjectType));
     }
 
-	/**
-	 * 保存答题
-	 *
-	 * @param answer          answer
-	 * @return ResponseBean
-	 * @author tangyi
-	 * @date 2019/04/30 18:06
-	 */
-	@PostMapping("saveAnswer")
-	@ApiOperation(value = "保存答题", notes = "保存答题")
-	@ApiImplicitParam(name = "answer", value = "答题信息", dataType = "Answer")
-	public ResponseBean<Boolean> saveAnswer(@RequestBody AnswerDto answer) {
-		return new ResponseBean<>(answerService.save(answer, SysUtil.getUser(), SysUtil.getSysCode(), SysUtil.getTenantCode()) > 0);
-	}
+    /**
+     * 保存答题
+     *
+     * @param answer answer
+     * @return ResponseBean
+     * @author tangyi
+     * @date 2019/04/30 18:06
+     */
+    @PostMapping("saveAnswer")
+    @ApiOperation(value = "保存答题", notes = "保存答题")
+    @ApiImplicitParam(name = "answer", value = "答题信息", dataType = "Answer")
+    public ResponseBean<Boolean> saveAnswer(@RequestBody AnswerDto answer) {
+        return new ResponseBean<>(answerService.save(answer, SysUtil.getUser(), SysUtil.getSysCode(), SysUtil.getTenantCode()) > 0);
+    }
 
-	/**
-	 * 下一题
-	 *
-	 * @param examinationId       examinationId
-	 * @param subjectId          subjectId
-	 * @param type          	type
-	 * @param nextType          0：下一题，1：上一题
-	 * @return ResponseBean
-	 * @author tangyi
-	 * @date 2019/04/30 18:06
-	 */
+    /**
+     * 下一题
+     *
+     * @param examinationId       examinationId
+     * @param subjectId          subjectId
+     * @param type            type
+     * @param nextType          0：下一题，1：上一题
+     * @return ResponseBean
+     * @author tangyi
+     * @date 2019/04/30 18:06
+     */
 //	@GetMapping("nextSubject")
 //	@ApiOperation(value = "获取下一题", notes = "获取下一题")
 //	public ResponseBean<SubjectDto> nextSubject(@RequestParam Long examinationId, @RequestParam Long subjectId,
@@ -289,16 +287,19 @@ public class AnswerController extends BaseController {
 
     /**
      * 判断该题是否答过
+     *
      * @param judgeAnswerDTO
      * @return
      */
     @PostMapping("/judgeAnswer")
-    public ResponseBean<Boolean> judgeAnswer(@RequestBody JudgeAnswerDTO judgeAnswerDTO) {
-        return new ResponseBean<>(answerService.judgeAnswer(judgeAnswerDTO));
+    public ResponseBean<Map<String, Object>> judgeAnswer(@RequestBody JudgeAnswerStatusDTO judgeAnswerDTO) {
+        Map<String, Object> map = answerService.judgeAnswer(judgeAnswerDTO);
+        return new ResponseBean<>(map);
     }
 
     /**
      * 判断该题是否答过
+     *
      * @param judgeAnswerDTO
      * @return
      */
@@ -339,10 +340,10 @@ public class AnswerController extends BaseController {
     /**
      * 答题详情
      *
-     * @param recordId        recordId
-     * @param currentSubjectId   currentSubjectId
-     * @param nextSubjectType nextSubjectType
-     * @param nextType        0：下一题，1：上一题
+     * @param recordId         recordId
+     * @param currentSubjectId currentSubjectId
+     * @param nextSubjectType  nextSubjectType
+     * @param nextType         0：下一题，1：上一题
      * @return ResponseBean
      * @author tangyi
      * @date 2019/06/18 22:50
@@ -359,20 +360,22 @@ public class AnswerController extends BaseController {
 
     /**
      * 获取排名数据，成绩由高到底排序，返回姓名、头像、分数信息
+     *
      * @param recordId recordId
      * @return ResponseBean
      * @author tangyi
      * @date 2019/12/8 23:32
      */
-	@GetMapping("record/{recordId}/rankInfo")
-	@ApiOperation(value = "排名列表", notes = "排名列表")
-	@ApiImplicitParam(name = "recordId", value = "考试记录id", dataType = "Long")
+    @GetMapping("record/{recordId}/rankInfo")
+    @ApiOperation(value = "排名列表", notes = "排名列表")
+    @ApiImplicitParam(name = "recordId", value = "考试记录id", dataType = "Long")
     public ResponseBean<List<RankInfoDto>> rankInfo(@PathVariable Long recordId) {
-		return new ResponseBean<>(answerService.getRankInfo(recordId));
-	}
+        return new ResponseBean<>(answerService.getRankInfo(recordId));
+    }
 
     /**
      * 移动端提交答题
+     *
      * @param examinationId examinationId
      * @return ResponseBean
      * @author tangyi
@@ -384,7 +387,7 @@ public class AnswerController extends BaseController {
             @ApiImplicitParam(name = "examinationId", value = "考试id", dataType = "Long"),
             @ApiImplicitParam(name = "identifier", value = "考生账号", dataType = "String")
     })
-	public ResponseBean<Boolean> anonymousUserSubmitAll(@PathVariable Long examinationId, @RequestParam String identifier, @RequestBody List<SubjectDto> subjectDtos) {
+    public ResponseBean<Boolean> anonymousUserSubmitAll(@PathVariable Long examinationId, @RequestParam String identifier, @RequestBody List<SubjectDto> subjectDtos) {
         return new ResponseBean<>(answerService.anonymousUserSubmit(examinationId, identifier, subjectDtos));
     }
 }

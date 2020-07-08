@@ -318,6 +318,12 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
     @Transactional
     @CacheEvict(value = "examinationDto", key = "#examinationDto.id")
     public int update(ExaminationDto examinationDto) {
+        //判定是否为修改
+        int operate = 0 ;
+        if(100==examinationDto.getStatus()){
+            operate = 1;
+            examinationDto.setStatus(1);
+        }
         if (examinationDto.getAvatarId() == null || examinationDto.getAvatarId() == 0L) {
             this.initExaminationLogo(examinationDto);
         }
@@ -348,8 +354,11 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
                     .setScore(0);
             examQuestionExamList.add(examQuestionExam);
         }
-        examQuestionExamMapper.deleteById(id);
-        examQuestionExamMapper.insertForeach(examQuestionExamList);
+        //只有“修改”，情况题库配置数据
+        if(1==operate){
+            examQuestionExamMapper.deleteById(id);
+            examQuestionExamMapper.insertForeach(examQuestionExamList);
+        }
         // 查出所有的题库
         List<SubjectCategory> subjectCategoryList = subjectCategoryMapper.getList();
         // exam_question_category入库
@@ -363,9 +372,12 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
                 mapList.add(categoryMap);
             });
         });
-        // 先删除  再入库
-        examQuestionCategoryMapper.deleteById(id);
-        examQuestionCategoryMapper.insertForeachCategory(mapList);
+        //只有“修改”，情况题库配置数据
+        if(1==operate){
+            // 先删除  再入库
+            examQuestionCategoryMapper.deleteById(id);
+            examQuestionCategoryMapper.insertForeachCategory(mapList);
+        }
         /************/
         return super.update(examination);
     }
