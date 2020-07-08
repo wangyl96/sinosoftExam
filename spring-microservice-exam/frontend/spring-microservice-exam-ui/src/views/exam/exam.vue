@@ -282,7 +282,7 @@ import { fetchCourseList } from '@/api/exam/course'
 import waves from '@/directive/waves'
 import { mapGetters, mapState } from 'vuex'
 import { getToken } from '@/utils/auth'
-import { checkMultipleSelect, isNotEmpty, notifySuccess, notifyFail, messageSuccess } from '@/utils/util'
+import { checkMultipleSelect, isNotEmpty, notifySuccess, messageSuccess, notifyFail } from '@/utils/util'
 import { delAttachment } from '@/api/admin/attachment'
 import Tinymce from '@/components/Tinymce'
 import SpinnerLoading from '@/components/SpinnerLoading'
@@ -290,7 +290,8 @@ import Choices from '@/components/Subjects/Choices'
 import MultipleChoices from '@/components/Subjects/MultipleChoices'
 import ShortAnswer from '@/components/Subjects/ShortAnswer'
 import { apiList } from '@/const/constant'
-import { examType,statusTypeList } from '@/utils/constant'
+import { examType, statusTypeList } from '@/utils/constant'
+import { updateAvatar } from '@/api/admin/user'
 
 export default {
   name: 'ExamManagement',
@@ -324,9 +325,9 @@ export default {
         pageSize: 10,
         sort: 'id',
         order: 'descending',
-        examinationName:'',
-        type:[],
-        status:[]
+        examinationName: '',
+        type: [],
+        status: []
       },
       // 课程
       course: {
@@ -399,10 +400,10 @@ export default {
       activeName: '0',
       qrCodeUrl: '',
       examType: [],
-      statusType:[],
-      type:[],
-      statusTypeList:[],
-      status:[],
+      statusType: [],
+      type: [],
+      statusTypeList: [],
+      status: [],
       // 修改考试
       updateKey: ''
     }
@@ -442,9 +443,7 @@ export default {
       this.listLoading = true
       fetchList(this.listQuery).then(response => {
         this.list = response.data.list
-        for (let i = 0; i < this.list.length; i++) {
-          this.list[i].type = 1
-        }
+        console.log(this.list)
         this.total = parseInt(response.data.total)
         setTimeout(() => {
           this.listLoading = false
@@ -521,6 +520,7 @@ export default {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             this.temp.totalScore = parseInt(this.temp.totalScore)
+            console.log(this.temp)
             addObj(this.temp).then(() => {
               this.list.unshift(this.temp)
               this.dialogFormVisible = false
@@ -552,6 +552,7 @@ export default {
         }
       }
       // 获取图片的预览地址
+      console.log(this.temp)
       if (isNotEmpty(this.temp.avatarId)) {
         this.avatar = '/api/user/v1/attachment/preview?id=' + this.temp.avatarId
       }
@@ -606,7 +607,7 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          delAllObj({ids: ids}).then(() => {
+          delAllObj({ ids: ids }).then(() => {
             this.getList()
             notifySuccess(this, '删除成功')
           })
@@ -668,7 +669,24 @@ export default {
     },
     // 上传成功
     handleAvatarSuccess (res, file) {
+      // if (!isNotEmpty(res.data)) {
+      //   notifyFail(this, '图片上传失败')
+      //   return
+      // }
+      // // 重新获取预览地址
+      // this.avatar = '/api/user/v1/attachment/preview?id=' + res.data.id
+      // this.temp.avatarId = res.data.id
+      // updateAvatar(this.userInfo).then(response => {
+      //   notifySuccess(this, '图片上传失败')
+      // }).catch((error) => {
+      //   console.log(error)
+      //   notifyFail(this, '图片上传失败')
+      // })
+
       this.$refs['dataForm'].validate((valid) => {
+
+        console.log(valid)
+        console.log(this.temp)
         if (valid) {
           if (isNotEmpty(this.temp.avatarId)) {
             // 删除旧头像
