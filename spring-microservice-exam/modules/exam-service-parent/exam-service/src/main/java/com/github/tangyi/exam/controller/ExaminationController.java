@@ -109,6 +109,35 @@ public class ExaminationController extends BaseController {
     }
 
     /**
+     * 获取分页数据(考试页面)
+     *
+     * @param pageNum     pageNum
+     * @param pageSize    pageSize
+     * @param sort        sort
+     * @param order       order
+     * @param examination examination
+     * @return PageInfo
+     * @author tangyi
+     * @date 2018/11/10 21:10
+     */
+    @GetMapping("examinationListExam")
+    @ApiOperation(value = "获取考试列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = CommonConstant.PAGE_NUM, value = "分页页码", defaultValue = CommonConstant.PAGE_NUM_DEFAULT, dataType = "String"),
+            @ApiImplicitParam(name = CommonConstant.PAGE_SIZE, value = "分页大小", defaultValue = CommonConstant.PAGE_SIZE_DEFAULT, dataType = "String"),
+            @ApiImplicitParam(name = CommonConstant.SORT, value = "排序字段", defaultValue = CommonConstant.PAGE_SORT_DEFAULT, dataType = "String"),
+            @ApiImplicitParam(name = CommonConstant.ORDER, value = "排序方向", defaultValue = CommonConstant.PAGE_ORDER_DEFAULT, dataType = "String"),
+            @ApiImplicitParam(name = "examination", value = "考试信息", dataType = "Examination")
+    })
+    public PageInfo<ExaminationDto> examinationListExam(@RequestParam(value = CommonConstant.PAGE_NUM, required = false, defaultValue = CommonConstant.PAGE_NUM_DEFAULT) String pageNum,
+                                                    @RequestParam(value = CommonConstant.PAGE_SIZE, required = false, defaultValue = CommonConstant.PAGE_SIZE_DEFAULT) String pageSize,
+                                                    @RequestParam(value = CommonConstant.SORT, required = false, defaultValue = CommonConstant.PAGE_SORT_DEFAULT) String sort,
+                                                    @RequestParam(value = CommonConstant.ORDER, required = false, defaultValue = CommonConstant.PAGE_ORDER_DEFAULT) String order,
+                                                    Examination examination) {
+        return examinationService.examinationListExam(pageNum, pageSize, sort, order, examination);
+    }
+
+    /**
      *  --根据考试ID获取题目分页数据
      * 根据考试id获取类型
      * @param pageNum    pageNum

@@ -37,10 +37,20 @@ public class ExaminationRecord extends BaseEntity<ExaminationRecord> {
     private String examinationName;
 
     private String creator;
-
+    /**
+     * 姓名或用户名
+     */
     private String name;
 
+    /**
+     * 选择id集合
+     */
     private Long[] ids;
+
+    /**
+     * 课程名称
+     */
+    private String courseName;
 
     /**
      * 开始时间
