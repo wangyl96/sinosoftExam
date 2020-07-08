@@ -93,7 +93,7 @@
                 </a>
               </el-dropdown-item>
               <el-dropdown-item v-if="exam_btn_edit && scope.row.status == 3">
-                <a @click="handlePublic(scope.row, 0)">
+                <a @click="handlePublic(scope.row, 2)">
                   <span><i class="el-icon-check"></i>{{ $t('table.againPublic') }}</span>
                 </a>
               </el-dropdown-item>
@@ -404,7 +404,8 @@ export default {
       statusTypeList:[],
       status:[],
       // 修改考试
-      updateKey: ''
+      updateKey: '',
+      aaa:''
     }
   },
   created () {
@@ -514,18 +515,18 @@ export default {
       })
     },
     createData () {
-      console.log(this.temp.questionStyleMap.length)
       if (this.temp.questionStyleMap.length === 0) {
         this.$message.warning('请选择题目类型')
       } else {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             this.temp.totalScore = parseInt(this.temp.totalScore)
-            addObj(this.temp).then(() => {
+            addObj(this.temp).then((data) => {
               this.list.unshift(this.temp)
               this.dialogFormVisible = false
               this.getList()
               notifySuccess(this, '创建成功')
+              console.log(data);
             })
           }
         })
@@ -540,6 +541,8 @@ export default {
       this.dialogQrCodeVisible = true
     },
     handleUpdate (row, status) {
+      console.log(row.id);
+      this.aaa=row.id
       this.temp = Object.assign({}, row)
       this.temp.status = status
       this.temp.subjectType = ['选择题', '判断题', '简答题']
@@ -578,6 +581,9 @@ export default {
             notifySuccess(this, '更新成功')
           })
         }
+      })
+      this.$router.push({
+        path: `/exam/subjects/${this.aaa}`
       })
     },
     // 删除
@@ -631,6 +637,7 @@ export default {
     },
     // 加载题目
     handleSubjectManagement (row) {
+      console.log(row);
       this.$router.push({
         path: `/exam/subjects/${row.id}`
       })

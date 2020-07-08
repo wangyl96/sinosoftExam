@@ -95,6 +95,7 @@ export default {
       loading: true,
       examList: [],
       isLastPage: false,
+      weimm: 'weimm',
       query: {
         sort: 'id',
         order: ' asc',
@@ -216,7 +217,7 @@ export default {
                     return
                   }
                   console.log(this.subject.id)
-                  this.$router.push({ path: `/start/${exam.id}-${this.examRecord.id}-${this.subject.id}-${this.subject.type}-${timeInfo}` })
+                  this.$router.push({ path: `/start/${exam.id}-${this.examRecord.id}-${this.subject.id}-${this.subject.type}-${timeInfo}-${this.weimm}` })
                 }).catch(() => {
                   messageWarn(this, '开始考试失败')
                 })

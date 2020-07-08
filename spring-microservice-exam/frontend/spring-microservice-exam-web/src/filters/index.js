@@ -51,7 +51,17 @@ export function examTypeFilter (type) {
  * @returns {string}
  */
 export function publicStatusFilter (status) {
-  return parseInt(status) === 0 ? '已发布' : '草稿'
+  var state;
+  if(parseInt(status) === 0){
+    state='已发布'
+  }else if(parseInt(status) === 1){
+    state='草稿'
+  }else if(parseInt(status) === 2){
+    state='开放中'
+  }else{
+    state='已关闭'
+  }
+  return state
 }
 
 /**
@@ -80,8 +90,8 @@ export function subjectTypeTagFilter (type) {
 export function submitStatusFilter (type) {
   const typeMap = {
     0: '待批改',
-    1: '已批改',
-    2: '待批改',
+    1: '考试中',
+    2: '异常关闭 ',
     3: '统计完成'
   }
   return typeMap[type]
@@ -90,9 +100,18 @@ export function submitStatusFilter (type) {
 /**
  * success状态
  * @param status, 自动传入
- * @param expectStatus
  * @returns {string}
  */
-export function simpleTagStatusFilter (status, expectStatus) {
-  return status === expectStatus ? 'success' : 'warning'
+export function simpleTagStatusFilter (status) {
+  var state;
+  if(parseInt(status) === 0){
+    state='warning'
+  }else if(parseInt(status) === 1){
+    state='success'
+  }else if(parseInt(status) === 2){
+    state='danger'
+  }else{
+    state='success'
+  }
+  return state
 }
