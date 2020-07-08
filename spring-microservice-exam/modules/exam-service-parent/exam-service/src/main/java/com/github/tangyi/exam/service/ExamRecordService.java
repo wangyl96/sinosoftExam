@@ -58,7 +58,7 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 	private final AnswerMapper answerMapper;
 
 	private final SubjectService subjectService;
-	
+
 
 	/**
 	 * 选择题
@@ -95,11 +95,6 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 
 	@Resource
 	private ExamRecordMapper examRecordMapper;
-	@Resource
-	private ExaminationMapper examinationMapper;
-
-
-
 
 	/**
      * 查询考试记录
@@ -518,7 +513,7 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 		}
         Long examinationId = addSubjectExamDTO.getExaminationId();
 		//修改考试状态
-		examinationMapper.updateStatusById(2,examinationId);
+		examRecordMapper.updateStatusById(examinationId);
 		Long userId = addSubjectExamDTO.getUserId();
 		List<QuestionCategoryVO> resultList = new ArrayList<>();
 		// 1.根据考试id查询本考试所涉及的考试内容,根据题目类型排序

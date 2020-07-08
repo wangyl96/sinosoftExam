@@ -120,6 +120,12 @@ public class ExaminationRecordDto extends BaseEntity<ExaminationRecordDto> {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long courseId;
 
+
+    /**
+     * 课程名称
+     */
+    private String courseName;
+
     /**
      * 备注
      */

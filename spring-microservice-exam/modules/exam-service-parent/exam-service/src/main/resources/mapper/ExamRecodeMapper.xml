@@ -96,6 +96,9 @@
         <if test="examinationName != null and examinationName != ''">
             and a.examination_id in(select id from exam_examination where examination_name  like #{examinationName})
         </if>
+        <if test="courseName != null and courseName != ''">
+            and a.examination_id in(select id from exam_examination where course_id in(select id from exam_course where course_name like #{courseName}))
+        </if>
     </select>
 
     <select id="findPageByUserId" resultMap="examRecordResultMap">
@@ -119,6 +122,9 @@
         </if>
         <if test="examinationName != null and examinationName != ''">
             and a.examination_id in(select id from exam_examination where examination_name  like #{examinationName})
+        </if>
+        <if test="courseName != null and courseName != ''">
+            and a.examination_id in(select id from exam_examination where course_id in(select id from exam_course where course_name like #{courseName}))
         </if>
         and a.user_id IN
         <foreach collection="ids" index="index" item="item" open="(" separator="," close=")">
