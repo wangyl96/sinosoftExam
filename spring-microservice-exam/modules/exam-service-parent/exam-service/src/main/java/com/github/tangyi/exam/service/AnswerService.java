@@ -906,14 +906,17 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         examRecord.setUserId(userId);
         examRecord.setExaminationId(examinationId);
         examRecord.setStartTime(examRecord.getCreateDate());
-
+        //给默认值为0
+		examRecord.setScore(0.0);
+		examRecord.setCorrectNumber(0);
+		examRecord.setInCorrectNumber(0);
         // 默认未提交状态
         examRecord.setSubmitStatus(SubmitStatusEnum.NOT_SUBMITTED.getValue());
         // 保存考试记录
         if (examRecordService.insert(examRecord) > 0) {
             startExamDto.setExamination(examination);
             startExamDto.setExamRecord(examRecord);
-            // 根据题目ID，类型获取第一题的详细信息
+            // 根据题目ID，类型获取第一题的详细信息  调整为存储全部结果，添加题目类型
             SubjectDto subjectDto = subjectService.findFirstSubjectByExaminationId(examRecord.getExaminationId(), userId);
             startExamDto.setSubjectDto(subjectDto);
             // 创建第一题的答题
@@ -921,6 +924,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
             answer.setCommonValue(identifier, applicationCode, tenantCode);
             answer.setExamRecordId(examRecord.getId());
             answer.setSubjectId(subjectDto.getId());
+			answer.setScore(0.0);
             // 默认待批改状态
             answer.setMarkStatus(AnswerConstant.TO_BE_MARKED);
             answer.setAnswerType(AnswerConstant.WRONG);
