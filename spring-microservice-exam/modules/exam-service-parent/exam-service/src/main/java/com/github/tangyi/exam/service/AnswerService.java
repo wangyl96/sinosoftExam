@@ -907,9 +907,9 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         examRecord.setExaminationId(examinationId);
         examRecord.setStartTime(examRecord.getCreateDate());
         //给默认值为0
-		examRecord.setScore(0.0);
-		examRecord.setCorrectNumber(0);
-		examRecord.setInCorrectNumber(0);
+        examRecord.setScore(0.0);
+        examRecord.setCorrectNumber(0);
+        examRecord.setInCorrectNumber(0);
         // 默认未提交状态
         examRecord.setSubmitStatus(SubmitStatusEnum.NOT_SUBMITTED.getValue());
         // 保存考试记录
@@ -919,21 +919,58 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
             // 根据题目ID，类型获取第一题的详细信息  调整为存储全部结果，添加题目类型
             SubjectDto subjectDto = subjectService.findFirstSubjectByExaminationId(examRecord.getExaminationId(), userId);
             startExamDto.setSubjectDto(subjectDto);
-            // 创建第一题的答题
-            Answer answer = new Answer();
-            answer.setCommonValue(identifier, applicationCode, tenantCode);
-            answer.setExamRecordId(examRecord.getId());
-            answer.setSubjectId(subjectDto.getId());
-			answer.setScore(0.0);
-            // 默认待批改状态
-            answer.setMarkStatus(AnswerConstant.TO_BE_MARKED);
-            answer.setAnswerType(AnswerConstant.WRONG);
-            answer.setStartTime(answer.getCreateDate());
-            // 保存答题
-            this.save(answer);
-            subjectDto.setAnswer(answer);
+            List<ExaminationSubject> list = saveAnswer(examRecord.getExaminationId(), userId);
+            for (ExaminationSubject subject : list) {
+                // 创建第一题的答题
+                Answer answer = new Answer();
+                answer.setCommonValue(identifier, applicationCode, tenantCode);
+                answer.setExamRecordId(examRecord.getId());
+                answer.setSubjectId(subject.getSubjectId());
+                answer.setScore(0.0);
+                // 默认待批改状态
+                answer.setMarkStatus(AnswerConstant.TO_BE_MARKED);
+                answer.setAnswerType(AnswerConstant.WRONG);
+                answer.setStartTime(answer.getCreateDate());
+                answer.setType(subject.getType());
+                // 保存答题
+                this.save(answer);
+                subjectDto.setAnswer(answer);
+            }
         }
         return startExamDto;
+    }
+
+    private List<ExaminationSubject> saveAnswer(Long examinationId, Long userId) {
+        ExaminationSubject examinationSubject = new ExaminationSubject();
+        examinationSubject.setExaminationId(examinationId);
+        List<ExaminationSubject> examinationSubjects = examinationSubjectMapper.findListByExaminationIdAndUserid(examinationId, userId);
+        List<ExaminationSubject> resultList = new ArrayList<>();
+        List<ExaminationSubject> choiceList = new ArrayList<>();
+        List<ExaminationSubject> multipleChoiceList = new ArrayList<>();
+        List<ExaminationSubject> judgeList = new ArrayList<>();
+        List<ExaminationSubject> shortAnswerList = new ArrayList<>();
+        examinationSubjects.stream().forEach(e -> {
+            if (0 == e.getType()) {
+                // 单选
+                choiceList.add(e);
+            } else if (1 == e.getType()) {
+                // 简答
+                shortAnswerList.add(e);
+            } else if (2 == e.getType()) {
+                // 判断
+                judgeList.add(e);
+            } else if (3 == e.getType()) {
+                // 多选
+                multipleChoiceList.add(e);
+            }
+        });
+        resultList.addAll(choiceList);
+        resultList.addAll(multipleChoiceList);
+        resultList.addAll(judgeList);
+        resultList.addAll(shortAnswerList);
+        examinationSubjects.clear();
+        examinationSubjects.addAll(resultList);
+        return examinationSubjects;
     }
 
     /**
@@ -946,7 +983,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         Map<String, Object> map = new HashedMap();
         List<String> subjectIds = answerMapper.findAnswer(Long.valueOf(judgeAnswerDTO.getExamRecordId()));
         for (String subjectId : subjectIds) {
-            map.put(subjectId,true);
+            map.put(subjectId, true);
         }
         return map;
     }
