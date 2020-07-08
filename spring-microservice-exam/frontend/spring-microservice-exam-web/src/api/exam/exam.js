@@ -4,7 +4,7 @@ const baseExaminationUrl = '/api/exam/v1/examination/'
 
 export function fetchList (query) {
   return request({
-    url: baseExaminationUrl + 'examinationList',
+    url: baseExaminationUrl + 'examinationListExam',
     method: 'get',
     params: query
   })

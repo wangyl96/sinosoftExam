@@ -3,6 +3,7 @@ package com.github.tangyi.exam.service;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.tangyi.common.basic.properties.SysProperties;
 import com.github.tangyi.common.core.constant.CommonConstant;
@@ -24,6 +25,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -306,7 +308,62 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
         }
         return examinationDtoPageInfo;
     }
+    /**
+     * 获取分页数据(考试页面)
+     *
+     * @param pageNum     pageNum
+     * @param pageSize    pageSize
+     * @param sort        sort
+     * @param order       order
+     * @param examination examination
+     * @return PageInfo
+     * @author tangyi
+     * @date 2018/11/10 21:10
+     */
+    public PageInfo<ExaminationDto> examinationListExam(String pageNum, String pageSize, String sort, String order, Examination examination) {
+        examination.setTenantCode(SysUtil.getTenantCode());
+        PageInfo<Examination> page = findPageExam(PageUtil.pageInfo(pageNum, pageSize, sort, order), examination);
+        PageInfo<ExaminationDto> examinationDtoPageInfo = new PageInfo<>();
+        BeanUtils.copyProperties(page, examinationDtoPageInfo);
+        if (CollectionUtils.isNotEmpty(page.getList())) {
+            List<Course> courses = courseService.findListById(page.getList().stream().map(Examination::getCourseId).distinct().toArray(Long[]::new));
+            List<ExaminationDto> examinationDtos = page.getList().stream().map(exam -> {
+                ExaminationDto examinationDto = new ExaminationDto();
+                Integer time = examExaminationTimeMapper.getExamTime(exam.getId());
+                exam.setTotalTime(time);
+                BeanUtils.copyProperties(exam, examinationDto);
+                // 设置考试时长
+                // 设置考试所属课程
+                courses.stream().filter(tempCourse -> tempCourse.getId().equals(exam.getCourseId())).findFirst().ifPresent(examinationDto::setCourse);
+                // 初始化封面图片
+                this.initExaminationLogo(examinationDto);
+                String questionStyle = examinationDto.getQuestionStyle();
+                String reg = "[^\u4e00-\u9fa5]";
+                String a = questionStyle.replaceAll(reg, "");
+                List<String> styleList = new ArrayList<>();
+                String[] styles = a.split("题");
+                for (int i = 0; i < styles.length; i++) {
+                    String style = styles[i] + "题";
+                    styleList.add(style);
+                }
+                examinationDto.setQuestionStyleMap(styleList);
+                return examinationDto;
+            }).collect(Collectors.toList());
+            examinationDtoPageInfo.setList(examinationDtos);
+        }
+        return examinationDtoPageInfo;
+    }
 
+    /**
+     * 考试页面查询分页数据
+     * @param page
+     * @param examination
+     * @return
+     */
+    public PageInfo<Examination> findPageExam(PageInfo<T> page, Examination examination) {
+        PageHelper.startPage(page.getPageNum(), page.getPageSize());
+        return new PageInfo<>(examinationMapper.findListExam(examination));
+    }
     /**
      * 更新考试
      *
