@@ -190,4 +190,12 @@ public interface UserServiceClient {
      */
     @PutMapping("/v1/user/anonymousUser/updateLoginInfo")
     ResponseBean<Boolean> updateLoginInfo(UserDto userDto);
+
+    /**
+     * 根据账号或姓名模糊查询用户id
+     * @param name
+     * @return
+     */
+    @GetMapping("/v1/user/anonymousUser/getUserIdList")
+    ResponseBean<Long[]> getUserIdList(@RequestParam("name") String name);
 }

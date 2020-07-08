@@ -45,6 +45,15 @@ public class UserExcelModel {
 	@ExcelProperty("联系电话")
 	private String phone;
 
+	@ExcelProperty("公司")
+	private String company;
+
+	@ExcelProperty("岗位")
+	private String stationName;
+
+	@ExcelProperty("部门")
+	private String deptName;
+
 	@ExcelProperty("邮箱")
 	@ColumnWidth(20)
 	private String email;

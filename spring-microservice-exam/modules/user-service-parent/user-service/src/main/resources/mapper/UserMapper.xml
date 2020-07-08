@@ -71,7 +71,11 @@
             and a.parent_uid = #{parentUid}
         </if>
         <if test="name != null and name != ''">
-            and a.name like CONCAT('%', #{name},'%')
+            and (a.name like CONCAT('%', #{name},'%')
+            or a.id in(select user_id from sys_user_auths where identifier like CONCAT('%', #{name},'%')))
+        </if>
+        <if test="stationId != null">
+            and a.station_id = #{stationId}
         </if>
         <if test="born != null and born != '' ">
             and a.born like #{born}
@@ -116,6 +120,14 @@
         WHERE a.del_flag = 0
         <include refid="whereColumnList"/>
     </select>
+
+    <select id="getUserIdList" resultType="java.lang.Long">
+        select distinct a.id
+        from sys_user a
+        where (a.name like #{name}
+        or a.id in(select user_id from sys_user_auths where identifier like #{name}))
+    </select>
+
 
     <select id="findListById" resultMap="userResultMap">
         SELECT

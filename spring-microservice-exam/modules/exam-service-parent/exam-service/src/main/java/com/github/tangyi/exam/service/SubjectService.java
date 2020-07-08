@@ -123,10 +123,10 @@ public class SubjectService {
         List<SubjectDto> subjectDtos = subjectService(subjectDto.getType()).findSubjectList(subjectDto);
         // 选择题则查找具体的选项
         if (SubjectTypeEnum.CHOICES.getValue().equals(subjectDto.getType()) && CollectionUtils.isNotEmpty(subjectDtos)) {
-			// 查找选项信息
-			subjectDtos = subjectDtos.stream()
-					.map(dto -> SubjectUtil.subjectChoicesToDto(subjectChoicesService.get(dto.getId()), true))
-					.collect(Collectors.toList());
+            // 查找选项信息
+            subjectDtos = subjectDtos.stream()
+                    .map(dto -> SubjectUtil.subjectChoicesToDto(subjectChoicesService.get(dto.getId()), true))
+                    .collect(Collectors.toList());
         }
         return subjectDtos;
     }
@@ -144,6 +144,8 @@ public class SubjectService {
         ExaminationSubject examinationSubject = new ExaminationSubject();
         examinationSubject.setCategoryId(subjectDto.getCategoryId());
         examinationSubject.setExaminationId(subjectDto.getExaminationId());
+        examinationSubject.setType(subjectDto.getType());
+        examinationSubject.setSubjectNme(subjectDto.getSubjectName());
         PageInfo<ExaminationSubject> examinationSubjectPageInfo = examinationSubjectService.findPage(pageInfo, examinationSubject);
         List<SubjectDto> subjectDtos = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(examinationSubjectPageInfo.getList())) {
@@ -156,7 +158,7 @@ public class SubjectService {
         PageInfo<SubjectDto> subjectDtoPageInfo = new PageInfo<>();
         PageUtil.copyProperties(examinationSubjectPageInfo, subjectDtoPageInfo);
         List<SubjectDto> list = new ArrayList<>();
-        list = subjectDtos.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(SubjectDto :: getSubjectName))), ArrayList::new));
+        list = subjectDtos.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(SubjectDto::getSubjectName))), ArrayList::new));
         subjectDtoPageInfo.setList(list);
         return subjectDtoPageInfo;
     }
@@ -293,9 +295,9 @@ public class SubjectService {
      * @author tangyi
      * @date 2019/06/16 17:34
      */
-	private ISubjectService subjectService(Integer type) {
-		return SpringContextHolder.getApplicationContext().getBean(SubjectTypeEnum.matchByValue(type).getService());
-	}
+    private ISubjectService subjectService(Integer type) {
+        return SpringContextHolder.getApplicationContext().getBean(SubjectTypeEnum.matchByValue(type).getService());
+    }
 
     /**
      * 导入题目
@@ -383,26 +385,26 @@ public class SubjectService {
         return findSubjectDtoList(examinationSubjects, false);
     }
 
-	/**
-	 * 根据关系列表查询对应的题目的详细信息
-	 *
-	 * @param examinationSubjects examinationSubjects
-	 * @param findOptions findOptions
-	 * @return List
-	 * @author tangyi
-	 * @date 2019/06/17 11:54
-	 */
-	public List<SubjectDto> findSubjectDtoList(List<ExaminationSubject> examinationSubjects, boolean findOptions) {
-    	return findSubjectDtoList(examinationSubjects, findOptions, true);
-	}
+    /**
+     * 根据关系列表查询对应的题目的详细信息
+     *
+     * @param examinationSubjects examinationSubjects
+     * @param findOptions         findOptions
+     * @return List
+     * @author tangyi
+     * @date 2019/06/17 11:54
+     */
+    public List<SubjectDto> findSubjectDtoList(List<ExaminationSubject> examinationSubjects, boolean findOptions) {
+        return findSubjectDtoList(examinationSubjects, findOptions, true);
+    }
 
     /**
      * 根据关系列表查询对应的题目的详细信息
      *
      * @param examinationSubjects examinationSubjects
-     * @param findOptions findOptions
-	 * @param findAnswer findAnswer
-	 * @return List
+     * @param findOptions         findOptions
+     * @param findAnswer          findAnswer
+     * @return List
      * @author tangyi
      * @date 2019/06/17 11:54
      */
@@ -461,7 +463,7 @@ public class SubjectService {
         ExaminationSubject examinationSubject = new ExaminationSubject();
         examinationSubject.setExaminationId(examinationId);
         // 根据考试ID查询考试题目管理关系，题目ID递增
-       // List<ExaminationSubject> examinationSubjects = examinationSubjectService.findList(examinationSubject);
+        // List<ExaminationSubject> examinationSubjects = examinationSubjectService.findList(examinationSubject);
         List<ExaminationSubject> examinationSubjects = examinationSubjectMapper.findListByExaminationIdAndUserid(examinationId, userId);
         List<ExaminationSubject> resultList = new ArrayList<>();
         List<ExaminationSubject> choiceList = new ArrayList<>();
@@ -525,11 +527,11 @@ public class SubjectService {
         }
         if (CollectionUtils.isNotEmpty(examinationSubjects)) {
             for (ExaminationSubject es : examinationSubjects) {
-				SubjectDto subjectDto = this.get(es.getSubjectId(), es.getType());
-				subjectDto.setExaminationId(es.getExaminationId());
-				subjectDto.setCategoryId(es.getCategoryId());
-				subjects.add(subjectDto);
-			}
+                SubjectDto subjectDto = this.get(es.getSubjectId(), es.getType());
+                subjectDto.setExaminationId(es.getExaminationId());
+                subjectDto.setCategoryId(es.getCategoryId());
+                subjects.add(subjectDto);
+            }
         }
         return subjects;
     }

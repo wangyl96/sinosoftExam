@@ -130,10 +130,10 @@ export default {
           const currentTime = moment(response.data.data)
           if (currentTime.isAfter(this.exam.endTime)) {
             messageWarn(this, '考试已结束')
-          } else if (currentTime.isBefore(this.exam.startTime)) {
+          } /*else if (currentTime.isBefore(this.exam.startTime)) {
             // 考试未开始
             messageWarn(this, '考试未开始')
-          } else {
+          }*/ else {
             // 创建考试记录
             anonymousUserStart({ examinationId: this.query.examinationId, identifier: this.identifier }).then(response => {
               const { examRecord, subjectDto } = response.data.data

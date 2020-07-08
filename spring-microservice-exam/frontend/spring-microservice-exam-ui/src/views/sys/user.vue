@@ -1,8 +1,15 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <!--<el-input placeholder="输入姓名查询" v-model="listQuery.name" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.query') }}</el-button>-->
+      <el-input placeholder="输入账号或姓名" v-model="listQuery.name" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-select  class="filter-item" style="width: 200px"  clearable v-model="listQuery.stationId" placeholder="请选择岗位">
+        <el-option v-for="item in options"
+                   :label="item.station"
+                   :key="item.id"
+                   :value="item.id">
+        </el-option>
+      </el-select>
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.query') }}</el-button>
       <el-button v-if="user_btn_add" class="filter-item" icon="el-icon-check" type="primary" @click="handleCreate">{{ $t('table.add') }}</el-button>
       <el-button v-if="user_btn_del" class="filter-item" icon="el-icon-delete" type="danger" @click="handleDeletes">{{ $t('table.del') }}</el-button>
       <el-button v-if="user_btn_import" class="filter-item" icon="el-icon-upload2" type="success" @click="handleImport">{{ $t('table.import') }}</el-button>
@@ -31,6 +38,16 @@
       <el-table-column :label="$t('table.sex')" min-width="80">
         <template slot-scope="scope">
           <span>{{ scope.row.sex | sexFilter}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="$t('table.company')" min-width="80">
+        <template slot-scope="scope">
+          <span>{{ scope.row.company }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="$t('table.station')" min-width="80">
+        <template slot-scope="scope">
+          <span>{{ scope.row.stationName }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="$t('table.ownDept')" min-width="80">
@@ -112,11 +129,12 @@
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('table.examRecord.station')" prop="station">
-              <el-select style="width: 300px" v-model="temp.stationId" placeholder="请选择岗位">
+              <el-select style="width: 295px" clearable v-model="temp.stationId" placeholder="请选择岗位">
                 <el-option v-for="item in options"
                            :label="item.station"
                            :key="item.id"
                            :value="item.id"
+                           :clearable="true"
                 >
                 </el-option>
               </el-select>
@@ -313,10 +331,10 @@ export default {
       if (!isNotEmpty(value)) {
         return callback(new Error('请输入账号'))
       }
-      if (value !== value.replace(/[^\d]/g, '')) {
-        return callback(new Error('只能输入数字'))
-      }
       if (this.dialogStatus === 'create') {
+        if (value !== value.replace(/[^\d]/g, '')) {
+          return callback(new Error('只能输入数字'))
+        }
         // 检查用户名是否存在
         checkExist(value).then(response => {
           if (isNotEmpty(response.data) && response.data.data) {
@@ -362,7 +380,8 @@ export default {
       listQuery: {
         pageNum: 1,
         pageSize: 10,
-        name: undefined,
+        name: '',
+        stationId: '',
         sort: 'id',
         order: 'descending'
       },
@@ -466,8 +485,10 @@ export default {
     },
     getList () {
       this.listLoading = true
+      this.listQuery.name = this.listQuery.name.replace(/(^\s*)|(\s*$)/g, '')
       fetchList(this.listQuery).then(response => {
         this.list = response.data.list
+        console.log(this.list)
         this.total = parseInt(response.data.total)
         setTimeout(() => {
           this.listLoading = false
@@ -626,7 +647,7 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          exportObj([]).then(response => {
+          exportObj(this.listQuery).then(response => {
             // 导出Excel
             exportExcel(response)
           })
