@@ -2,6 +2,7 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input v-model="listQuery.examinationName" placeholder="考试名称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-input v-model="listQuery.courseName" placeholder="课程名称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
       <el-input v-model="listQuery.name" placeholder="输入账号或姓名" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.search') }}</el-button>
       <el-button v-if="exam_record_btn_export" class="filter-item" type="success" icon="el-icon-download" @click="handleExportExamRecord">{{ $t('table.export') }}</el-button>
@@ -17,9 +18,14 @@
       @selection-change="handleSelectionChange"
       @sort-change="sortChange">
       <el-table-column type="selection" width="55"/>
-      <el-table-column :label="$t('table.examinationName')" min-width="200">
+      <el-table-column :label="$t('table.examinationName')" min-width="150">
         <template slot-scope="scope">
           <span>{{ scope.row.examinationName }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="$t('table.course')" min-width="90">
+        <template slot-scope="scope">
+          <span>{{ scope.row.courseName }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="$t('table.examRecord.userName')" min-width="90">
@@ -140,6 +146,7 @@ export default {
         pageNum: 1,
         pageSize: 10,
         examinationName: '',
+        courseName: '',
         name: '',
         ids: [],
         sort: 'id',
@@ -184,6 +191,7 @@ export default {
     getList () {
       this.listQuery.name = this.listQuery.name.replace(/(^\s*)|(\s*$)/g, '')
       this.listQuery.examinationName = this.listQuery.examinationName.replace(/(^\s*)|(\s*$)/g, '')
+      this.listQuery.courseName = this.listQuery.courseName.replace(/(^\s*)|(\s*$)/g, '')
       this.listLoading = true
       console.log(this.listQuery)
       fetchExamRecordList(this.listQuery).then(response => {
@@ -231,6 +239,7 @@ export default {
     handleExportExamRecord () {
       this.listQuery.name = this.listQuery.name.replace(/(^\s*)|(\s*$)/g, '')
       this.listQuery.examinationName = this.listQuery.examinationName.replace(/(^\s*)|(\s*$)/g, '')
+      this.listQuery.courseName = this.listQuery.courseName.replace(/(^\s*)|(\s*$)/g, '')
       if (this.total > 0) {
         if (this.multipleSelection.length === 0) {
           this.$confirm('确定要导出全部成绩数据吗?', '提示', {
