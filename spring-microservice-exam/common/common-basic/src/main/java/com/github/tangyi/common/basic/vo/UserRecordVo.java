@@ -56,6 +56,11 @@ public class UserRecordVo extends BaseEntity<UserRecordVo> {
     private Long stationId;
 
     /**
+     * 选择导出的id集合
+     */
+    private Long[] ids;
+
+    /**
      * 岗位
      */
     private String station;

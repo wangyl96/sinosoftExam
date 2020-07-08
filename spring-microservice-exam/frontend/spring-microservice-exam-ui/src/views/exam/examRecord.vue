@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input v-model="listQuery.examinationName" placeholder="考试名称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-input v-model="listQuery.creator" placeholder="账号" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-input v-model="listQuery.name" placeholder="输入账号或姓名" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.search') }}</el-button>
       <el-button v-if="exam_record_btn_export" class="filter-item" type="success" icon="el-icon-download" @click="handleExportExamRecord">{{ $t('table.export') }}</el-button>
     </div>
@@ -139,9 +139,9 @@ export default {
       listQuery: {
         pageNum: 1,
         pageSize: 10,
-        examinationName: undefined,
-        creator: '',
-        userIdList: [],
+        examinationName: '',
+        name: '',
+        ids: [],
         sort: 'id',
         order: 'descending'
       },
@@ -182,6 +182,8 @@ export default {
   },
   methods: {
     getList () {
+      this.listQuery.name = this.listQuery.name.replace(/(^\s*)|(\s*$)/g, '')
+      this.listQuery.examinationName = this.listQuery.examinationName.replace(/(^\s*)|(\s*$)/g, '')
       this.listLoading = true
       console.log(this.listQuery)
       fetchExamRecordList(this.listQuery).then(response => {
@@ -201,7 +203,7 @@ export default {
       this.getList()
     },
     handleSizeChange (val) {
-      this.listQuery.limit = val
+      this.listQuery.pageSize = val
       this.getList()
     },
     handleCurrentChange (val) {
@@ -227,6 +229,8 @@ export default {
       }
     },
     handleExportExamRecord () {
+      this.listQuery.name = this.listQuery.name.replace(/(^\s*)|(\s*$)/g, '')
+      this.listQuery.examinationName = this.listQuery.examinationName.replace(/(^\s*)|(\s*$)/g, '')
       if (this.total > 0) {
         if (this.multipleSelection.length === 0) {
           this.$confirm('确定要导出全部成绩数据吗?', '提示', {
@@ -234,7 +238,8 @@ export default {
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-            exportObj([]).then(response => {
+            console.log(this.listQuery)
+            exportObj(this.listQuery).then(response => {
               // 导出Excel
               exportExcel(response)
             })
@@ -244,7 +249,8 @@ export default {
           for (let i = 0; i < this.multipleSelection.length; i++) {
             ids.push(this.multipleSelection[i].id)
           }
-          exportObj(ids).then(response => {
+          this.listQuery.ids = ids
+          exportObj(this.listQuery).then(response => {
             // 导出Excel
             exportExcel(response)
           })

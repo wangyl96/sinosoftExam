@@ -10,7 +10,12 @@ export const statusType = {
   2: 'success', //考试中
   3: 'info'     //已关闭
 }
-
+export const statusTypeList = {
+  0: '已发布', //已发布
+  1: '草稿', //草稿
+  2: '考试中', //考试中
+  3: '已关闭'     //已关闭
+}
 // 考试类型
 export const examType = {
   0: '正式考试',

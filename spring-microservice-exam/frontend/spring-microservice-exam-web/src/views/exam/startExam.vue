@@ -190,7 +190,7 @@ export default {
     },
     countDownE_cb: function (x) {
       messageWarn(this, '考试结束')
-      this.doSubmitExam(this.tempAnswer, this.query.examinationId, this.query.examRecordId, this.userInfo, true)
+      this.doSubmitExam(this.tempAnswer, this.query.examinationId, this.query.examRecordId, this.userInfo, true, false)
       this.disableSubmit = true
     },
     last () {
@@ -277,20 +277,19 @@ export default {
         type: 'warning'
       }).then(() => {
         this.disableSubmit = true
-        this.doSubmitExam(this.tempAnswer, this.query.examinationId, this.query.examRecordId, this.userInfo, true)
+        this.doSubmitExam(this.tempAnswer, this.query.examinationId, this.query.examRecordId, this.userInfo, true, true)
       }).catch(() => {
       })
     },
-    doSubmitExam (answer, examinationId, examRecordId, userInfo, toExamRecord) {
+    doSubmitExam (answer, examinationId, examRecordId, userInfo, toExamRecord, submitType) {
       const answerId = isNotEmpty(answer) ? answer.id : ''
       saveAndNext(this.getAnswer(answerId), 0).then(response => {
         // 根据考试id查询考题数量,根据考试记录查询考题数量判断是否一致并判断考题答案是否填写
         judgeAnswerQuestion(userInfo.id, examinationId, examRecordId).then(res => {
           // 提交到后台
-          console.log(res.data.data)
-          if (!res.data.data) {
-            messageWarn(this, '请将题目填写完整, 考题有遗漏')
-            return
+          if (submitType && !res.data.data)  {
+              messageWarn(this, '请将题目填写完整, 考题有遗漏')
+              return
           }
          store.dispatch('SubmitExam', { startTime: this.startDate, endTime: new Date(), examinationId, examRecordId, userId: userInfo.id }).then(() => {
           messageSuccess(this, '提交成功')

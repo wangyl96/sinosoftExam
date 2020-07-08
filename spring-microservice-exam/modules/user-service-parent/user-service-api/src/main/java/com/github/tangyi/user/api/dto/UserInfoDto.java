@@ -41,6 +41,18 @@ public class UserInfoDto implements Serializable {
     private String name;
 
     /**
+     * 公司
+     */
+    private String company;
+
+
+    /**
+     * 岗位名称
+     */
+    private String stationName;
+
+
+    /**
      * 电话号码
      */
     private String phone;
