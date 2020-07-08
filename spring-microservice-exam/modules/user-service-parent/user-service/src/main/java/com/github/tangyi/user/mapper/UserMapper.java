@@ -5,6 +5,8 @@ import com.github.tangyi.common.core.persistence.CrudMapper;
 import com.github.tangyi.user.api.module.User;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * 用户mapper接口
  *
@@ -21,4 +23,12 @@ public interface UserMapper extends CrudMapper<User> {
      * @return Integer
      */
     Integer userCount(UserVo userVo);
+
+    /**
+     * 查询用户的id
+     * @param name
+     * @return
+     */
+    List<Long> getUserIdList(String name);
 }
+

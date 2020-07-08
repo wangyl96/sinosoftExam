@@ -161,6 +161,8 @@ export default {
     roleName: '角色名称',
     roleCode: '角色代码',
     roleDesc: '角色描述',
+    company: '公司',
+    station: '岗位',
     ownDept: '部门',
     role: '角色',
     permission: '分配权限',

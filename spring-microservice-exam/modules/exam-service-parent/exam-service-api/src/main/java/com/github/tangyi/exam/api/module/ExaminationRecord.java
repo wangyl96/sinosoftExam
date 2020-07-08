@@ -38,6 +38,9 @@ public class ExaminationRecord extends BaseEntity<ExaminationRecord> {
 
     private String creator;
 
+    private String name;
+
+    private Long[] ids;
 
     /**
      * 开始时间

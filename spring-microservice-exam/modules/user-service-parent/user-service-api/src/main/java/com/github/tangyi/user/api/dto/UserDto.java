@@ -95,16 +95,22 @@ public class UserDto implements Serializable {
     private String name;
 
     /**
-     * 姓名
+     * 公司名称
      */
     @ApiModelProperty(value = "公司名称")
     private String company;
 
     /**
-     * 姓名
+     * 岗位id
      */
-    @ApiModelProperty(value = "岗位")
+    @ApiModelProperty(value = "岗位id")
     private Long stationId;
+
+    /**
+     * 岗位名称
+     */
+    @ApiModelProperty(value = "岗位名称")
+    private String stationName;
 
     /**
      * 电话

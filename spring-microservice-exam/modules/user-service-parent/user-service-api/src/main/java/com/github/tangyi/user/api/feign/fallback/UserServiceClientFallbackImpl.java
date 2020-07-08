@@ -215,6 +215,17 @@ public class UserServiceClientFallbackImpl implements UserServiceClient {
         return null;
     }
 
+    /**
+     * 根据账号或姓名模糊查询用户id
+     * @param name
+     * @return
+     */
+    @Override
+    public ResponseBean<Long[]> getUserIdList(String name) {
+        log.error("Feign updateLoginInfo failed, {}, {}", name, throwable);
+        return null;
+    }
+
     public Throwable getThrowable() {
         return throwable;
     }
