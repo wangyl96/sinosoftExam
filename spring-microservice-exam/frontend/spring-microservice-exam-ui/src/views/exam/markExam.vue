@@ -221,6 +221,7 @@ export default {
           messageSuccess(this, '操作成功')
         }
       })
+
     },
     // 上一题
     last () {
