@@ -161,6 +161,8 @@ export default {
     roleName: '角色名称',
     roleCode: '角色代码',
     roleDesc: '角色描述',
+    company: '公司',
+    station: '岗位',
     ownDept: '部门',
     role: '角色',
     permission: '分配权限',
@@ -216,6 +218,8 @@ export default {
       analysis: '解析'
     },
     public: '发布',
+    againPublic: '重新发布',
+    examEnd: '考试结束',
     withdraw: '撤回',
     categoryName: '分类名称',
     categoryDesc: '分类描述',

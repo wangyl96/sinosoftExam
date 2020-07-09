@@ -1,6 +1,14 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
+      <el-input v-model="listQuery.examinationName" clearable="true" placeholder="考试名称" style="width: 200px;" class="filter-item"/>
+      <el-select  v-model="listQuery.type"  clearable="true" placeholder="请选择考试类型" style="width: 200px;" class="filter-item" >
+        <el-option v-for="item in examType" :key="item.key" :label="item.displayName" :value="item.key" />
+      </el-select>
+      <el-select  v-model="listQuery.status"  clearable="true" placeholder="请选择考试状态" style="width: 200px;" class="filter-item" >
+        <el-option v-for="item in statusTypeList" :key="item.key" :label="item.displayName" :value="item.key" />
+      </el-select>
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.search') }}</el-button>
       <!--<el-input :placeholder="$t('table.examinationName')" v-model="listQuery.examinationName" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.search') }}</el-button>-->
       <el-button v-if="exam_btn_add" class="filter-item" type="primary" style="margin-left: 10px;" icon="el-icon-check" @click="handleCreate">{{ $t('table.add') }}</el-button>
@@ -59,8 +67,13 @@
               操作<i class="el-icon-caret-bottom el-icon--right"></i>
             </span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item v-if="exam_btn_edit">
-                <a @click="handleUpdate(scope.row)">
+              <el-dropdown-item v-if="exam_btn_edit && scope.row.status == 0">
+                <a @click="handlePublic(scope.row, 1)">
+                  <span><i class="el-icon-close"></i>{{ $t('table.withdraw') }}</span>
+                </a>
+              </el-dropdown-item>
+              <el-dropdown-item v-if="exam_btn_edit && scope.row.status == 1">
+                <a @click="handleUpdate(scope.row, 100)">
                   <span><i class="el-icon-edit"></i>{{ $t('table.edit') }}</span>
                 </a>
               </el-dropdown-item>
@@ -69,15 +82,25 @@
                   <span><i class="el-icon-check"></i>{{ $t('table.public') }}</span>
                 </a>
               </el-dropdown-item>
-              <el-dropdown-item v-if="exam_btn_edit && scope.row.status == 0">
-                <a @click="handlePublic(scope.row, 1)">
-                  <span><i class="el-icon-close"></i>{{ $t('table.withdraw') }}</span>
-                </a>
-              </el-dropdown-item>
-              <el-dropdown-item v-if="exam_btn_subject">
+              <el-dropdown-item v-if="exam_btn_edit && scope.row.status == 1">
                 <a @click="handleSubjectManagement(scope.row)">
                   <span><i class="el-icon-document"></i>{{ $t('table.subjectManagement') }}</span>
                 </a>
+              </el-dropdown-item>
+              <el-dropdown-item v-if="exam_btn_edit && scope.row.status == 2">
+                <a @click="handleExamEnd(scope.row, 3)">
+                  <span><i class="el-icon-edit"></i>{{ $t('table.examEnd') }}</span>
+                </a>
+              </el-dropdown-item>
+              <el-dropdown-item v-if="exam_btn_edit && scope.row.status == 3">
+                <a @click="handlePublic(scope.row, 2)">
+                  <span><i class="el-icon-check"></i>{{ $t('table.againPublic') }}</span>
+                </a>
+              </el-dropdown-item>
+              <el-dropdown-item v-if="exam_btn_subject">
+                <!--<a @click="handleSubjectManagement(scope.row)">
+                  <span><i class="el-icon-document"></i>{{ $t('table.subjectManagement') }}</span>
+                </a>-->
               </el-dropdown-item>
               <!--<el-dropdown-item>-->
               <!--<a @click="handleShare(scope.row)">-->
@@ -259,7 +282,7 @@ import { fetchCourseList } from '@/api/exam/course'
 import waves from '@/directive/waves'
 import { mapGetters, mapState } from 'vuex'
 import { getToken } from '@/utils/auth'
-import { checkMultipleSelect, isNotEmpty, notifySuccess, notifyFail, messageSuccess } from '@/utils/util'
+import { checkMultipleSelect, isNotEmpty, notifySuccess, messageSuccess, notifyFail } from '@/utils/util'
 import { delAttachment } from '@/api/admin/attachment'
 import Tinymce from '@/components/Tinymce'
 import SpinnerLoading from '@/components/SpinnerLoading'
@@ -267,7 +290,8 @@ import Choices from '@/components/Subjects/Choices'
 import MultipleChoices from '@/components/Subjects/MultipleChoices'
 import ShortAnswer from '@/components/Subjects/ShortAnswer'
 import { apiList } from '@/const/constant'
-import { examType } from '@/utils/constant'
+import { examType, statusTypeList } from '@/utils/constant'
+import { updateAvatar } from '@/api/admin/user'
 
 export default {
   name: 'ExamManagement',
@@ -300,7 +324,10 @@ export default {
         pageNum: 1,
         pageSize: 10,
         sort: 'id',
-        order: 'descending'
+        order: 'descending',
+        examinationName: '',
+        type: [],
+        status: []
       },
       // 课程
       course: {
@@ -372,7 +399,14 @@ export default {
       percentageSubject: 0,
       activeName: '0',
       qrCodeUrl: '',
-      examType: []
+      examType: [],
+      statusType: [],
+      type: [],
+      statusTypeList: [],
+      status: [],
+      // 修改考试
+      updateKey: '',
+      aaa:''
     }
   },
   created () {
@@ -391,6 +425,9 @@ export default {
     Object.keys(examType).forEach(key => {
       this.examType.push({ key: parseInt(key), displayName: examType[key] })
     })
+    Object.keys(statusTypeList).forEach(key => {
+      this.statusTypeList.push({ key: parseInt(key), displayName: statusTypeList[key] })
+    })
   },
   computed: {
     ...mapGetters([
@@ -407,9 +444,7 @@ export default {
       this.listLoading = true
       fetchList(this.listQuery).then(response => {
         this.list = response.data.list
-        for (let i = 0; i < this.list.length; i++) {
-          this.list[i].type = 1
-        }
+        console.log(this.list)
         this.total = parseInt(response.data.total)
         setTimeout(() => {
           this.listLoading = false
@@ -479,17 +514,21 @@ export default {
       })
     },
     createData () {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          this.temp.totalScore = parseInt(this.temp.totalScore)
-          addObj(this.temp).then(() => {
-            this.list.unshift(this.temp)
-            this.dialogFormVisible = false
-            this.getList()
-            notifySuccess(this, '创建成功')
-          })
-        }
-      })
+      if (this.temp.questionStyleMap.length === 0) {
+        this.$message.warning('请选择题目类型')
+      } else {
+        this.$refs['dataForm'].validate((valid) => {
+          if (valid) {
+            this.temp.totalScore = parseInt(this.temp.totalScore)
+            addObj(this.temp).then(() => {
+              this.list.unshift(this.temp)
+              this.dialogFormVisible = false
+              this.getList()
+              notifySuccess(this, '创建成功')
+            })
+          }
+        })
+      }
     },
     handleShare (row) {
       this.qrCodeUrl = apiList.exam + 'anonymousUser/generateQrCode/' + row.id
@@ -499,8 +538,11 @@ export default {
       this.qrCodeUrl = apiList.exam + 'anonymousUser/generateQrCode/v2/' + row.id
       this.dialogQrCodeVisible = true
     },
-    handleUpdate (row) {
+    handleUpdate (row, status) {
+      console.log(row.id);
+      this.aaa=row.id
       this.temp = Object.assign({}, row)
+      this.temp.status = status
       this.temp.subjectType = ['选择题', '判断题', '简答题']
       // this.temp.questionStyleMap = ["判断题", "简答题"]
       this.avatar = ''
@@ -511,6 +553,7 @@ export default {
         }
       }
       // 获取图片的预览地址
+      console.log(this.temp)
       if (isNotEmpty(this.temp.avatarId)) {
         this.avatar = '/api/user/v1/attachment/preview?id=' + this.temp.avatarId
       }
@@ -537,6 +580,9 @@ export default {
             notifySuccess(this, '更新成功')
           })
         }
+      })
+      this.$router.push({
+        path: `/exam/subjects/${this.aaa}`
       })
     },
     // 删除
@@ -565,7 +611,7 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          delAllObj({ids: ids}).then(() => {
+          delAllObj({ ids: ids }).then(() => {
             this.getList()
             notifySuccess(this, '删除成功')
           })
@@ -590,12 +636,22 @@ export default {
     },
     // 加载题目
     handleSubjectManagement (row) {
+      console.log(row);
       this.$router.push({
         path: `/exam/subjects/${row.id}`
       })
     },
     // 发布考试
     handlePublic (row, status) {
+      const tempData = Object.assign({}, row)
+      tempData.status = status
+      putObj(tempData).then(() => {
+        this.getList()
+        notifySuccess(this, '更新成功')
+      })
+    },
+    // 结束考试
+    handleExamEnd (row, status) {
       const tempData = Object.assign({}, row)
       tempData.status = status
       putObj(tempData).then(() => {
@@ -618,7 +674,24 @@ export default {
     },
     // 上传成功
     handleAvatarSuccess (res, file) {
+      // if (!isNotEmpty(res.data)) {
+      //   notifyFail(this, '图片上传失败')
+      //   return
+      // }
+      // // 重新获取预览地址
+      // this.avatar = '/api/user/v1/attachment/preview?id=' + res.data.id
+      // this.temp.avatarId = res.data.id
+      // updateAvatar(this.userInfo).then(response => {
+      //   notifySuccess(this, '图片上传失败')
+      // }).catch((error) => {
+      //   console.log(error)
+      //   notifyFail(this, '图片上传失败')
+      // })
+
       this.$refs['dataForm'].validate((valid) => {
+
+        console.log(valid)
+        console.log(this.temp)
         if (valid) {
           if (isNotEmpty(this.temp.avatarId)) {
             // 删除旧头像

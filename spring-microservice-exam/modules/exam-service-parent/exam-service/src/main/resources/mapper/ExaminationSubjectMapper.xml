@@ -47,8 +47,13 @@
                 and a.category_id = #{categoryId}
             </when>
         </choose>
-        <if test="type != null and type != ''">
+        <if test="type != null ">
             and a.type = #{type}
+        </if>
+        <if test="subjectNme !=null ">
+           and c.subject_name like CONCAT('%',#{subjectNme},'%')
+           or s.subject_name like CONCAT('%',#{subjectNme},'%')
+           or j.subject_name like CONCAT('%',#{subjectNme},'%')
         </if>
     </sql>
 
@@ -77,9 +82,12 @@
     </select>
 
     <select id="findList" resultMap="examinationSubjectResultMap">
-        SELECT
-        <include refid="examinationSubjectColumns"/>
-        FROM exam_examination_subject a WHERE 1=1
+        select <include refid="examinationSubjectColumns"/>
+        from exam_examination_subject  a
+        left join exam_subject_choices c on a.subject_id=c.id
+        left join exam_subject_short_answer s on a.subject_id=s.id
+        left join exam_subject_judgement j on a.subject_id=j.id
+        WHERE 1=1
         <include refid="whereColumnList"/>
         ORDER BY a.subject_id ASC
     </select>

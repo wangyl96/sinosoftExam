@@ -95,6 +95,7 @@ export default {
       loading: true,
       examList: [],
       isLastPage: false,
+      weimm: 'weimm',
       query: {
         sort: 'id',
         order: ' asc',
@@ -194,10 +195,10 @@ export default {
           // 校验结束时间
           if (currentTime.isAfter(exam.endTime)) {
             messageWarn(this, '考试已结束')
-          } else if (currentTime.isBefore(exam.startTime)) {
+          } /*else if (currentTime.isBefore(exam.startTime)) {
             // 考试未开始
             messageWarn(this, '考试未开始')
-          } else {
+          } */else {
             this.$confirm('确定要开始吗?', '提示', {
               confirmButtonText: '确定',
               cancelButtonText: '取消',
@@ -216,7 +217,7 @@ export default {
                     return
                   }
                   console.log(this.subject.id)
-                  this.$router.push({ path: `/start/${exam.id}-${this.examRecord.id}-${this.subject.id}-${this.subject.type}-${timeInfo}` })
+                  this.$router.push({ path: `/start/${exam.id}-${this.examRecord.id}-${this.subject.id}-${this.subject.type}-${timeInfo}-${this.weimm}` })
                 }).catch(() => {
                   messageWarn(this, '开始考试失败')
                 })

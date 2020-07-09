@@ -165,8 +165,6 @@ public class ExamRecordController extends BaseController {
 
     /**
      * 导出
-     *
-     * @param ids ids
 	 * @param request request
 	 * @param response response
      * @author tangyi
@@ -175,10 +173,10 @@ public class ExamRecordController extends BaseController {
     @PostMapping("export")
     @AdminTenantTeacherAuthorization
     @ApiOperation(value = "导出考试成绩", notes = "根据成绩id导出成绩")
-    @ApiImplicitParam(name = "ids", value = "成绩ID", required = true, dataType = "Long")
+    @ApiImplicitParam(name = "examinationRecord", value = "成绩导出的条件", required = true, dataType = "ExaminationRecord")
     @Log("导出考试记录")
-    public void exportExamRecord(@RequestBody Long[] ids, HttpServletRequest request, HttpServletResponse response) {
-    	examRecordService.exportExamRecord(ids, request, response);
+    public void exportExamRecord(@RequestBody ExaminationRecord examinationRecord, HttpServletRequest request, HttpServletResponse response) {
+    	examRecordService.exportExamRecord(examinationRecord, request, response);
     }
 
     /**

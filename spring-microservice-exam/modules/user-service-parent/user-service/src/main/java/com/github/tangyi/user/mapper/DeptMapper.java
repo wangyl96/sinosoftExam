@@ -4,6 +4,8 @@ import com.github.tangyi.common.core.persistence.CrudMapper;
 import com.github.tangyi.user.api.module.Dept;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * 菜单mapper
  *
@@ -12,4 +14,8 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface DeptMapper extends CrudMapper<Dept> {
+
+    List<Dept> getDeptDataList();
+
+
 }

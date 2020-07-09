@@ -1,8 +1,10 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <!--<el-input v-model="listQuery.examinationName" placeholder="考试名称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.search') }}</el-button>-->
+      <el-input v-model="listQuery.examinationName" placeholder="考试名称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-input v-model="listQuery.courseName" placeholder="课程名称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-input v-model="listQuery.name" placeholder="输入账号或姓名" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.search') }}</el-button>
       <el-button v-if="exam_record_btn_export" class="filter-item" type="success" icon="el-icon-download" @click="handleExportExamRecord">{{ $t('table.export') }}</el-button>
     </div>
     <spinner-loading v-if="listLoading"/>
@@ -16,9 +18,14 @@
       @selection-change="handleSelectionChange"
       @sort-change="sortChange">
       <el-table-column type="selection" width="55"/>
-      <el-table-column :label="$t('table.examinationName')" min-width="200">
+      <el-table-column :label="$t('table.examinationName')" min-width="150">
         <template slot-scope="scope">
           <span>{{ scope.row.examinationName }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="$t('table.course')" min-width="90">
+        <template slot-scope="scope">
+          <span>{{ scope.row.courseName }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="$t('table.examRecord.userName')" min-width="90">
@@ -113,7 +120,8 @@
 </template>
 
 <script>
-import { fetchExamRecordList, exportObj,examRecordDelete} from '@/api/exam/examRecord'
+import { fetchExamRecordList, exportObj, examRecordDelete} from '@/api/exam/examRecord'
+import { getIdList } from '@/api/admin/user'
 import waves from '@/directive/waves'
 import { mapGetters } from 'vuex'
 import SpinnerLoading from '@/components/SpinnerLoading'
@@ -124,7 +132,7 @@ export default {
   components: {
     SpinnerLoading
   },
-  inject: ["reload"], //注入reload方法
+  inject: ["reload"],
   directives: {
     waves
   },
@@ -137,7 +145,10 @@ export default {
       listQuery: {
         pageNum: 1,
         pageSize: 10,
-        examinationName: undefined,
+        examinationName: '',
+        courseName: '',
+        name: '',
+        ids: [],
         sort: 'id',
         order: 'descending'
       },
@@ -178,7 +189,11 @@ export default {
   },
   methods: {
     getList () {
+      this.listQuery.name = this.listQuery.name.replace(/(^\s*)|(\s*$)/g, '')
+      this.listQuery.examinationName = this.listQuery.examinationName.replace(/(^\s*)|(\s*$)/g, '')
+      this.listQuery.courseName = this.listQuery.courseName.replace(/(^\s*)|(\s*$)/g, '')
       this.listLoading = true
+      console.log(this.listQuery)
       fetchExamRecordList(this.listQuery).then(response => {
         this.list = response.data.list
         console.log(this.list)
@@ -191,12 +206,12 @@ export default {
         this.listLoading = false
       })
     },
-    handleFilter () {
+    handleFilter: function () {
       this.listQuery.pageNum = 1
       this.getList()
     },
     handleSizeChange (val) {
-      this.listQuery.limit = val
+      this.listQuery.pageSize = val
       this.getList()
     },
     handleCurrentChange (val) {
@@ -222,6 +237,9 @@ export default {
       }
     },
     handleExportExamRecord () {
+      this.listQuery.name = this.listQuery.name.replace(/(^\s*)|(\s*$)/g, '')
+      this.listQuery.examinationName = this.listQuery.examinationName.replace(/(^\s*)|(\s*$)/g, '')
+      this.listQuery.courseName = this.listQuery.courseName.replace(/(^\s*)|(\s*$)/g, '')
       if (this.total > 0) {
         if (this.multipleSelection.length === 0) {
           this.$confirm('确定要导出全部成绩数据吗?', '提示', {
@@ -229,7 +247,8 @@ export default {
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-            exportObj([]).then(response => {
+            console.log(this.listQuery)
+            exportObj(this.listQuery).then(response => {
               // 导出Excel
               exportExcel(response)
             })
@@ -239,7 +258,8 @@ export default {
           for (let i = 0; i < this.multipleSelection.length; i++) {
             ids.push(this.multipleSelection[i].id)
           }
-          exportObj(ids).then(response => {
+          this.listQuery.ids = ids
+          exportObj(this.listQuery).then(response => {
             // 导出Excel
             exportExcel(response)
           })
@@ -279,7 +299,6 @@ export default {
         })
       })
     }
-    //删除多个
 
   }
 }

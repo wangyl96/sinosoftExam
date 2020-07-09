@@ -41,7 +41,7 @@ public interface AnswerMapper extends CrudMapper<Answer> {
      * @param userId
      * @return
      */
-    String findAnswer(Long examRecordId, Long subjectId, Long userId);
+    List<String> findAnswer(Long examRecordId);
 
     /**
      * 获取某场考试记录中的考题数量

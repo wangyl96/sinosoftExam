@@ -2,6 +2,7 @@ package com.github.tangyi.user.controller;
 
 import com.github.pagehelper.PageInfo;
 import com.github.tangyi.common.basic.utils.excel.ExcelToolUtil;
+import com.github.tangyi.common.basic.vo.DeptVo;
 import com.github.tangyi.common.basic.vo.UserRecordVo;
 import com.github.tangyi.common.basic.vo.UserVo;
 import com.github.tangyi.common.core.constant.CommonConstant;
@@ -27,6 +28,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -142,6 +144,7 @@ public class UserController extends BaseController {
                                       @RequestParam(value = CommonConstant.SORT, required = false, defaultValue = CommonConstant.PAGE_SORT_DEFAULT) String sort,
                                       @RequestParam(value = CommonConstant.ORDER, required = false, defaultValue = CommonConstant.PAGE_ORDER_DEFAULT) String order,
                                       @RequestParam(value = "name", required = false, defaultValue = "") String name,
+                                      @RequestParam(value = "stationId", required = false, defaultValue = "") Long stationId,
                                       UserVo userVo) {
         PageInfo<UserDto> userDtoPageInfo = new PageInfo<>();
         List<UserDto> userDtos = Lists.newArrayList();
@@ -149,6 +152,7 @@ public class UserController extends BaseController {
         User user = new User();
         BeanUtils.copyProperties(userVo, user);
         user.setName(name);
+        user.setStationId(stationId);
         PageInfo<User> page = userService.findPage(PageUtil.pageInfo(pageNum, pageSize, sort, order), user);
         List<User> users = page.getList();
         if (CollectionUtils.isNotEmpty(users)) {
@@ -286,26 +290,29 @@ public class UserController extends BaseController {
     /**
      * 导出
      *
-     * @param ids ids
      * @author tangyi
      * @date 2018/11/26 22:11
      */
     @PostMapping("export")
     @AdminTenantTeacherAuthorization
     @ApiOperation(value = "导出用户", notes = "根据用户id导出用户")
-    @ApiImplicitParam(name = "userVo", value = "用户信息", required = true, dataType = "UserVo")
+    @ApiImplicitParam(name = "userRecordVo", value = "用户信息", required = true, dataType = "UserRecordVo")
     @Log("导出用户")
-    public void exportUser(@RequestBody Long[] ids, HttpServletRequest request, HttpServletResponse response) {
+    public void exportUser(@RequestBody UserRecordVo userRecordVo, HttpServletRequest request, HttpServletResponse response) {
         try {
             List<User> users;
-            if (ArrayUtils.isNotEmpty(ids)) {
-                users = userService.findListById(ids);
+            if (ArrayUtils.isNotEmpty(userRecordVo.getIds())) {
+                users = userService.findListById(userRecordVo.getIds());
             } else {
                 // 导出本租户下的全部用户
                 User user = new User();
                 user.setTenantCode(SysUtil.getTenantCode());
+                user.setName(userRecordVo.getName());
+                user.setStationId(userRecordVo.getStationId());
                 users = userService.findList(user);
             }
+
+
             if (CollectionUtils.isEmpty(users))
                 throw new CommonException("无用户数据.");
             // 查询用户授权信息
@@ -313,6 +320,17 @@ public class UserController extends BaseController {
             // 组装数据，转成dto
             List<UserInfoDto> userInfoDtos = users.stream().map(tempUser -> {
                 UserInfoDto userDto = new UserInfoDto();
+                //获取岗位信息
+                if (ObjectUtils.isNotEmpty(tempUser.getStationId())) {
+                    Station station = stationService.get(tempUser.getStationId());
+                    userDto.setStationName(station.getStation());
+                }
+                //获取部门信息
+                if (ObjectUtils.isNotEmpty(tempUser.getDeptId())) {
+                    Dept dept = deptService.get(tempUser.getDeptId());
+                    userDto.setDeptName(dept.getDeptName());
+                }
+
                 userAuths.stream()
                         .filter(userAuth -> userAuth.getUserId().equals(tempUser.getId()))
                         .findFirst()
@@ -489,6 +507,18 @@ public class UserController extends BaseController {
         return new ResponseBean<>(success);
     }
 
+    /**
+     * 根据账号或姓名模糊查询用户id
+     * @param name
+     * @return
+     */
+    @GetMapping("anonymousUser/getUserIdList")
+    @ApiOperation(value = "查询用户id", notes = "根据账号或姓名模糊查询用户id")
+    public ResponseBean<Long[]> getUserIdList(@RequestParam String name) {
+        return new ResponseBean<>(userService.getUserIdList(name));
+    }
+
+
 
     /**
      * 获取所有的岗位信息
@@ -499,6 +529,24 @@ public class UserController extends BaseController {
         return new ResponseBean<>(stationService.getStation());
     }
 
+    /**
+     * 获取所有的部门的id和名称
+     * @return
+     */
+    @GetMapping("anonymousUser/checkExist/getDeptDataList")
+    public ResponseBean<List<DeptVo>> getDeptDataList() {
+        return new ResponseBean<>(deptService.getDeptDataList());
+    }
+
+    /**
+     * 获取所有的部门的id和名称
+     * @return
+     */
+    @PutMapping("anonymousUser/checkExist/getIdList")
+    @ApiImplicitParam(name = "userDto", value = "用户实体user", required = true, dataType = "UserDto")
+    public ResponseBean<List<String>> getIdList(@RequestBody UserDto userDto) {
+        return new ResponseBean<>(userService.getIdList(userDto.getName()));
+    }
 
 
 }

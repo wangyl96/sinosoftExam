@@ -29,6 +29,7 @@ import com.github.tangyi.exam.utils.ExamRecordUtil;
 import com.github.tangyi.user.api.feign.UserServiceClient;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -92,11 +93,11 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
 
     @Resource
     private SubjectShortAnswerMapper subjectShortAnswerMapper;
-  
-	  @Resource
+
+    @Resource
     private AnswerMapper answerMapper;
 
-	/**
+    /**
      * 查找答题
      *
      * @param answer answer
@@ -345,9 +346,9 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         // 保存成绩
         record.setCommonValue(currentUsername, SysUtil.getSysCode(), SysUtil.getTenantCode());
         record.setId(answer.getExamRecordId());
-		//开始考试时间
-		record.setStartTime(answer.getStartTime());
-		// 提交时间
+        //开始考试时间
+        record.setStartTime(answer.getStartTime());
+        // 提交时间
         record.setEndTime(answer.getEndTime());
         examRecordService.update(record);
         // 更新排名数据
@@ -392,7 +393,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         examRecord.setCommonValue(currentUsername, applicationCode, tenantCode);
         examRecord.setId(answer.getExamRecordId());
         //开始考试时间
-		examRecord.setStartTime(answer.getStartTime());
+        examRecord.setStartTime(answer.getStartTime());
         // 提交时间
         examRecord.setEndTime(answer.getEndTime());
         examRecord.setSubmitStatus(SubmitStatusEnum.SUBMITTED.getValue());
@@ -549,7 +550,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
                 type = 3;
             }
             //页面评分
-            Integer score = examQuestionExamMapper.getAnswerScoreByExamId(recordId,subjectDto.getId());
+            Integer score = examQuestionExamMapper.getAnswerScoreByExamId(recordId, subjectDto.getId());
             //该题总分
             Integer answerScore = examQuestionExamMapper.getScoreByExamIdAndTypeId(type, record.getExaminationId());
             scoreSubject = Double.valueOf(score.toString());
@@ -585,7 +586,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
             //该题总分
             Integer answerScore = examQuestionExamMapper.getScoreByExamIdAndTypeId(type, record.getExaminationId());
             //页面评分
-            Integer score = examQuestionExamMapper.getAnswerScoreByExamId(recordId,currentSubjectId);
+            Integer score = examQuestionExamMapper.getAnswerScoreByExamId(recordId, currentSubjectId);
             scoreSubject = Double.valueOf(score.toString());
             subjectDto.setScore(scoreSubject);
             answerSubject = Double.valueOf(answerScore.toString());
@@ -901,51 +902,95 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         Examination examination = examinationService.get(examinationId);
         ExaminationRecord examRecord = new ExaminationRecord();
         examRecord.setCommonValue(identifier, applicationCode, tenantCode);
+        examRecord.setCreator(identifier);
         examRecord.setUserId(userId);
         examRecord.setExaminationId(examinationId);
         examRecord.setStartTime(examRecord.getCreateDate());
-
+        //给默认值为0
+        examRecord.setScore(0.0);
+        examRecord.setCorrectNumber(0);
+        examRecord.setInCorrectNumber(0);
         // 默认未提交状态
         examRecord.setSubmitStatus(SubmitStatusEnum.NOT_SUBMITTED.getValue());
         // 保存考试记录
         if (examRecordService.insert(examRecord) > 0) {
             startExamDto.setExamination(examination);
             startExamDto.setExamRecord(examRecord);
-            // 根据题目ID，类型获取第一题的详细信息
+            // 根据题目ID，类型获取第一题的详细信息  调整为存储全部结果，添加题目类型
             SubjectDto subjectDto = subjectService.findFirstSubjectByExaminationId(examRecord.getExaminationId(), userId);
             startExamDto.setSubjectDto(subjectDto);
-            // 创建第一题的答题
-            Answer answer = new Answer();
-            answer.setCommonValue(identifier, applicationCode, tenantCode);
-            answer.setExamRecordId(examRecord.getId());
-            answer.setSubjectId(subjectDto.getId());
-            // 默认待批改状态
-            answer.setMarkStatus(AnswerConstant.TO_BE_MARKED);
-            answer.setAnswerType(AnswerConstant.WRONG);
-            answer.setStartTime(answer.getCreateDate());
-            // 保存答题
-            this.save(answer);
-            subjectDto.setAnswer(answer);
+            List<ExaminationSubject> list = saveAnswer(examRecord.getExaminationId(), userId);
+            for (ExaminationSubject subject : list) {
+                // 创建第一题的答题
+                Answer answer = new Answer();
+                answer.setCommonValue(identifier, applicationCode, tenantCode);
+                answer.setExamRecordId(examRecord.getId());
+                answer.setSubjectId(subject.getSubjectId());
+                answer.setScore(0.0);
+                // 默认待批改状态
+                answer.setMarkStatus(AnswerConstant.TO_BE_MARKED);
+                answer.setAnswerType(AnswerConstant.WRONG);
+                answer.setStartTime(answer.getCreateDate());
+                answer.setType(subject.getType());
+                // 保存答题
+                this.save(answer);
+                subjectDto.setAnswer(answer);
+            }
         }
         return startExamDto;
     }
 
+    private List<ExaminationSubject> saveAnswer(Long examinationId, Long userId) {
+        ExaminationSubject examinationSubject = new ExaminationSubject();
+        examinationSubject.setExaminationId(examinationId);
+        List<ExaminationSubject> examinationSubjects = examinationSubjectMapper.findListByExaminationIdAndUserid(examinationId, userId);
+        List<ExaminationSubject> resultList = new ArrayList<>();
+        List<ExaminationSubject> choiceList = new ArrayList<>();
+        List<ExaminationSubject> multipleChoiceList = new ArrayList<>();
+        List<ExaminationSubject> judgeList = new ArrayList<>();
+        List<ExaminationSubject> shortAnswerList = new ArrayList<>();
+        examinationSubjects.stream().forEach(e -> {
+            if (0 == e.getType()) {
+                // 单选
+                choiceList.add(e);
+            } else if (1 == e.getType()) {
+                // 简答
+                shortAnswerList.add(e);
+            } else if (2 == e.getType()) {
+                // 判断
+                judgeList.add(e);
+            } else if (3 == e.getType()) {
+                // 多选
+                multipleChoiceList.add(e);
+            }
+        });
+        resultList.addAll(choiceList);
+        resultList.addAll(multipleChoiceList);
+        resultList.addAll(judgeList);
+        resultList.addAll(shortAnswerList);
+        examinationSubjects.clear();
+        examinationSubjects.addAll(resultList);
+        return examinationSubjects;
+    }
+
     /**
      * 判断该题是否答过
+     *
      * @param judgeAnswerDTO
      * @return
      */
-    public Boolean judgeAnswer(JudgeAnswerDTO judgeAnswerDTO) {
-        String answer = answerMapper.findAnswer(Long.valueOf(judgeAnswerDTO.getExamRecordId()), Long.valueOf(judgeAnswerDTO.getSubjectId()), Long.valueOf(judgeAnswerDTO.getUserId()));
-        if (null != answer && !StringUtils.equals("", answer) && !StringUtils.equals("答:", answer)) {
-            return true;
-        } else {
-            return false;
+    public Map<String, Object> judgeAnswer(JudgeAnswerStatusDTO judgeAnswerDTO) {
+        Map<String, Object> map = new HashedMap();
+        List<String> subjectIds = answerMapper.findAnswer(Long.valueOf(judgeAnswerDTO.getExamRecordId()));
+        for (String subjectId : subjectIds) {
+            map.put(subjectId, true);
         }
+        return map;
     }
 
     /**
      * 判断考题是否答完整
+     *
      * @param judgeAnswerDTO
      * @return
      */
