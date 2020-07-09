@@ -64,15 +64,13 @@ export function save (obj) {
   })
 }
 
-export function judgeAnswer (subjectId, examRecordId, userId) {
+export function judgeAnswer (examRecordId) {
   let url = baseAnswerUrl + 'judgeAnswer'
   return request({
     url: url,
     method: 'post',
     data: {
-      'subjectId': subjectId,
       'examRecordId': examRecordId,
-      'userId': userId
     }
   })
 }

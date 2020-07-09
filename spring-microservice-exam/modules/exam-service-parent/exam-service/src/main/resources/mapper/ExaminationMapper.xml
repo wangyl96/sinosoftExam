@@ -87,9 +87,9 @@
             and a.course_id = #{courseId}
         </if>
         <if test="status != null">
-            and (a.status = #{status} or a.status = '2')
+            and a.status = #{status}
         </if>
-        <if test="type != null and type != ''">
+        <if test="type != null ">
             and a.type = #{type}
         </if>
         <if test="tenantCode != null and tenantCode != ''">
@@ -97,7 +97,27 @@
         </if>
         order by a.modify_date desc
     </select>
-
+    <select id="findListExam" resultMap="examinationResultMap">
+        SELECT
+        <include refid="examinationColumns"/>
+        FROM exam_examination a WHERE a.del_flag = 0
+        <if test="examinationName != null and examinationName != ''">
+            and a.examination_name like CONCAT('%',#{examinationName},'%')
+        </if>
+        <if test="courseId != null and courseId != ''">
+            and a.course_id = #{courseId}
+        </if>
+        <if test="status != null">
+            and (a.status = #{status} or a.status = '2')
+        </if>
+        <if test="type != null ">
+            and a.type = #{type}
+        </if>
+        <if test="tenantCode != null and tenantCode != ''">
+            and a.tenant_code = #{tenantCode}
+        </if>
+        order by a.modify_date desc
+    </select>
     <select id="findListById" resultMap="examinationResultMap">
         SELECT
         <include refid="examinationColumns"/>
@@ -119,6 +139,8 @@
     <select id="getScore" resultType="java.lang.Integer">
         SELECT total_score FROM exam_examination where id = #{examinationId}
     </select>
+
+
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         insert into exam_examination (

@@ -42,7 +42,7 @@
       <div class="answer-card-split"></div>
       <el-row class="answer-card-content">
         <!--根据是否有答案来判断该题目是否已经答过 :class="{ 'button-hcolor': judgeAnswer(value) }"-->
-        <el-button circle v-for="(value, index) in subjectIds" :key="index" @click="toSubject(value, value.subjectId, value.type, index)" >&nbsp;{{index + 1}}&nbsp;</el-button>
+        <el-button circle v-for="(value, index) in subjectIds" :key="index" :class="{ 'button-hcolor': judgeAnswer(value) }" @click="toSubject(value, value.subjectId, value.type, index)" >&nbsp;{{index + 1}}&nbsp;</el-button>
       </el-row>
     </el-dialog>
   </div>
@@ -63,7 +63,7 @@ import MultipleChoices from '@/components/Subjects/MultipleChoices'
 import ShortAnswer from '@/components/Subjects/ShortAnswer'
 import Judgement from '@/components/Subjects/Judgement'
 import { nextSubjectType } from '@/const/constant'
-
+let sign=[];
 export default {
   components: {
     CountDown,
@@ -108,7 +108,10 @@ export default {
         type: 0
       },
       subjectIds: [],
-      subjectStartTime: undefined
+      sign: [],
+      subjectStartTime: undefined,
+      judgeKey: 0,
+      weimm: ''
     }
   },
   computed: {
@@ -127,13 +130,39 @@ export default {
       this.query.examRecordId = examInfoArr[1]
       this.query.subjectId = isNotEmpty(examInfoArr[2]) ? examInfoArr[2] : this.subject.id
       this.query.type = parseInt(examInfoArr[3])
+      this.weimm = examInfoArr[5]
+      document.onkeydown = function (e) {
+        var evt = window.event || e;
+        var code = evt.keyCode || evt.which;
+        if (code == 116) {
+          if (evt.preventDefault) {
+            evt.preventDefault();
+          } else {
+            evt.keyCode = 0;
+            evt.returnValue = false
+          }
+        }
+      }
       this.query.userId = this.userInfo.id
       // 先去获取考试时长, 剩下的交给天意
       this.endTimeWyl = examInfoArr[4] * 60 * 1000
       this.validateExamTime()
     }
+
+    judgeAnswer(this.query.examRecordId).then(response => {
+      this.sign=response.data.data;
+      this.judgeKey = 1;
+    });
   },
+  mounted () {
+    window.addEventListener('beforeunload', e => this.beforeunloadHandler(e))
+  },
+
   methods: {
+    beforeunloadHandler (e) {
+      this.weimm=""
+      alert(2)
+    },
     countDownS_cb: function (x) {
       messageSuccess(this, '考试开始')
     },
@@ -221,12 +250,22 @@ export default {
         }
       }
     },
-    judgeAnswer (value) {
+    judgeAnswer(value){
+      var sa;
+      sign=this.sign
+      Object.keys(sign).forEach(function(key){
+        if ( value.subjectId == key ) {
+          sa = sign[key]
+        }
+      });
+      return sa
+    },
+    /* judgeAnswer (value) {
       // 根据用户id 考试id 考题id去数据库查询是否有答案, 若有则return ture
       judgeAnswer(value.subjectId, this.query.examRecordId, this.query.userId).then(response => {
         return true
       })
-    },
+    },*/
     // 保存当前题目，同时根据序号加载下一题
     saveCurrentSubjectAndGetNextSubject (nextType, nextSubjectId, subjectType) {
       const answerId = isNotEmpty(this.tempAnswer) ? this.tempAnswer.id : ''
@@ -260,7 +299,23 @@ export default {
     },
     // 答题卡
     answerCard () {
-      this.dialogVisible = true
+      if (this.judgeKey == 1) {
+        if (this.weimm =='weimm') {
+          judgeAnswer(this.query.examRecordId).then(response => {
+            this.sign=response.data.data;
+          });
+          this.weimm = ''
+        }
+        this.judgeKey = 0;
+        this.dialogVisible = true
+      } else {
+        judgeAnswer(this.query.examRecordId).then(response => {
+          this.sign=response.data.data;
+        });
+        // sign=this.sign.data.data;
+        this.dialogVisible = true
+      }
+
     },
     // 跳转题目
     toSubject (value, subjectId, subjectType, index) {
@@ -389,8 +444,16 @@ export default {
         }
       }
     }
+  },
+  destroyed () {
+    judgeAnswer(this.query.examRecordId).then(response => {
+      this.sign=response.data.data;
+    });
   }
 }
+// window.onbeforeunload = function(e) {
+//   return "";
+// };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -417,7 +480,8 @@ export default {
     font-weight: 400;
   }
   .button-hcolor {
-    background-color: #1e6abc;
+    background-color: #0099FF;
+    color:#fff;
   }
 
   .button-ncolor {

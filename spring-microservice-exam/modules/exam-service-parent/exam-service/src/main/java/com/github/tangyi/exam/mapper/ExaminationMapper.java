@@ -4,6 +4,8 @@ import com.github.tangyi.common.core.persistence.CrudMapper;
 import com.github.tangyi.exam.api.module.Examination;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * 考试Mapper
  *
@@ -40,6 +42,12 @@ public interface ExaminationMapper extends CrudMapper<Examination> {
      */
     Integer getScore(Long examinationId);
 
+    /**
+     * 考试页面查询分页数据
+     * @param examination
+     * @return
+     */
+    List<Examination> findListExam(Examination examination);
     /**
      * 根据题型名称查询题型id
      * @return
