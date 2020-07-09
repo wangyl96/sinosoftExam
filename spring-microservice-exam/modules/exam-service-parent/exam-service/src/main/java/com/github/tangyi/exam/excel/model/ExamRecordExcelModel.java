@@ -49,6 +49,9 @@ public class ExamRecordExcelModel {
 	@ExcelProperty("考试名称")
 	private String examinationName;
 
+	@ExcelProperty("所属课程")
+	private String courseName;
+
 	@ExcelProperty("成绩")
 	@NumberFormat("#.##")
 	private Double score;
