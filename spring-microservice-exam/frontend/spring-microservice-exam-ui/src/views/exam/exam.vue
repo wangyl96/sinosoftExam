@@ -406,7 +406,7 @@ export default {
       status: [],
       // 修改考试
       updateKey: '',
-      aaa:''
+      rowId:''
     }
   },
   created () {
@@ -520,11 +520,15 @@ export default {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             this.temp.totalScore = parseInt(this.temp.totalScore)
-            addObj(this.temp).then(() => {
+            addObj(this.temp).then((response) => {
+              this.rowId=response.data.data
               this.list.unshift(this.temp)
               this.dialogFormVisible = false
               this.getList()
               notifySuccess(this, '创建成功')
+              this.$router.push({
+                path: `/exam/subjects/${this.rowId}`
+              })
             })
           }
         })
@@ -540,7 +544,7 @@ export default {
     },
     handleUpdate (row, status) {
       console.log(row.id);
-      this.aaa=row.id
+      this.rowId=row.id
       this.temp = Object.assign({}, row)
       this.temp.status = status
       this.temp.subjectType = ['选择题', '判断题', '简答题']
@@ -582,7 +586,7 @@ export default {
         }
       })
       this.$router.push({
-        path: `/exam/subjects/${this.aaa}`
+        path: `/exam/subjects/${this.rowId}`
       })
     },
     // 删除

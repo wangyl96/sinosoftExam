@@ -115,3 +115,18 @@ export function simpleTagStatusFilter (status) {
   }
   return state
 }
+
+/**
+ * success状态
+ * @param status, 自动传入
+ * @returns {string}
+ */
+export function trueOrFalse (status) {
+  var state;
+  if(parseInt(status) === 0){
+    state='success'
+  }else{
+    state='danger'
+  }
+  return state
+}

@@ -340,6 +340,17 @@ export default {
       })
     },
     onCancel () {
+      let view ={fullPath: "/sys/menu"};
+      this.$store.dispatch('delView', view).then(({ visitedViews }) => {
+        if (view.fullPath === this.$route.fullPath) {
+          const latestView = visitedViews.slice(-1)[0]
+          if (latestView) {
+            this.$router.push(latestView)
+          } else {
+            this.$router.push('/')
+          }
+        }
+      });
       this.formStatus = ''
     },
     resetForm () {

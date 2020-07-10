@@ -35,7 +35,7 @@
       </el-tab-pane>
     </el-tabs>
     <div slot="footer" class="dialog-footer collapse-top" v-show="activeName !== '4'">
-      <el-button @click="dialogSubjectFormVisible = false">{{ $t('table.cancel') }}</el-button>
+<!--      <el-button @click="onCancel">{{ $t('table.cancel') }}</el-button>-->
       <el-button v-if="dialogStatus === dialogStatusType.create" type="primary" @click="createSubjectData">{{ $t('table.save') }}</el-button>
       <el-button v-else type="primary" @click="updateSubjectData">{{ $t('table.save') }}</el-button>
       <!--<el-button type="primary" @click="updateAndAddSubjectData">{{ $t('table.saveAndAdd') }}</el-button>-->
@@ -230,6 +230,24 @@ export default {
           break
       }
       return ref
+    },
+    onCancel () {
+      let aaa=this.$store.state.tagsView.visitedViews
+      console.log(aaa);
+      console.log(this.tempSubject.id);
+      console.log(this.tempSubject.type);
+      let view ={fullPath: '/exam/subjects/detail/-'+this.tempSubject.id+'-'+this.tempSubject.type+'-1'};
+      this.$store.dispatch('delView', view).then(({ visitedViews }) => {
+        if (view.fullPath === this.$route.fullPath) {
+          const latestView = visitedViews.slice(-1)[0];
+          if (latestView) {
+            this.$router.push(latestView)
+          } else {
+            this.$router.push('/')
+          }
+        }
+      });
+      this.dialogSubjectFormVisible = false
     },
     // 保存题目
     createSubjectData () {

@@ -3,6 +3,7 @@
     <div class="subject-content">
       <div class="subject-title">
         {{ index }}
+        <span class="subject-title-content">(简答题)</span>
         <span class="subject-title-content" v-html="subjectInfo.subjectName"/>
         <span class="subject-title-content" v-if="subjectInfo.score !== undefined && subjectInfo.score !== 0">&nbsp;({{subjectInfo.score}})分</span>
         <div class="subject-tinymce">
