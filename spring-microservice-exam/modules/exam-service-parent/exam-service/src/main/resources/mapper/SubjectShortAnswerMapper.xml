@@ -82,7 +82,7 @@
     <select id="findAnswerById" resultType="java.lang.String">
         SELECT
             answer
-        FROM exam_subject_choices a WHERE a.id = #{subjectId} and a.del_flag = 0
+        FROM exam_subject_short_answer a WHERE a.id = #{subjectId} and a.del_flag = 0
     </select>
 
     <select id="getById" resultMap="subjectShortAnswerResultMap">

@@ -194,8 +194,8 @@ public class ExaminationController extends BaseController {
     @ApiOperation(value = "创建考试", notes = "创建考试")
     @ApiImplicitParam(name = "examinationDto", value = "考试实体examinationDto", required = true, dataType = "ExaminationDto")
     @Log("新增考试")
-    public ResponseBean<Boolean> addExamination(@RequestBody @Valid ExaminationDto examinationDto) {
-        return new ResponseBean<>(examinationService.insert(examinationDto) > 0);
+    public ResponseBean<String> addExamination(@RequestBody @Valid ExaminationDto examinationDto) {
+        return new ResponseBean<>(examinationService.insert(examinationDto));
     }
 
     @PostMapping("addExamRule")

@@ -193,12 +193,9 @@ export default {
       this.listQuery.examinationName = this.listQuery.examinationName.replace(/(^\s*)|(\s*$)/g, '')
       this.listQuery.courseName = this.listQuery.courseName.replace(/(^\s*)|(\s*$)/g, '')
       this.listLoading = true
-      console.log(this.listQuery)
       fetchExamRecordList(this.listQuery).then(response => {
         this.list = response.data.list
-        console.log(this.list)
         this.total = parseInt(response.data.total)
-        console.log(this.total)
         setTimeout(() => {
           this.listLoading = false
         }, 500)
