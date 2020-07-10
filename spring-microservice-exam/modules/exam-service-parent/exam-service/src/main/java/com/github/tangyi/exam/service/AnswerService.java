@@ -910,8 +910,8 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         examRecord.setScore(0.0);
         examRecord.setCorrectNumber(0);
         examRecord.setInCorrectNumber(0);
-        // 默认未提交状态
-        examRecord.setSubmitStatus(SubmitStatusEnum.NOT_SUBMITTED.getValue());
+        // 默认考试中
+        examRecord.setSubmitStatus(1);
         // 保存考试记录
         if (examRecordService.insert(examRecord) > 0) {
             startExamDto.setExamination(examination);
