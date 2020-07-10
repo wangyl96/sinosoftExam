@@ -1,11 +1,11 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.examinationName" clearable="true" placeholder="考试名称" style="width: 200px;" class="filter-item"/>
-      <el-select  v-model="listQuery.type"  clearable="true" placeholder="请选择考试类型" style="width: 200px;" class="filter-item" >
+      <el-input v-model="listQuery.examinationName" clearable placeholder="考试名称" style="width: 200px;" class="filter-item"/>
+      <el-select  v-model="listQuery.type"  clearable placeholder="请选择考试类型" style="width: 200px;" class="filter-item" >
         <el-option v-for="item in examType" :key="item.key" :label="item.displayName" :value="item.key" />
       </el-select>
-      <el-select  v-model="listQuery.status"  clearable="true" placeholder="请选择考试状态" style="width: 200px;" class="filter-item" >
+      <el-select  v-model="listQuery.status"  clearable placeholder="请选择考试状态" style="width: 200px;" class="filter-item" >
         <el-option v-for="item in statusTypeList" :key="item.key" :label="item.displayName" :value="item.key" />
       </el-select>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.search') }}</el-button>
@@ -406,7 +406,7 @@ export default {
       status: [],
       // 修改考试
       updateKey: '',
-      aaa:''
+      aaa: ''
     }
   },
   created () {
@@ -539,7 +539,8 @@ export default {
       this.dialogQrCodeVisible = true
     },
     handleUpdate (row, status) {
-      console.log(row.id);
+      console.log(status)
+      console.log(row.id)
       this.aaa = row.id
       this.temp = Object.assign({}, row)
       this.temp.status = status
@@ -552,11 +553,12 @@ export default {
           courseName: ''
         }
       }
-      // 获取图片的预览地址
       console.log(this.temp)
-      if (isNotEmpty(this.temp.avatarId)) {
-        this.avatar = '/api/user/v1/attachment/preview?id=' + this.temp.avatarId
-      }
+      // 获取图片的预览地址
+      // console.log(this.temp)
+      // if (isNotEmpty(this.temp.avatarId)) {
+      //   this.avatar = '/api/user/v1/attachment/preview?id=' + this.temp.avatarId
+      // }
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {

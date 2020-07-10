@@ -412,7 +412,11 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
             examQuestionExamList.add(examQuestionExam);
         }
         //只有“修改”，情况题库配置数据
-        if(1==operate){
+        Examination examinationOld = this.dao.getById(id);
+        //获取旧的题目类型
+        String questionStyle = examinationOld.getQuestionStyle();
+
+        if(1==operate && !StringUtils.equals(strType, questionStyle)){
             examQuestionExamMapper.deleteById(id);
             examQuestionExamMapper.insertForeach(examQuestionExamList);
         }
@@ -430,7 +434,7 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
             });
         });
         //只有“修改”，情况题库配置数据
-        if(1==operate){
+        if (1==operate && !StringUtils.equals(strType, questionStyle)) {
             // 先删除  再入库
             examQuestionCategoryMapper.deleteById(id);
             examQuestionCategoryMapper.insertForeachCategory(mapList);
