@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -58,7 +59,8 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 	private final AnswerMapper answerMapper;
 
 	private final SubjectService subjectService;
-
+	
+	private final CourseMapper courseMapper;
 
 	/**
 	 * 选择题
@@ -96,6 +98,9 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 	@Resource
 	private ExamRecordMapper examRecordMapper;
 
+	@Resource
+	private ExaminationMapper examinationMapper;
+
 	/**
      * 查询考试记录
      *
@@ -132,7 +137,11 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 			examinationName = "%" + examinationName + "%";
 			examRecord.setExaminationName(examinationName);
 		}
-
+		if(StringUtils.isNotEmpty(examRecord.getCourseName())) {
+			String courseName = examRecord.getCourseName();
+			courseName = "%" + courseName + "%";
+			examRecord.setCourseName(courseName);
+		}
 		// 查询考试记录
 		PageInfo<ExaminationRecord> examRecordPageInfo = new PageInfo<>();
 		if(StringUtils.isNotEmpty(examRecord.getName())) {
@@ -249,6 +258,14 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 	 * @param userIds userIds
 	 */
     public void fillExamUserInfo(List<ExaminationRecordDto> examRecordDtoList, Long[] userIds) {
+		//获取课程名称
+		for (int i = 0; i < examRecordDtoList.size(); i++) {
+			ExaminationRecordDto examinationRecordDto =  examRecordDtoList.get(i);
+			if (ObjectUtils.isNotEmpty(examinationRecordDto.getCourseId())) {
+				Course course = courseMapper.getById(examinationRecordDto.getCourseId());
+				examinationRecordDto.setCourseName(course.getCourseName());
+			}
+		}
 		// 查询用户信息
 		ResponseBean<List<UserRecordVo>> returnT = userServiceClient.findUserById(userIds);
 		if (ResponseUtil.isSuccess(returnT)) {
@@ -319,7 +336,16 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 	public void exportExamRecord(ExaminationRecord examRecord, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			List<ExaminationRecord> examRecordList = new ArrayList<>();
-
+			if(StringUtils.isNotEmpty(examRecord.getExaminationName())) {
+				String examinationName = examRecord.getExaminationName();
+				examinationName = "%" + examinationName + "%";
+				examRecord.setExaminationName(examinationName);
+			}
+			if(StringUtils.isNotEmpty(examRecord.getCourseName())) {
+				String courseName = examRecord.getCourseName();
+				courseName = "%" + courseName + "%";
+				examRecord.setCourseName(courseName);
+			}
 			if (ArrayUtils.isNotEmpty(examRecord.getIds())) {
 				examRecordList = this.findListById(examRecord.getIds());
 			} else {
@@ -353,6 +379,7 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 							.findFirst().orElse(null);
 					if (examRecordExamination != null) {
 						ExaminationRecordDto recordDto = new ExaminationRecordDto();
+						recordDto.setCourseId(examRecordExamination.getCourseId());
 						recordDto.setId(tempExamRecord.getId());
 						recordDto.setExaminationName(examRecordExamination.getExaminationName());
 						recordDto.setStartTime(tempExamRecord.getStartTime());
@@ -513,7 +540,7 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 		}
         Long examinationId = addSubjectExamDTO.getExaminationId();
 		//修改考试状态
-		examRecordMapper.updateStatusById(examinationId);
+		examinationMapper.updateStatusById(2,examinationId);
 		Long userId = addSubjectExamDTO.getUserId();
 		List<QuestionCategoryVO> resultList = new ArrayList<>();
 		// 1.根据考试id查询本考试所涉及的考试内容,根据题目类型排序
