@@ -221,7 +221,17 @@ export default {
           messageSuccess(this, '操作成功')
         }
       })
-
+      let view ={fullPath: '/exam/mark/'+this.examinationId+'-'+this.examRecordId+''};
+      this.$store.dispatch('delView', view).then(({ visitedViews }) => {
+          if (view.fullPath === this.$route.fullPath) {
+            const latestView = visitedViews.slice(-1)[0];
+            if (latestView) {
+              this.$router.push(latestView)
+            } else {
+              this.$router.push('/')
+            }
+          }
+        });
     },
     // 上一题
     last () {

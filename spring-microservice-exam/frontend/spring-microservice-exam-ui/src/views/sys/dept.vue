@@ -230,6 +230,19 @@ export default {
       })
     },
     onCancel () {
+      let temp  = this.$store.state.tagsView.visitedViews;
+      console.log(temp);
+      let view ={fullPath: "/sys/dept"};
+      this.$store.dispatch('delView', view).then(({ visitedViews }) => {
+        if (view.fullPath === this.$route.fullPath) {
+          const latestView = visitedViews.slice(-1)[0];
+          if (latestView) {
+            this.$router.push(latestView)
+          } else {
+            this.$router.push('/')
+          }
+        }
+      });
       this.formStatus = ''
     },
     resetForm () {
