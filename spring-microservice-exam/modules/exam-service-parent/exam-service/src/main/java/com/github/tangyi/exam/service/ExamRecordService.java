@@ -515,6 +515,9 @@ public class ExamRecordService extends CrudService<ExamRecordMapper, Examination
 			List<AnswerDto> answerDtos = answers.stream().map(answer -> {
 				AnswerDto answerDto = new AnswerDto();
 				BeanUtils.copyProperties(answer, answerDto);
+				if (StringUtils.isEmpty(answer.getAnswer())) {
+					answerDto.setAnswer("未作答");
+				}
 				SubjectDto subjectDto = subjectService.get(answer.getSubjectId(), answer.getType());
 				answerDto.setSubject(subjectDto);
 				answerDto.setDuration(ExamRecordUtil.getExamDuration(answer.getStartTime(), answer.getEndTime()));
