@@ -217,19 +217,19 @@
               </el-col>
             </el-row>
           </el-col>
-          <el-col :span="5" :offset="1">
-            <el-upload
-              :show-file-list="false"
-              :on-success="handleAvatarSuccess"
-              :before-upload="beforeAvatarUpload"
-              action="api/user/v1/attachment/upload"
-              :headers="headers"
-              :data="params"
-              class="avatar-uploader">
-              <img v-if="temp.avatarId !== null" :src="avatar" class="avatar">
-              <i v-else class="el-icon-plus avatar-uploader-icon"/>
-            </el-upload>
-          </el-col>
+<!--          <el-col :span="5" :offset="1">-->
+<!--            <el-upload-->
+<!--              :show-file-list="false"-->
+<!--              :on-success="handleAvatarSuccess"-->
+<!--              :before-upload="beforeAvatarUpload"-->
+<!--              action="api/user/v1/attachment/upload"-->
+<!--              :headers="headers"-->
+<!--              :data="params"-->
+<!--              class="avatar-uploader">-->
+<!--              <img v-if="temp.avatarId !== null" :src="avatar" class="avatar">-->
+<!--              <i v-else class="el-icon-plus avatar-uploader-icon"/>-->
+<!--            </el-upload>-->
+<!--          </el-col>-->
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -540,7 +540,7 @@ export default {
     },
     handleUpdate (row, status) {
       console.log(row.id);
-      this.aaa=row.id
+      this.aaa = row.id
       this.temp = Object.assign({}, row)
       this.temp.status = status
       this.temp.subjectType = ['选择题', '判断题', '简答题']
