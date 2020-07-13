@@ -8,7 +8,7 @@ public enum SubmitStatusEnum {
 
     NOT_SUBMITTED("待批改", 0),
     SUBMITTED("考试中", 1),
-    CALCULATE("异常关闭", 2),
+    CALCULATE("正在统计", 2),
     CALCULATED("统计完成", 3);
 
     private String name;

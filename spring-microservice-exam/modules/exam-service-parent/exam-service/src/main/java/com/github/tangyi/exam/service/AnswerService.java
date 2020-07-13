@@ -314,6 +314,11 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
             tempAnswer.setType(answer.getType());
             tempAnswer.setEndTime(tempAnswer.getModifyDate());
             tempAnswer.setScore(score);
+            if (score > 0.0) {
+                tempAnswer.setAnswerType(0);
+            } else {
+                tempAnswer.setAnswerType(1);
+            }
             return this.update(tempAnswer);
         } else {
             answer.setCommonValue(userCode, sysCode, tenantCode);
