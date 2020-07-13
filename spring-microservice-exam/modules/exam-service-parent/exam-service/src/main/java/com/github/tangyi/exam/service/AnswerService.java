@@ -96,7 +96,12 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
 
     @Resource
     private AnswerMapper answerMapper;
+    
+	@Resource
+	private ExamRecordMapper examRecordMapper;
 
+    @Resource
+    private ExaminationMapper examinationMapper;
     /**
      * 查找答题
      *
@@ -240,6 +245,10 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         String userCode = SysUtil.getUser();
         String sysCode = SysUtil.getSysCode();
         String tenantCode = SysUtil.getTenantCode();
+        //调整考试成绩状态为考试中
+        examRecordMapper.updateSubmitStatusById(1,answerDto.getExamRecordId());
+        ////修改考试状态
+        //examinationMapper.updateStatusById(2,examinationId);
         if (this.save(answerDto, userCode, sysCode, tenantCode) > 0) {
             // 查询下一题
             return this.subjectAnswer(answerDto.getUserId().toString(), answerDto.getSubjectId(), answerDto.getExamRecordId(),
@@ -295,7 +304,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         } else if (answer.getType() == 3) {
             // 多选题
             subjectAnswer = subjectChoicesMapper.findAnswerById(answer.getSubjectId());
-            score = StringUtils.equals(subjectAnswer, answer.getAnswer()) == true ? choicesScore : 0.0;
+            score = getAnswerScore(subjectAnswer, answer.getAnswer()) == true ? choicesScore : 0.0;
         }
         answer.setScore(score);
         Answer tempAnswer = this.getAnswer(answer);
@@ -305,6 +314,11 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
             tempAnswer.setType(answer.getType());
             tempAnswer.setEndTime(tempAnswer.getModifyDate());
             tempAnswer.setScore(score);
+            if (score > 0.0) {
+                tempAnswer.setAnswerType(0);
+            } else {
+                tempAnswer.setAnswerType(1);
+            }
             return this.update(tempAnswer);
         } else {
             answer.setCommonValue(userCode, sysCode, tenantCode);
@@ -313,6 +327,33 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
             answer.setEndTime(answer.getModifyDate());
             return this.insert(answer);
         }
+    }
+
+    /**
+     * 判断选题的答案是否正确
+     * @param subjectAnswer
+     * @param answer
+     * @return
+     */
+    private boolean getAnswerScore(String subjectAnswer, String answer) {
+
+        if (StringUtils.isNotEmpty(answer)) {
+            String[] splitSubject = subjectAnswer.split(",");
+            String[] splitAnswer = answer.split(",");
+            //判断数据的大小是否相同
+            if (splitSubject.length == splitAnswer.length) {
+                for (int i = 0; i < splitAnswer.length; i++) {
+                    String data = splitAnswer[i];
+                    if(!subjectAnswer.contains(data)) {
+                        return false;
+                    }
+
+                }
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -910,8 +951,8 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         examRecord.setScore(0.0);
         examRecord.setCorrectNumber(0);
         examRecord.setInCorrectNumber(0);
-        // 默认未提交状态
-        examRecord.setSubmitStatus(SubmitStatusEnum.NOT_SUBMITTED.getValue());
+        // 默认考试中
+        examRecord.setSubmitStatus(1);
         // 保存考试记录
         if (examRecordService.insert(examRecord) > 0) {
             startExamDto.setExamination(examination);

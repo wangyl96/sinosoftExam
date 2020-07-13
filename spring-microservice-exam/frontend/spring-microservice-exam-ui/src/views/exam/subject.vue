@@ -123,7 +123,7 @@
         </el-row>
         <el-row>
           <el-col :span="24">
-            <el-form-item :label="$t('table.sort')" prop="categoryName">
+            <el-form-item :label="$t('table.sort')" prop="categoryName" style="display: none">
               <el-input :placeholder="$t('table.sort')" v-model="tempCategory.sort"/>
             </el-form-item>
           </el-col>

@@ -234,7 +234,7 @@ export default {
       })
     },
     getAvatar (avatar) {
-      return getAttachmentPreviewUrl(this.sysConfig, avatar)
+      // return getAttachmentPreviewUrl(this.sysConfig, avatar)
     },
     submitForm () {
       this.query.pageNum = 1
@@ -264,10 +264,12 @@ export default {
       this.getExamList()
     },
     updateExamList (list) {
+      console.log(list)
       if (list === undefined || list.length === 0) {
         return list
       }
       list.forEach(item => {
+        item.logoUrl = '/static/img/exam/' + item.avatarId + '.jpeg'
         item.show = false
       })
       if (this.examList.length === 0) {

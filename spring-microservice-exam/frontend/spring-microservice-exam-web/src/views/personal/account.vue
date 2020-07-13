@@ -54,17 +54,17 @@
             <el-col :span="10" :offset="2">
               <el-row>
                 <el-col :span="12" :offset="6" style="text-align: center">
-                  <el-upload
-                    :show-file-list="false"
-                    :on-success="handleAvatarSuccess"
-                    :before-upload="beforeAvatarUpload"
-                    action="api/user/v1/attachment/upload"
-                    :headers="headers"
-                    :data="params"
-                    class="avatar-uploader">
+<!--                  <el-upload-->
+<!--                    :show-file-list="false"-->
+<!--                    :on-success="handleAvatarSuccess"-->
+<!--                    :before-upload="beforeAvatarUpload"-->
+<!--                    action="api/user/v1/attachment/upload"-->
+<!--                    :headers="headers"-->
+<!--                    :data="params"-->
+<!--                    class="avatar-uploader">-->
                     <img v-if="userInfo.avatarUrl" :src="userInfo.avatarUrl" class="avatar">
                     <i v-else class="el-icon-plus avatar-uploader-icon"/>
-                  </el-upload>
+<!--                  </el-upload>-->
                 </el-col>
               </el-row>
               <el-row>

@@ -27,11 +27,11 @@
                     <span>{{ tempAnswer.duration }}</span>
                   </el-form-item>
                 </el-col>-->
-                <el-col :span="6">
+                <!--<el-col :span="6">
                   <el-form-item label="状态：">
                     <el-tag :type="tempAnswer.markStatus | simpleTagStatusFilter(1) ">{{ tempAnswer.markStatus | submitStatusFilter }}</el-tag>
                   </el-form-item>
-                </el-col>
+                </el-col>-->
                 <el-col :span="6">
                   <el-button type="success" icon="el-icon-check"  @click="completeMarking">批改完成</el-button>
                 </el-col>
@@ -221,7 +221,17 @@ export default {
           messageSuccess(this, '操作成功')
         }
       })
-
+      let view ={fullPath: '/exam/mark/'+this.examinationId+'-'+this.examRecordId+''};
+      this.$store.dispatch('delView', view).then(({ visitedViews }) => {
+          if (view.fullPath === this.$route.fullPath) {
+            const latestView = visitedViews.slice(-1)[0];
+            if (latestView) {
+              this.$router.push(latestView)
+            } else {
+              this.$router.push('/')
+            }
+          }
+        });
     },
     // 上一题
     last () {
