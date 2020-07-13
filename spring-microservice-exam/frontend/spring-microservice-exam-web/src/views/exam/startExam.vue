@@ -134,7 +134,7 @@ export default {
       document.onkeydown = function (e) {
         var evt = window.event || e;
         var code = evt.keyCode || evt.which;
-        if (code == 116) {
+        if (code == 116 || code ==123) {
           if (evt.preventDefault) {
             evt.preventDefault();
           } else {
@@ -291,8 +291,7 @@ export default {
           this.subjectStartTime = moment(response.data.data)
         })
         this.endLoading(nextType)
-      }).catch((error) => {
-        console.log(error)
+      }).catch(() => {
         messageFail(this, '获取题目失败')
         this.endLoading(nextType)
       })
@@ -451,9 +450,9 @@ export default {
     });
   }
 }
-// window.onbeforeunload = function(e) {
-//   return "";
-// };
+window.onbeforeunload = function(e) {
+  return "";
+ };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

@@ -56,9 +56,9 @@ public interface ExamRecordMapper extends CrudMapper<ExaminationRecord> {
 
 	/**
 	 * 当有人开始考试时修改考试记录的状态
-	 * @param examinationId
+	 * @param id
 	 */
-	void updateStatusById(Long examinationId);
+	void updateSubmitStatusById(Integer status,Long id);
 
 	/**
 	 * 获取考试信息

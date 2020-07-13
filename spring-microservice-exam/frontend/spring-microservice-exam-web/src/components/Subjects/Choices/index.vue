@@ -3,6 +3,7 @@
     <div class="subject-content">
       <div class="subject-title">
         {{ index }}
+        <span class="subject-title-content">(单选题)</span>
         <span class="subject-title-content" v-html="subjectInfo.subjectName"/>
         <span class="subject-title-content" v-if="subjectInfo.score !== undefined && subjectInfo.score !== 0">&nbsp;({{subjectInfo.score}})分</span>
       </div>
@@ -53,7 +54,6 @@ export default {
       if (subject.hasOwnProperty('options')) {
         this.options = subject.options
         this.showOptions = subject.options;
-        console.log(this.showOptions)
       }
       for (let i = 0; i < this.options.length; i++) {
        this.optionsExhibition.push(this.options[i].optionName)

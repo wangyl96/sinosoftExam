@@ -242,4 +242,7 @@
     <select id="selectQuestionId" parameterType="string" resultType="java.lang.Integer">
       SELECT id from exam_question_type where quesrtion_type_name =#{typeName}
     </select>
+    <update id="updateStatusById" >
+        update exam_examination set STATUS = #{status} where id=#{examinationId}
+    </update>
 </mapper>

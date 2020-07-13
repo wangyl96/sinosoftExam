@@ -3,12 +3,13 @@
     <div class="subject-content">
       <div class="subject-title">
         {{ index }}
+        <span class="subject-title-content">(多选题)</span>
         <span class="subject-title-content" v-html="subjectInfo.subjectName"/>
         <span class="subject-title-content" v-if="subjectInfo.score !== undefined && subjectInfo.score !== 0">&nbsp;({{subjectInfo.score}})分</span>
       </div>
       <ul class="subject-options" v-for="option in options" :key="option.id">
         <li class="subject-option">
-          <input class="toggle" type="checkbox"  :id="'option' + option.id" @change="toggleOption($event, option)">
+          <input class="toggle" type="checkbox" :checked=echoOption(option.optionName) :id="'option' + option.id" @change="toggleOption($event, option)">
           <label :for="'option' + option.id">
             <span class="subject-option-prefix">{{ option.optionName }}&nbsp;</span>
             <span v-html="option.optionContent" class="subject-option-prefix" />
@@ -27,6 +28,7 @@ export default {
     return {
       subjectCount: 0,
       subjectInfo: {
+        answer:'',
         subjectName: '',
         score: 0
       },
@@ -57,6 +59,10 @@ export default {
       if (subject.hasOwnProperty('answer')) {
         this.setAnswer(subject.answer.answer)
       }
+      this.userAnswer.length=0;
+      if (this.subjectInfo.answer.answer !==null && this.subjectInfo.answer.answer.length!==0) {
+        this.userAnswer.push(this.subjectInfo.answer.answer)
+      }
       this.index = index + '.'
     },
     getSubjectInfo () {
@@ -71,6 +77,18 @@ export default {
         }
       } else {
         this.userAnswer.splice(this.userAnswer.findIndex(item => item === option.optionName), 1)
+      }
+    },
+    echoOption(option){
+      if (this.subjectInfo.answer.answer !==null && this.subjectInfo.answer.answer.length!==0) {
+        for(let i=0;i<this.subjectInfo.answer.answer.length;i++){
+          if(this.subjectInfo.answer.answer[i]===option){
+            return true
+          }
+        }
+        return false;
+      } else {
+        return  false;
       }
     },
     isChecked (optionName) {
