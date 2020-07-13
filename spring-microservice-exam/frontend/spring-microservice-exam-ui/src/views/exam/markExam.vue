@@ -27,11 +27,11 @@
                     <span>{{ tempAnswer.duration }}</span>
                   </el-form-item>
                 </el-col>-->
-                <el-col :span="6">
+                <!--<el-col :span="6">
                   <el-form-item label="状态：">
                     <el-tag :type="tempAnswer.markStatus | simpleTagStatusFilter(1) ">{{ tempAnswer.markStatus | submitStatusFilter }}</el-tag>
                   </el-form-item>
-                </el-col>
+                </el-col>-->
                 <el-col :span="6">
                   <el-button type="success" icon="el-icon-check"  @click="completeMarking">批改完成</el-button>
                 </el-col>

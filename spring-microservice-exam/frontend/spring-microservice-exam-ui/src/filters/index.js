@@ -91,7 +91,7 @@ export function submitStatusFilter (type) {
   const typeMap = {
     0: '待批改',
     1: '考试中',
-    2: '异常关闭 ',
+    2: '正在统计 ',
     3: '统计完成'
   }
   return typeMap[type]

@@ -6,8 +6,8 @@ package com.github.tangyi.exam.api.enums;
  */
 public enum SubmitStatusEnum {
 
-    NOT_SUBMITTED("未提交", 0),
-    SUBMITTED("已提交", 1),
+    NOT_SUBMITTED("待批改", 0),
+    SUBMITTED("考试中", 1),
     CALCULATE("正在统计", 2),
     CALCULATED("统计完成", 3);
 

@@ -96,7 +96,12 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
 
     @Resource
     private AnswerMapper answerMapper;
+    
+	@Resource
+	private ExamRecordMapper examRecordMapper;
 
+    @Resource
+    private ExaminationMapper examinationMapper;
     /**
      * 查找答题
      *
@@ -240,6 +245,10 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         String userCode = SysUtil.getUser();
         String sysCode = SysUtil.getSysCode();
         String tenantCode = SysUtil.getTenantCode();
+        //调整考试成绩状态为考试中
+        examRecordMapper.updateSubmitStatusById(1,answerDto.getExamRecordId());
+        ////修改考试状态
+        //examinationMapper.updateStatusById(2,examinationId);
         if (this.save(answerDto, userCode, sysCode, tenantCode) > 0) {
             // 查询下一题
             return this.subjectAnswer(answerDto.getUserId().toString(), answerDto.getSubjectId(), answerDto.getExamRecordId(),
@@ -305,6 +314,11 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
             tempAnswer.setType(answer.getType());
             tempAnswer.setEndTime(tempAnswer.getModifyDate());
             tempAnswer.setScore(score);
+            if (score > 0.0) {
+                tempAnswer.setAnswerType(0);
+            } else {
+                tempAnswer.setAnswerType(1);
+            }
             return this.update(tempAnswer);
         } else {
             answer.setCommonValue(userCode, sysCode, tenantCode);

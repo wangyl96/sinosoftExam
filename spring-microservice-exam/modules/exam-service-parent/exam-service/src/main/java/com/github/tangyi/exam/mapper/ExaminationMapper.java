@@ -53,4 +53,9 @@ public interface ExaminationMapper extends CrudMapper<Examination> {
      * @return
      */
     Integer  selectQuestionId(String typeName);
+    /**
+     * 当有人开始考试时修改考试记录的状态
+     * @param examinationId
+     */
+    void updateStatusById(Integer status,Long examinationId);
 }
