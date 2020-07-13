@@ -90,7 +90,8 @@
                     active-color="#13ce66"
                     inactive-color="#ff4949"
                     active-text="正确"
-                    inactive-text="错误">
+                    inactive-text="错误"
+                    @change="changeState">
                   </el-switch>
                 </el-form-item>
               </el-col>
@@ -144,6 +145,7 @@ export default {
       tempAnswer: {
         subject: {
           score: '',
+          answerScore:'',
           answer: {
             answer: ''
           }
@@ -203,8 +205,17 @@ export default {
         messageFail(this, '加载答题失败')
       })
     },
-    // 完成批改
 
+    changeState(){
+      if(this.correct === true){
+        this.tempAnswer.score = this.tempAnswer.subject.answerScore
+        this.score = this.tempAnswer.subject.answerScore
+      }else{
+        this.tempAnswer.score = 0
+        this.score = 0
+      }
+    },
+    // 完成批改
     completeMarking () {
       if (this.score === '') {
         messageWarn(this, '得分不能为空')
