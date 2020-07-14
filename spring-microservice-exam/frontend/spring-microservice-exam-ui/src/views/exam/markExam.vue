@@ -5,7 +5,8 @@
         <el-col :span="4" style="text-align: center;">
           <span>选择题目</span>
           <div class="answer-number">
-            <el-button class="number-btn" circle v-for="(value, index) in subjectIds" :key="index" @click="toSubject(index, value.subjectId, value.type)" >&nbsp;{{index + 1}}&nbsp;</el-button>
+            <!--judgeAnswer(value)-->
+            <el-button class="number-btn" :class="{ 'button-hcolor':judgeAnswer(value) }" circle v-for="(value, index) in subjectIds" :key="index" @click="toSubject(index, value.subjectId, value.type)" >&nbsp;{{index + 1}}&nbsp;</el-button>
           </div>
         </el-col>
         <el-col :span="16"  class="subject-box-card">
@@ -19,7 +20,7 @@
                 </el-col>
                 <el-col :span="6">
                   <el-form-item label="得分：">
-                    <span>{{ tempAnswer.score }}</span>
+                    <span>{{ tempAnswer.subject.temporaryScore }}</span>
                   </el-form-item>
                 </el-col>
                 <!--<el-col :span="6">
@@ -99,7 +100,7 @@
             <el-row>
               <el-col :span="24">
                 <el-form-item label="得分：">
-                  <el-input v-model="score"/>
+                  <el-input v-model="tempAnswer.subject.temporaryScore"/>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -116,14 +117,14 @@
 
 <script>
 import { completeMarking } from '@/api/exam/examRecord'
-import { getAnswerByRecordId, markAnswer } from '@/api/exam/answer'
+import { getAnswerByRecordId, markTemporaryAnswer } from '@/api/exam/answer'
 import { getSubjectIds } from '@/api/exam/exam'
 import waves from '@/directive/waves'
 import { mapGetters } from 'vuex'
 import { messageFail, messageWarn, messageSuccess } from '@/utils/util'
 import Tinymce from '@/components/Tinymce'
 import { nextSubjectType, answerType } from '@/const/constant'
-
+let sign=[];
 export default {
   name: 'MarkExam',
   components: {
@@ -142,10 +143,14 @@ export default {
       subjectIndex: 1,
       subjectIds: [],
       answer: '',
+      duration:'',
       tempAnswer: {
+        temporaryScore:'',
         subject: {
+          markMap:[],
           score: '',
           answerScore:'',
+          temporaryScore:'',
           answer: {
             answer: ''
           }
@@ -190,7 +195,7 @@ export default {
         this.tempAnswer = response.data.data
         const { id, score } = this.tempAnswer.subject
         this.subjectId = id
-        this.score = score
+        // this.tempAnswer.temporaryScore = score
         this.correct = this.tempAnswer.answerType === 0
         getSubjectIds(this.examinationId, this.tempAnswer.userId).then(response => {
           const subjectData = response.data.data
@@ -208,25 +213,35 @@ export default {
 
     changeState(){
       if(this.correct === true){
-        this.tempAnswer.score = this.tempAnswer.subject.answerScore
-        this.score = this.tempAnswer.subject.answerScore
+        this.tempAnswer.subject.temporaryScore = this.tempAnswer.subject.answerScore
       }else{
-        this.tempAnswer.score = 0
-        this.score = 0
+        this.tempAnswer.subject.temporaryScore = 0
       }
+    },
+
+    judgeAnswer(value){
+      let signs;
+      sign=this.tempAnswer.subject.markMap
+      Object.keys(sign).forEach(function(key){
+        if ( value.subjectId === key ) {
+          signs=sign[key]
+        }
+      });
+      return signs
     },
     // 完成批改
     completeMarking () {
-      if (this.score === '') {
+      if (this.tempAnswer.subject.temporaryScore === '') {
         messageWarn(this, '得分不能为空')
         return
-      }
-      if (this.score > this.tempAnswer.subject.answerScore) {
+      }else if (this.tempAnswer.subject.temporaryScore < 0) {
+        messageWarn(this, '分数不能小于0分, 请重新打分')
+        return
+      }else if (this.tempAnswer.subject.temporaryScore > this.tempAnswer.subject.answerScore) {
         messageWarn(this, '分数设置超总分, 请重新打分')
         return
       }
-      this.saveCurrentAnswerAndNext()
-      this.tempAnswer.score = this.score
+      this.saveCurrentAnswerAndNext(null,null,null,1)
       completeMarking({ id: this.examRecordId }).then(response => {
         if (response.data.data) {
           messageSuccess(this, '操作成功')
@@ -246,7 +261,13 @@ export default {
     },
     // 上一题
     last () {
-      if (this.score > this.tempAnswer.subject.answerScore) {
+      if (this.tempAnswer.subject.temporaryScore === '') {
+        messageWarn(this, '得分不能为空')
+        return
+      }else if (this.tempAnswer.subject.temporaryScore < 0) {
+        messageWarn(this, '分数不能小于0分, 请重新打分')
+        return
+      }else if (this.tempAnswer.subject.temporaryScore > this.tempAnswer.subject.answerScore) {
         messageWarn(this, '分数设置超总分, 请重新打分')
         return
       }
@@ -256,20 +277,23 @@ export default {
             messageSuccess(this, '已经是第一题了')
             break
           }
-          if (this.score === '') {
-            messageWarn(this, '得分不能为空')
-            break
-          }
           let { subjectId, type, index } = this.subjectIds[--i]
           this.subjectIndex = index
-          this.saveCurrentAnswerAndNext(subjectId, type, nextSubjectType.last)
+          this.saveCurrentAnswerAndNext(subjectId, type, nextSubjectType.last,0)
           break
         }
       }
+      console.log(this);
     },
     // 下一题
     next () {
-      if (this.score > this.tempAnswer.subject.answerScore) {
+      if (this.tempAnswer.subject.temporaryScore === '') {
+        messageWarn(this, '得分不能为空')
+        return
+      }else if (this.tempAnswer.subject.temporaryScore < 0) {
+        messageWarn(this, '分数不能小于0分, 请重新打分')
+        return
+      }else if (this.tempAnswer.subject.temporaryScore > this.tempAnswer.subject.answerScore) {
         messageWarn(this, '分数设置超总分, 请重新打分')
         return
       }
@@ -279,13 +303,9 @@ export default {
             messageSuccess(this, '已经是最后一题了')
             break
           }
-          if (this.score === '') {
-            messageWarn(this, '得分不能为空')
-            break
-          }
           let { subjectId, type, index } = this.subjectIds[++i]
           this.subjectIndex = index
-          this.saveCurrentAnswerAndNext(subjectId, type, nextSubjectType.next)
+          this.saveCurrentAnswerAndNext(subjectId, type, nextSubjectType.next, 0)
           break
         }
       }
@@ -301,19 +321,30 @@ export default {
     },
     // 跳到指定的题目
     toSubject (index, subjectId, subjectType) {
+      if (this.tempAnswer.subject.temporaryScore === '') {
+        messageWarn(this, '得分不能为空')
+        return
+      }else if (this.tempAnswer.subject.temporaryScore < 0) {
+        messageWarn(this, '分数不能小于0分, 请重新打分')
+        return
+      }else if (this.tempAnswer.subject.temporaryScore > this.tempAnswer.subject.answerScore) {
+        messageWarn(this, '分数设置超总分, 请重新打分')
+        return
+      }
       this.subjectIndex = index + 1
-      this.saveCurrentAnswerAndNext(subjectId, subjectType, nextSubjectType.next)
+      this.saveCurrentAnswerAndNext(subjectId, subjectType, nextSubjectType.next,0)
     },
-    saveCurrentAnswerAndNext (subjectId, subjectType, nextType) {
+    saveCurrentAnswerAndNext (subjectId, subjectType, nextType,updateType) {
       // 更新分数、批改状态
       const answer = {
         id: this.tempAnswer.id,
-        score: this.score,
+        temporaryScore: this.tempAnswer.subject.temporaryScore,
         markStatus: 1,
-        answerType: this.correct ? 0 : 1
+        answerType: this.correct ? 0 : 1,
+        updateType: updateType
       }
-      markAnswer(answer).then(() => {
-        if (subjectId !== undefined) {
+      markTemporaryAnswer(answer).then(() => {
+        if (subjectId !== undefined && subjectId !== '' && subjectId !== null) {
           this.getAnswer(subjectId, subjectType, nextType)
         }
       })
@@ -327,7 +358,7 @@ export default {
           this.tempAnswer = response.data.data
           const { id, score } = this.tempAnswer.subject
           this.subjectId = id
-          this.score = score
+          // this.tempAnswer.temporaryScore = score
           this.correct = parseInt(this.tempAnswer.answerType) === 0
           this.updateSubjectIndex()
         }
@@ -379,6 +410,10 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" rel="stylesheet/scss" scoped>
+  .button-hcolor {
+    background-color: #0099FF;
+    color:#fff;
+  }
   .subject-title {
     color: #333333;
     font-size: 18px;
