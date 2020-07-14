@@ -774,4 +774,22 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
         Integer time = examExaminationTimeMapper.getExamTime(examId);
         return time;
     }
+
+    /**
+     * 判断考试配置是否配置化题目
+     *
+     * @param examinationDto
+     * @return
+     */
+    public boolean examQuestionFlag(ExaminationDto examinationDto) {
+        Long id = examinationDto.getId();
+        int count = examQuestionExamMapper.examQuestionFlag(id);
+
+        if (count > 0) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
 }
