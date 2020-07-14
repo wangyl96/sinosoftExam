@@ -64,9 +64,16 @@ export function delObj (id) {
 }
 
 export function delAllObj (obj) {
-  console.log(obj)
   return request({
     url: apiList.exam + 'deleteAll',
+    method: 'post',
+    data: obj
+  })
+}
+
+export function publicObj (obj) {
+  return request({
+    url: apiList.exam + 'examQuestionFlag',
     method: 'post',
     data: obj
   })

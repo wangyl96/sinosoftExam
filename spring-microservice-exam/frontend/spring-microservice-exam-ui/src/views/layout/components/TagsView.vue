@@ -107,10 +107,6 @@ export default {
       })
     },
     closeSelectedTag (view) {
-      if(view.fullPath.slice(0,11)==="/exam/mark/"){
-        messageFail(this,"请点批改完成")
-        return
-      }
       this.$store.dispatch('delView', view).then(({ visitedViews }) => {
         if (this.isActive(view)) {
           const latestView = visitedViews.slice(-1)[0]
