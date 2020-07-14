@@ -104,6 +104,14 @@
         FROM exam_question_examination WHERE exam_id = (SELECT examination_id FROM exam_examination_record WHERE id = #{examRecordId})
     </select>
 
+
+    <select id="examQuestionFlag" resultType="java.lang.Integer">
+        SELECT
+        sum(count)
+        FROM exam_question_examination WHERE exam_id = #{id}
+    </select>
+
+
     <!-- where 条件 -->
     <!--<sql id="whereColumnList">-->
         <!--<if test="examRecordId != null and examRecordId != ''">-->

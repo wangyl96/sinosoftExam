@@ -70,4 +70,6 @@ public interface ExamQuestionExamMapper extends CrudMapper<ExamQuestionExam> {
      * @return
      */
     List<ExamQuestionExam> getListByRecordId(Long examRecordId);
+
+    Integer examQuestionFlag(Long id);
 }
