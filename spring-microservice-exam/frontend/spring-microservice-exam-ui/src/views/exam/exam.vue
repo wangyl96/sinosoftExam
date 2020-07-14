@@ -277,12 +277,12 @@
 </template>
 
 <script>
-import { fetchList, addObj, putObj, delObj, delAllObj } from '@/api/exam/exam'
+import { fetchList, addObj, putObj, delObj, delAllObj, publicObj } from '@/api/exam/exam'
 import { fetchCourseList } from '@/api/exam/course'
 import waves from '@/directive/waves'
 import { mapGetters, mapState } from 'vuex'
 import { getToken } from '@/utils/auth'
-import { checkMultipleSelect, isNotEmpty, notifySuccess, messageSuccess, notifyFail } from '@/utils/util'
+import { checkMultipleSelect, isNotEmpty, notifySuccess, messageSuccess,messageWarn, notifyFail } from '@/utils/util'
 import { delAttachment } from '@/api/admin/attachment'
 import Tinymce from '@/components/Tinymce'
 import SpinnerLoading from '@/components/SpinnerLoading'
@@ -444,7 +444,6 @@ export default {
       this.listLoading = true
       fetchList(this.listQuery).then(response => {
         this.list = response.data.list
-        console.log(this.list)
         this.total = parseInt(response.data.total)
         setTimeout(() => {
           this.listLoading = false
@@ -555,7 +554,6 @@ export default {
           courseName: ''
         }
       }
-      console.log(this.temp)
       // 获取图片的预览地址
       // console.log(this.temp)
       // if (isNotEmpty(this.temp.avatarId)) {
@@ -649,9 +647,15 @@ export default {
     handlePublic (row, status) {
       const tempData = Object.assign({}, row)
       tempData.status = status
-      putObj(tempData).then(() => {
-        this.getList()
-        notifySuccess(this, '更新成功')
+      publicObj(tempData).then((response) => {
+        if(response.data.data){
+          putObj(tempData).then(() => {
+            this.getList()
+            notifySuccess(this, '更新成功')
+          })
+        }else{
+          messageWarn(this,'请先配置题目')
+        }
       })
     },
     // 结束考试
