@@ -48,6 +48,11 @@ public class Answer extends BaseEntity<Answer> {
     private Double score;
 
     /**
+     * 临时得分
+     */
+    private Double temporaryScore;
+
+    /**
      * 批改状态
      */
     private Integer markStatus;
@@ -61,4 +66,9 @@ public class Answer extends BaseEntity<Answer> {
      * 结束时间
      */
     private Date endTime;
+
+    /**
+     * 修改状态
+     */
+    private Integer updateType;
 }
