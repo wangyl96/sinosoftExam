@@ -350,7 +350,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         } else if (answer.getType() == 1) {
             // 简答题
             subjectAnswer = subjectShortAnswerMapper.findAnswerById(answer.getSubjectId());
-            score = StringUtils.equals(subjectAnswer, answer.getAnswer()) == true ? shortScore : 0.0;
+            score = StringUtils.equals(subjectAnswer, answer.getAnswer().trim()) == true ? shortScore : 0.0;
         } else if (answer.getType() == 2) {
             // 判断题
             subjectAnswer = subjectJudgementMapper.findAnswerById(answer.getSubjectId());
