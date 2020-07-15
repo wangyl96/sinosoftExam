@@ -20,8 +20,8 @@
                            @select="handleSelect">
                     <el-menu-item index="/index" @click="open('/home')">首页</el-menu-item>
                     <el-menu-item index="/exams" @click="open('/exams')">考试</el-menu-item>
-                    <el-menu-item index="/courses" @click="open('/courses')">课程</el-menu-item>
-                    <el-menu-item index="/other"  @click="open('/exam-record')">
+                    <el-menu-item v-if="userInfo.personStyle==='0'" index="/courses" @click="open('/courses')">课程</el-menu-item>
+                    <el-menu-item v-if="userInfo.personStyle==='0'" index="/other"  @click="open('/exam-record')">
                       <!--<template slot="title">记录</template>-->
                       考试记录
                       <!--<el-menu-item index="exam-record">考试记录</el-menu-item>-->
