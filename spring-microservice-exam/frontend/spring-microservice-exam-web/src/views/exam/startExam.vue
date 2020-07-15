@@ -101,6 +101,7 @@ export default {
       tempAnswer: {
         id: null,
         userId: null,
+        personStyle: 1,
         examinationId: null,
         courseId: null,
         subjectId: null,
@@ -348,8 +349,12 @@ export default {
          store.dispatch('SubmitExam', { startTime: this.startDate, endTime: new Date(), examinationId, examRecordId, userId: userInfo.id }).then(() => {
           messageSuccess(this, '提交成功')
           if (toExamRecord) {
-            this.$router.push({ name: 'exam-record' })
+            if(this.userInfo.personStyle==='0'){
+              this.$router.push({ name: 'exam-record' })
+            }else{
+              this.$router.push({ name: 'home' })
             }
+          }
           }).catch(() => {
             // this.disableSubmit = false
             messageFail(this, '提交题目失败')
