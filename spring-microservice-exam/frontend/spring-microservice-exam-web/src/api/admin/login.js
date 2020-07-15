@@ -36,12 +36,12 @@ export function loginBySocial (social, code) {
   })
 }
 
-export function registerByUsername (identifier, email, credential, code, randomStr, name, company, stationId, deptId) {
+export function registerByUsername (identifier, email, credential, code, randomStr, name, company, stationId, deptId, personStyle) {
   return request({
     url: '/api/user/v1/user/anonymousUser/register',
     method: 'post',
-    params: {identifier, email, credential, name, company, stationId, deptId, randomStr, code},
-    data: {identifier, email, credential, name, company, stationId, deptId}
+    params: {identifier, email, credential, name, company, stationId, deptId, personStyle, randomStr, code},
+    data: {identifier, email, credential, name, company, stationId, deptId, personStyle}
   })
 }
 

@@ -31,6 +31,7 @@
         <result column="del_flag" property="delFlag" />
         <result column="application_code" property="applicationCode"/>
         <result column="tenant_code" property="tenantCode"/>
+        <result column="person_style" property="personStyle"/>
     </resultMap>
 
     <sql id="userColumns">
@@ -62,7 +63,8 @@
         a.modify_date,
         a.del_flag,
         a.application_code,
-        a.tenant_code
+        a.tenant_code,
+        a.person_style
     </sql>
 
     <!-- where 条件 -->
@@ -170,7 +172,8 @@
             modify_date,
             del_flag,
             application_code,
-            tenant_code
+            tenant_code,
+            person_style
         ) values (
             #{id},
             #{name},
@@ -200,7 +203,8 @@
             #{modifyDate, jdbcType=TIMESTAMP, javaType=java.util.Date},
             #{delFlag, jdbcType=INTEGER},
             #{applicationCode},
-            #{tenantCode}
+            #{tenantCode},
+            #{personStyle}
         );
     </insert>
 
@@ -284,6 +288,9 @@
         </if>
         <if test="modifier != null">
             modifier = #{modifier} ,
+        </if>
+        <if test="personStyle != null">
+            person_style = #{personStyle} ,
         </if>
         modify_date = #{modifyDate, jdbcType=TIMESTAMP, javaType=java.util.Date}
         where id = #{id}

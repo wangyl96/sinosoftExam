@@ -113,6 +113,12 @@ public class UserDto implements Serializable {
     private String stationName;
 
     /**
+     * 判断内外部员工的标志
+     */
+    @ApiModelProperty(value = "员工类型")
+    private String personStyle;
+
+    /**
      * 电话
      */
     @ApiModelProperty(value = "电话", example = "15521089184")

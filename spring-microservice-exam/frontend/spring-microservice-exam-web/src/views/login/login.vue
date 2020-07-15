@@ -12,9 +12,23 @@
       <el-tabs v-model="activeName">
         <!-- 注册 -->
         <el-tab-pane label="注册" name="/register" class="login-wrap-title">
+
           <el-form ref="registerForm" :model="register.form" :rules="register.rules" class="register-form" label-position="left" auto-complete="off">
-            <el-form-item prop="identifier">
-              <el-input placeholder="用户名 (优先使用4A)" v-model="register.form.identifier" name="identifier" type="text" auto-complete="off"/>
+            <el-form-item prop="personStyle">
+              <el-select style="width: 300px" v-model="register.form.personStyle" placeholder="请选择员工类别">
+                <el-option v-for="item in personData"
+                           :label="item.personName"
+                           :key="item.personStyle"
+                           :value="item.personStyle"
+                >
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item v-if="register.form.personStyle == 1" prop="identifier1">
+              <el-input placeholder="用户名 (优先使用手机号)" v-model="register.form.identifier1" name="identifier" type="text" auto-complete="off"/>
+            </el-form-item>
+            <el-form-item v-if="register.form.personStyle == 0" prop="identifier">
+              <el-input  placeholder="用户名 (优先使用4A)" v-model="register.form.identifier" name="identifier" type="text" auto-complete="off"/>
             </el-form-item>
             <el-form-item prop="name">
               <el-input placeholder="姓名" v-model="register.form.name" name="name" type="text" auto-complete="off"/>
@@ -31,8 +45,8 @@
             <el-form-item prop="company">
               <el-input placeholder="公司" v-model="register.form.company" name="company" type="text" auto-complete="off"/>
             </el-form-item>
-            <el-form-item prop="deptId">
-              <el-select style="width: 300px" v-model="register.form.deptId" placeholder="请选择部门">
+            <el-form-item v-if="register.form.personStyle == 0" prop="deptId">
+              <el-select style="width: 300px" v-model="register.form.deptId" placeholder="请选择处室">
                 <el-option v-for="item in deptData"
                            :label="item.deptName"
                            :key="item.deptId"
@@ -210,6 +224,10 @@ export default {
       }
     }
     return {
+      personData: [
+        { 'personStyle': 0, 'personName': '在场人员' },
+        { 'personStyle': 1, 'personName': '待入场人员' }
+      ],
       options: [],
       deptData: [],
       useSmsLogin: false,
@@ -243,7 +261,9 @@ export default {
       },
       register: {
         form: {
+          personStyle: 1,
           identifier: '',
+          identifier1: '',
           email: '',
           credential: '',
           credential2: '',
@@ -256,7 +276,11 @@ export default {
           rememberMe: false
         },
         rules: {
-          identifier: [{validator: checkRegisterUsername, trigger: 'blur'}],
+          identifier: [
+            {validator: checkRegisterUsername, trigger: 'blur'},
+            {min: 4, max: 4, message: '长度为8位', trigger: 'blur'}
+          ],
+          identifier1: [{validator: validPhone, trigger: 'blur'}],
           email: [{ validator: checkMail, trigger: 'blur' }],
           credential: [
             {required: true, trigger: 'blur', message: '请输入密码'},
@@ -367,6 +391,11 @@ export default {
     },
     // 注册
     handleRegister () {
+      if (this.register.form.personStyle === 1) {
+        console.log(1111111111)
+        this.register.form.stationId = ''
+        this.register.form.identifier = this.register.form.identifier1
+      }
       this.$refs.registerForm.validate(valid => {
         if (valid) {
           this.register.loading = true
