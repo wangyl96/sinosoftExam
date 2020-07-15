@@ -15,7 +15,7 @@
 
           <el-form ref="registerForm" :model="register.form" :rules="register.rules" class="register-form" label-position="left" auto-complete="off">
             <el-form-item prop="personStyle">
-              <el-select style="width: 300px" v-model="register.form.personStyle" placeholder="请选择员工类别">
+              <el-select style="width: 300px" v-model="register.form.personStyle" placeholder="请选择员工类别" @change="changeData()">
                 <el-option v-for="item in personData"
                            :label="item.personName"
                            :key="item.personStyle"
@@ -24,11 +24,9 @@
                 </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item v-if="register.form.personStyle == 1" prop="identifier1">
-              <el-input placeholder="用户名 (优先使用手机号)" v-model="register.form.identifier1" name="identifier" type="text" auto-complete="off"/>
-            </el-form-item>
-            <el-form-item v-if="register.form.personStyle == 0" prop="identifier">
-              <el-input  placeholder="用户名 (优先使用4A)" v-model="register.form.identifier" name="identifier" type="text" auto-complete="off"/>
+            <el-form-item  prop="identifier">
+              <el-input v-if="register.form.personStyle == 1" placeholder="用户名 (优先使用手机号)" v-model="register.form.identifier" name="identifier" type="text" auto-complete="off"/>
+              <el-input v-if="register.form.personStyle == 0" placeholder="用户名 (优先使用4A)" v-model="register.form.identifier" name="identifier" type="text" auto-complete="off"/>
             </el-form-item>
             <el-form-item prop="name">
               <el-input placeholder="姓名" v-model="register.form.name" name="name" type="text" auto-complete="off"/>
@@ -166,20 +164,42 @@ import { sendSms } from '@/api/admin/mobile'
 export default {
   data: function () {
     let checkRegisterUsername = (rule, value, callback) => {
-      if (!isNotEmpty(value)) {
-        return callback(new Error('请输入用户名'))
-      }
-      if (value !== value.replace(/[^\d]/g, '')) {
-        return callback(new Error('只能输入数字'))
-      }
-      // 检查用户名是否存在
-      checkExist(value).then(response => {
-        if (isNotEmpty(response.data) && response.data.data) {
-          callback(new Error('用户名已存在！'))
-        } else {
-          callback()
+      if (this.register.form.personStyle === 0) {
+        if (!isNotEmpty(value)) {
+          return callback(new Error('请输入用户名'))
         }
-      })
+        if (value !== value.replace(/[^\d]/g, '')) {
+          return callback(new Error('只能输入数字'))
+        }
+        let reg = /^\d{8}$/
+        console.log(reg.test(value))
+        if (!reg.test(value)) {
+          return callback(new Error('请输入8位数字'))
+        }
+
+        // 检查用户名是否存在
+        checkExist(value).then(response => {
+          if (isNotEmpty(response.data) && response.data.data) {
+            callback(new Error('用户名已存在！'))
+          } else {
+            callback()
+          }
+        })
+      } else {
+        if (!value) {
+          callback(new Error('请输入电话号码'))
+        } else if (!isValidPhone(value)) {
+          callback(new Error('请输入正确的11位手机号码'))
+        }
+        // 检查用户名是否存在
+        checkExist(value).then(response => {
+          if (isNotEmpty(response.data) && response.data.data) {
+            callback(new Error('用户名已存在！'))
+          } else {
+            callback()
+          }
+        })
+      }
     }
     let checkName = (rule, value, callback) => {
       if (!isNotEmpty(value)) {
@@ -215,10 +235,14 @@ export default {
     }
     // 校验手机号
     let validPhone = (rule, value, callback) => {
-      if (!value) {
-        callback(new Error('请输入电话号码'))
-      } else if (!isValidPhone(value)) {
-        callback(new Error('请输入正确的11位手机号码'))
+      if (this.register.form.personStyle === 1) {
+        if (!value) {
+          callback(new Error('请输入电话号码'))
+        } else if (!isValidPhone(value)) {
+          callback(new Error('请输入正确的11位手机号码'))
+        } else {
+          callback()
+        }
       } else {
         callback()
       }
@@ -263,7 +287,6 @@ export default {
         form: {
           personStyle: 1,
           identifier: '',
-          identifier1: '',
           email: '',
           credential: '',
           credential2: '',
@@ -277,8 +300,7 @@ export default {
         },
         rules: {
           identifier: [
-            {validator: checkRegisterUsername, trigger: 'blur'},
-            {min: 4, max: 4, message: '长度为8位', trigger: 'blur'}
+            {validator: checkRegisterUsername, trigger: 'blur'}
           ],
           identifier1: [{validator: validPhone, trigger: 'blur'}],
           email: [{ validator: checkMail, trigger: 'blur' }],
@@ -332,6 +354,10 @@ export default {
     ...mapGetters(['tagWel'])
   },
   methods: {
+    changeData () {
+      console.log(111111)
+      this.register.form.identifier = ''
+    },
     refreshLoginCode () {
       this.login.form.code = ''
       this.login.form.randomStr = randomLenNum(this.login.code.len, true)
