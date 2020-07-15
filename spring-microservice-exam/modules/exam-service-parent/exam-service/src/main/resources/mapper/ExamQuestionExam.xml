@@ -98,6 +98,10 @@
      select a.score from exam_answer a where exam_record_id=#{recordId} and  subject_id=#{subjectId}
     </select>
 
+    <select id="getAnswerTemporaryScore" resultType="java.lang.Integer">
+     select a.temporary_score from exam_answer a where exam_record_id=#{recordId} and  subject_id=#{subjectId}
+    </select>
+
     <select id="getListByRecordId" resultMap="examQuestionExamMap">
         SELECT
         <include refid="examQuestionExamColumns2"/>

@@ -56,4 +56,11 @@ public interface AnswerMapper extends CrudMapper<Answer> {
      * @return
      */
     Integer findExamTotalCount(String examinationId, String userId);
+
+    /**
+     * 根基考试id查询所有的考试记录
+     * @param id
+     * @return
+     */
+    List<Answer> findAllRecord(Long id);
 }

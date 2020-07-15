@@ -9,6 +9,7 @@
         <result column="answer" property="answer"/>
         <result column="answer_type" property="answerType"/>
         <result column="score" property="score"/>
+        <result column="temporary_score" property="temporaryScore"/>
         <result column="mark_status" property="markStatus"/>
         <result column="start_time" property="startTime"/>
         <result column="end_time" property="endTime"/>
@@ -29,6 +30,7 @@
         a.answer,
         a.answer_type,
         a.score,
+        a.temporary_score,
         a.mark_status,
         a.start_time,
         a.end_time,
@@ -109,6 +111,15 @@
         SELECT COUNT(*) FROM exam_examination_subject WHERE examination_id = #{examinationId} and user_id = #{userId}
     </select>
 
+    <select id="findAllRecord"  resultType="com.github.tangyi.exam.api.module.Answer">
+        SELECT
+	*
+    FROM
+	exam_answer
+     WHERE
+	exam_record_id = ( SELECT exam_record_id FROM exam_answer WHERE id = #{id} )
+    </select>
+
     <select id="findAnswer" resultType="java.lang.String">
         SELECT subject_id FROM exam_answer WHERE exam_record_id = #{examRecordId}  and answer!='(NULL)' and answer is not null and answer !='' AND del_flag = 0
     </select>
@@ -122,6 +133,7 @@
             answer,
             answer_type,
             score,
+            temporary_score,
             mark_status,
             start_time,
             end_time,
@@ -140,6 +152,7 @@
             #{answer},
             #{answerType},
             #{score},
+            #{temporaryScore},
             #{markStatus},
             #{startTime},
             #{endTime},
@@ -172,6 +185,9 @@
         </if>
         <if test="score != null">
             score = #{score},
+        </if>
+        <if test="temporaryScore != null">
+            temporary_score = #{temporaryScore},
         </if>
         <if test="markStatus != null">
             mark_status = #{markStatus},

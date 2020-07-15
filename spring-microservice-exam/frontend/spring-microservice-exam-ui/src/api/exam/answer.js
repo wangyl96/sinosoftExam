@@ -74,6 +74,14 @@ export function markAnswer (obj) {
   })
 }
 
+export function markTemporaryAnswer (obj) {
+  return request({
+    url: baseAnswerUrl + 'markTemporaryAnswer',
+    method: 'put',
+    data: obj
+  })
+}
+
 export function delAnswer (id) {
   return request({
     url: baseAnswerUrl + id,
