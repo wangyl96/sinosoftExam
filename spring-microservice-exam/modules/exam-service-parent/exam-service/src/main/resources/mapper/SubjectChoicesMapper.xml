@@ -123,6 +123,68 @@
         ORDER BY id ASC
     </select>
 
+    <select id="findListByCondition" resultMap="subjectChoicesResultMap">
+            select
+            a.id,
+            a.category_id,
+            a.subject_name,
+            a.answer,
+            a.modifier,
+            a.modify_date,
+            a.choices_type
+            from exam_subject_choices a
+            where 1=1
+            <if test="categoryId != null and categoryId != ''">
+                and a.category_id = #{categoryId}
+            </if>
+            <if test="choicesType != null">
+                and a.choices_type = #{choicesType}
+            </if>
+            <if test="subjectName != null and subjectName != ''">
+                and a.subject_name = #{subjectName}
+            </if>
+            UNION
+            select
+            b.id,
+            b.category_id,
+            b.subject_name,
+            b.answer,
+            b.modifier,
+            b.modify_date,
+            '2' as choices_type
+            from exam_subject_judgement b
+            where 1=1
+            <if test="categoryId != null and categoryId != ''">
+                and b.category_id = #{categoryId}
+            </if>
+            <if test="choicesType != null">
+                and '2' = #{choicesType}
+            </if>
+            <if test="subjectName != null and subjectName != ''">
+                and b.subject_name = #{subjectName}
+            </if>
+            UNION
+            select
+            c.id,
+            c.category_id,
+            c.subject_name,
+            c.answer,
+            c.modifier,
+            c.modify_date,
+            '1' as choices_type
+            from exam_subject_short_answer c
+            where 1=1
+            <if test="categoryId != null and categoryId != ''">
+                and c.category_id = #{categoryId}
+            </if>
+            <if test="choicesType != null">
+                and '1' = #{choicesType}
+            </if>
+            <if test="subjectName != null and subjectName != ''">
+                and c.subject_name = #{subjectName}
+            </if>
+    </select>
+
     <insert id="insert">
         insert into exam_subject_choices (
             id,
