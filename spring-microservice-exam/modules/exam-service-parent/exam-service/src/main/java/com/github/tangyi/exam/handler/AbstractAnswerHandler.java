@@ -30,12 +30,12 @@ public abstract class AbstractAnswerHandler implements IAnswerHandler {
 					}
 				});
 			});
-//			answers.forEach(tempAnswer -> {
-//				subjects.stream()
-//						// 题目ID匹配
-//						.filter(tempSubject -> tempSubject.getId().equals(tempAnswer.getSubjectId())).findFirst()
-//						.ifPresent(subject -> judge(tempAnswer, subject, rightScore));
-//			});
+			answers.forEach(tempAnswer -> {
+				subjects.stream()
+						// 题目ID匹配
+						.filter(tempSubject -> tempSubject.getId().equals(tempAnswer.getSubjectId())).findFirst()
+						.ifPresent(subject -> judge(tempAnswer, subject, rightScore));
+			});
 			AnswerHandleResult result = new AnswerHandleResult();
 			// 记录总分、正确题目数、错误题目数
 			result.setScore(rightScore.stream().mapToDouble(Double::valueOf).sum());
