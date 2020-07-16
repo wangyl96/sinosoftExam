@@ -36,6 +36,11 @@ public class User extends BaseEntity<User> {
     private Long stationId;
 
     /**
+     * 判断内外部员工的标志
+     */
+    private String personStyle;
+
+    /**
      * 电话
      */
     @Pattern(regexp = "^\\d{11}$", message = "请输入11位手机号")

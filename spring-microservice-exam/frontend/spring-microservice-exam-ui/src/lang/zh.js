@@ -227,6 +227,7 @@ export default {
     addFromSubjectBank: '从题库新增',
     examRecord: {
       userName: '姓名',
+      personStyle: '人员类型',
       deptName: '部门',
       score: '成绩',
       examTime: '考试时间',

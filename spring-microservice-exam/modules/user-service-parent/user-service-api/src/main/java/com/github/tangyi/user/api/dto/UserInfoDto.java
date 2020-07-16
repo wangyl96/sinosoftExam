@@ -51,6 +51,11 @@ public class UserInfoDto implements Serializable {
      */
     private String stationName;
 
+    /**
+     * 判断内外部员工的标志
+     */
+    private String personStyle;
+
 
     /**
      * 电话号码
