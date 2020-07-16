@@ -138,16 +138,16 @@
               </div>
             </el-form>
           </div>
-          <!-- 第三方登录 -->
-          <!--          <div class="third-login">-->
-          <!--            <el-row>-->
-          <!--              <el-col :span="24" class="third-link">-->
-          <!--                <a title="微信登录" href="">-->
-          <!--                  <span class="wechat"></span>微信-->
-          <!--                </a>-->
-          <!--              </el-col>-->
-          <!--            </el-row>-->
-          <!--          </div>-->
+          <!--第三方登录
+          <div class="third-login">
+            <el-row>
+              <el-col :span="24" class="third-link">
+                <a title="微信登录" href="">
+                  <span class="wechat"></span>微信
+                </a>
+              </el-col>
+            </el-row>
+          </div>-->
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -340,6 +340,9 @@
       }
     },
     watch: {
+      'activeName':function(val) {
+        this.$router.push(val);
+      },
       $route: {
         handler: function (route) {
           this.redirect = route.query && route.query.redirect
@@ -357,7 +360,6 @@
     },
     methods: {
       changeData () {
-        console.log(111111)
         this.register.form.identifier = ''
       },
       refreshLoginCode () {
@@ -425,7 +427,6 @@
         this.$refs.registerForm.validate(valid => {
           if (valid) {
             this.register.loading = true
-            console.log(this.register.form)
             this.$store.dispatch('RegisterByUsername', this.register.form).then((res) => {
               this.register.loading = false
               if (res.data.code === 200) {
