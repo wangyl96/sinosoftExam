@@ -77,11 +77,11 @@
                 <span>{{ scope.row.subject.answer.answer | simpleStrFilter }}</span>
               </template>
             </el-table-column>
-            <el-table-column :label="$t('table.examRecord.markStatus')" min-width="90">
+            <!--<el-table-column :label="$t('table.examRecord.markStatus')" min-width="90">
               <template slot-scope="scope">
                 <el-tag :type="scope.row.markStatus | simpleTagStatusFilter(1)" effect="dark" size="small">{{ scope.row.markStatus | submitStatusFilter }}</el-tag>
               </template>
-            </el-table-column>
+            </el-table-column>-->
             <el-table-column :label="$t('table.answerCorrectType')" min-width="90">
               <template slot-scope="scope">
                 <el-tag :type="scope.row.answerType | trueOrFalse(0)" effect="dark" size="small">{{ scope.row.answerType | correctTypeFilter }}</el-tag>
