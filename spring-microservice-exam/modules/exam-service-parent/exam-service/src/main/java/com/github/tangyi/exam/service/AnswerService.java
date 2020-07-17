@@ -31,6 +31,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.BeanUtils;
@@ -342,7 +343,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
                 shortScore = Double.valueOf(e.getScore().toString());
             }
         }
-        // 获取本道题的正确答案与考生回答的答案对比,然后打分
+        //回答的答案对比,然后打分
         if (answer.getType() == 0) {
             // 单选题
             subjectAnswer = subjectChoicesMapper.findAnswerById(answer.getSubjectId());
@@ -350,7 +351,9 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         } else if (answer.getType() == 1) {
             // 简答题
             subjectAnswer = subjectShortAnswerMapper.findAnswerById(answer.getSubjectId());
-            score = StringUtils.equals(subjectAnswer, answer.getAnswer().trim()) == true ? shortScore : 0.0;
+            if (StringUtils.isNotEmpty(answer.getAnswer())) {
+                score = StringUtils.equals(subjectAnswer, answer.getAnswer().trim()) == true ? shortScore : 0.0;
+            }
         } else if (answer.getType() == 2) {
             // 判断题
             subjectAnswer = subjectJudgementMapper.findAnswerById(answer.getSubjectId());
