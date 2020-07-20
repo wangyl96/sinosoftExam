@@ -54,13 +54,32 @@ public class MultipleChoicesAnswerHandler extends AbstractAnswerHandler {
 
 	@Override
 	public boolean judgeRight(Answer answer, SubjectDto subject) {
-		String[] correctAnswers = AnswerHandlerUtil.replaceComma(subject.getAnswer().getAnswer()).split(CommonConstant.COMMA);
-		for (String as : answer.getAnswer().split(CommonConstant.COMMA)) {
-			if (!ArrayUtils.contains(correctAnswers, as)) {
-				return false;
+		if (StringUtils.isNotEmpty(answer.getAnswer())) {
+			String[] correctAnswers = AnswerHandlerUtil.replaceComma(subject.getAnswer().getAnswer()).split(CommonConstant.COMMA);
+			String[] splitAnswer = answer.getAnswer().split(CommonConstant.COMMA);
+			//判断数据的大小是否相同
+			if (correctAnswers.length == splitAnswer.length) {
+				for (int i = 0; i < splitAnswer.length; i++) {
+					String data = splitAnswer[i];
+					if (!subject.getAnswer().getAnswer().contains(data)) {
+						return false;
+					}
+
+				}
+				return true;
 			}
 		}
-		return true;
+
+		return false;
+
+//		String[] correctAnswers = AnswerHandlerUtil.replaceComma(subject.getAnswer().getAnswer()).split(CommonConstant.COMMA);
+//
+//		for (String as : answer.getAnswer().split(CommonConstant.COMMA)) {
+//			if (!ArrayUtils.contains(correctAnswers, as)) {
+//				return false;
+//			}
+//		}
+//		return true;
 	}
 
 	@Override

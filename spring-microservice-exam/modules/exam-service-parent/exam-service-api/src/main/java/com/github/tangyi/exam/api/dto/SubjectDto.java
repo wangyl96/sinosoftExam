@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author tangyi
@@ -70,6 +71,16 @@ public class SubjectDto extends BaseEntity<SubjectDto> {
      * 难度等级
      */
     private Integer level;
+
+    /**
+     * 临时分数
+     */
+    private Double temporaryScore;
+
+    /**
+     *判断是否批改过
+     */
+    private Map markMap;
 
     /**
      * 答题

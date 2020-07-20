@@ -101,6 +101,7 @@ export default {
       tempAnswer: {
         id: null,
         userId: null,
+        personStyle: 1,
         examinationId: null,
         courseId: null,
         subjectId: null,
@@ -134,7 +135,7 @@ export default {
       document.onkeydown = function (e) {
         var evt = window.event || e;
         var code = evt.keyCode || evt.which;
-        if (code == 116) {
+        if (code == 116 || code ==123) {
           if (evt.preventDefault) {
             evt.preventDefault();
           } else {
@@ -291,8 +292,7 @@ export default {
           this.subjectStartTime = moment(response.data.data)
         })
         this.endLoading(nextType)
-      }).catch((error) => {
-        console.log(error)
+      }).catch(() => {
         messageFail(this, '获取题目失败')
         this.endLoading(nextType)
       })
@@ -349,8 +349,12 @@ export default {
          store.dispatch('SubmitExam', { startTime: this.startDate, endTime: new Date(), examinationId, examRecordId, userId: userInfo.id }).then(() => {
           messageSuccess(this, '提交成功')
           if (toExamRecord) {
-            this.$router.push({ name: 'exam-record' })
+            if(this.userInfo.personStyle==='0'){
+              this.$router.push({ name: 'exam-record' })
+            }else{
+              this.$router.push({ name: 'home' })
             }
+          }
           }).catch(() => {
             // this.disableSubmit = false
             messageFail(this, '提交题目失败')
@@ -451,9 +455,9 @@ export default {
     });
   }
 }
-// window.onbeforeunload = function(e) {
-//   return "";
-// };
+window.onbeforeunload = function(e) {
+  return "";
+ };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

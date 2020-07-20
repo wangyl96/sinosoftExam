@@ -127,6 +127,22 @@ public class AnswerController extends BaseController {
      * @author tangyi
      * @date 2020/02/22 14:47
      */
+    @PutMapping("markTemporaryAnswer")
+    @ApiOperation(value = "批改答题", notes = "根据答题id批改答题")
+    @ApiImplicitParam(name = "answer", value = "答题实体answer", required = true, dataType = "Answer")
+    @Log("批改答题")
+    public ResponseBean<Boolean> markTemporaryAnswer(@RequestBody @Valid Answer answer) {
+        answer.setCommonValue(SysUtil.getUser(), SysUtil.getSysCode(), SysUtil.getTenantCode());
+        return new ResponseBean<>(answerService.updateTemporaryScore(answer) > 0);
+    }
+    /**
+     * 批改答题
+     *
+     * @param answer answer
+     * @return ResponseBean
+     * @author tangyi
+     * @date 2020/02/22 14:47
+     */
     @PutMapping("mark")
     @ApiOperation(value = "批改答题", notes = "根据答题id批改答题")
     @ApiImplicitParam(name = "answer", value = "答题实体answer", required = true, dataType = "Answer")
@@ -135,7 +151,6 @@ public class AnswerController extends BaseController {
         answer.setCommonValue(SysUtil.getUser(), SysUtil.getSysCode(), SysUtil.getTenantCode());
         return new ResponseBean<>(answerService.updateScore(answer) > 0);
     }
-
     /**
      * 删除
      *

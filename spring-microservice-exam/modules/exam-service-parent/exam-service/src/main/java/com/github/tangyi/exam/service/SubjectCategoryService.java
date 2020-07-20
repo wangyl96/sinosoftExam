@@ -15,6 +15,7 @@ import com.github.tangyi.exam.api.vo.QuestionBankChartVO;
 import com.github.tangyi.exam.mapper.ExamQuestionCategoryMapper;
 import com.github.tangyi.exam.mapper.SubjectCategoryMapper;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -139,6 +140,7 @@ public class SubjectCategoryService extends CrudService<SubjectCategoryMapper, S
     public List<QuestionBankChartVO> questionBankChart(CategoriesListDTO categoriesListDTO) {
         // 根据考试唯一标识id, 获取本考试组成部分
         List<QuestionBankChartVO> questionBankChartVOList = examQuestionCategoryMapper.questionBankChart(categoriesListDTO.getExaminationId());
+        questionBankChartVOList = questionBankChartVOList.stream().filter(e -> null != e.getValue() && !StringUtils.equals("0", e.getValue())).collect(Collectors.toList());
         return questionBankChartVOList;
     }
 
@@ -162,7 +164,9 @@ public class SubjectCategoryService extends CrudService<SubjectCategoryMapper, S
      * @return
      */
     public List<QestionTypesChartVO> questionTypesChart(CategoriesListDTO categoriesListDTO) {
-        List<QestionTypesChartVO> questionBankChartVOList = examQuestionCategoryMapper.questionTypesChart(categoriesListDTO.getExaminationId());
-        return questionBankChartVOList;
+        List<QestionTypesChartVO> qestionTypesChartVOList = examQuestionCategoryMapper.questionTypesChart(categoriesListDTO.getExaminationId());
+        qestionTypesChartVOList = qestionTypesChartVOList.stream()
+                .filter(e -> null != e.getValue() && !StringUtils.equals("0", e.getValue())).collect(Collectors.toList());
+        return qestionTypesChartVOList;
     }
 }

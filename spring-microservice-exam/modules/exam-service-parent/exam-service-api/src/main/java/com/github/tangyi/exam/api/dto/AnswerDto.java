@@ -56,6 +56,11 @@ public class AnswerDto implements Serializable {
     private Double score;
 
     /**
+     * 临时分数
+     */
+    private Double temporaryScore;
+
+    /**
      * 用户ID
      */
     @JsonFormat(shape = JsonFormat.Shape.STRING)

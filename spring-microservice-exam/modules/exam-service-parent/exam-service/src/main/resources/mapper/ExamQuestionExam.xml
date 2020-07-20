@@ -98,11 +98,23 @@
      select a.score from exam_answer a where exam_record_id=#{recordId} and  subject_id=#{subjectId}
     </select>
 
+    <select id="getAnswerTemporaryScore" resultType="java.lang.Integer">
+     select a.temporary_score from exam_answer a where exam_record_id=#{recordId} and  subject_id=#{subjectId}
+    </select>
+
     <select id="getListByRecordId" resultMap="examQuestionExamMap">
         SELECT
         <include refid="examQuestionExamColumns2"/>
         FROM exam_question_examination WHERE exam_id = (SELECT examination_id FROM exam_examination_record WHERE id = #{examRecordId})
     </select>
+
+
+    <select id="examQuestionFlag" resultType="java.lang.Integer">
+        SELECT
+        sum(count)
+        FROM exam_question_examination WHERE exam_id = #{id}
+    </select>
+
 
     <!-- where 条件 -->
     <!--<sql id="whereColumnList">-->

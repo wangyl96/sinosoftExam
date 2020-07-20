@@ -55,6 +55,8 @@
             :default-sort="{ prop: 'id', order: 'descending' }"
             highlight-current-row
             style="width: 100%;">
+            <el-table-column type="index" :label="$t('table.subject.serialNumber')" min-width="120">
+            </el-table-column>
             <el-table-column :label="$t('table.subjectName')" min-width="120">
               <template slot-scope="scope">
                 <span v-html="scope.row.subject.subjectName"></span>
@@ -75,14 +77,14 @@
                 <span>{{ scope.row.subject.answer.answer | simpleStrFilter }}</span>
               </template>
             </el-table-column>
-            <el-table-column :label="$t('table.examRecord.markStatus')" min-width="90">
+            <!--<el-table-column :label="$t('table.examRecord.markStatus')" min-width="90">
               <template slot-scope="scope">
                 <el-tag :type="scope.row.markStatus | simpleTagStatusFilter(1)" effect="dark" size="small">{{ scope.row.markStatus | submitStatusFilter }}</el-tag>
               </template>
-            </el-table-column>
+            </el-table-column>-->
             <el-table-column :label="$t('table.answerCorrectType')" min-width="90">
               <template slot-scope="scope">
-                <el-tag :type="scope.row.answerType | simpleTagStatusFilter(0)" effect="dark" size="small">{{ scope.row.answerType | correctTypeFilter }}</el-tag>
+                <el-tag :type="scope.row.answerType | trueOrFalse(0)" effect="dark" size="small">{{ scope.row.answerType | correctTypeFilter }}</el-tag>
               </template>
             </el-table-column>
             <!--<el-table-column :label="$t('table.time')" min-width="90">

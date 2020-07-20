@@ -65,4 +65,7 @@ public interface SubjectChoicesMapper extends CrudMapper<SubjectChoices> {
      * @return
      */
     List<Map<String, Object>> getTotalChoicesMapBySubjectId(Long id);
+
+
+    List<SubjectChoices> findListByCondition(SubjectChoices subjectChoices);
 }

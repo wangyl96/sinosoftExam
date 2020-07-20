@@ -109,7 +109,7 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
      * @date 2019/1/3 14:06
      */
     @Transactional(rollbackFor = Exception.class)
-    public int insert(ExaminationDto examinationDto) {
+    public String insert(ExaminationDto examinationDto) {
         List<String> questionType = examinationDto.getQuestionStyleMap();
         StringBuffer str = new StringBuffer();
         for (String type : questionType) {
@@ -161,7 +161,7 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
         Integer addNum = examQuestionCategoryMapper.insertForeachCategory(mapList);
         log.info("考试id:{},题库选题新增{}条", id, addNum);
         log.info("该考试有{}种题型", add);
-        return num;
+        return id.toString();
     }
 
     /**
@@ -412,7 +412,11 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
             examQuestionExamList.add(examQuestionExam);
         }
         //只有“修改”，情况题库配置数据
-        if(1==operate){
+        Examination examinationOld = this.dao.getById(id);
+        //获取旧的题目类型
+        String questionStyle = examinationOld.getQuestionStyle();
+
+        if(1==operate && !StringUtils.equals(strType, questionStyle)){
             examQuestionExamMapper.deleteById(id);
             examQuestionExamMapper.insertForeach(examQuestionExamList);
         }
@@ -430,7 +434,7 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
             });
         });
         //只有“修改”，情况题库配置数据
-        if(1==operate){
+        if (1==operate && !StringUtils.equals(strType, questionStyle)) {
             // 先删除  再入库
             examQuestionCategoryMapper.deleteById(id);
             examQuestionCategoryMapper.insertForeachCategory(mapList);
@@ -529,6 +533,9 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
         Long examinationId = subjectDto.getExaminationId();
         // 根据考试id查询题目
         List<ExamRuleVO> temp = examQuestionExamMapper.getExamQuestionExamById(examinationId);
+
+        List<ExamRuleVO> examResultList = new ArrayList<>();
+
         List<ExamRuleVO> examRuleList = new ArrayList<>();
         // 将questionType为null的进行id填充
         temp.stream().forEach(e -> {
@@ -580,7 +587,6 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
 
             if (!totalJudgementMap.isEmpty()) {
                 totalJudgementMap.stream().forEach(r -> {
-                    if (null == e.getQuestionTypeId()) {
                         if (e.getQuestionTypeId() == 2 && e.getId().equals(Long.valueOf(r.get("categoryId").toString()))) {
                             if (StringUtils.equals("1", r.get("level").toString())) {
                                 e.setTotalsimpleNum(Integer.valueOf(r.get("num").toString()));
@@ -590,7 +596,6 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
                                 e.setTotalDifficultyNum(Integer.valueOf(r.get("num").toString()));
                             }
                         }
-                    }
                 });
             }
 
@@ -608,10 +613,15 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
                 });
             }
 
+            if (e.getTotalsimpleNum() > 0 || e.getTotalCommonlyNum() >0 || e.getTotalDifficultyNum() > 0) {
+                examResultList.add(e);
+
+            }
+
         });
         // 将结果返回
         PageInfo<ExamRuleResultVO> subjectDtoPageInfo = new PageInfo<>();
-        ExamRuleResultVO examRuleResultVO = new ExamRuleResultVO().setExamRuleVOList(examRuleList).setExamQuestionExamsList(ExamQuestionExamList);
+        ExamRuleResultVO examRuleResultVO = new ExamRuleResultVO().setExamRuleVOList(examResultList).setExamQuestionExamsList(ExamQuestionExamList);
         return examRuleResultVO;
 
 
@@ -763,5 +773,23 @@ public class ExaminationService extends CrudService<ExaminationMapper, Examinati
     public Integer getExamTime(Long examId) {
         Integer time = examExaminationTimeMapper.getExamTime(examId);
         return time;
+    }
+
+    /**
+     * 判断考试配置是否配置化题目
+     *
+     * @param examinationDto
+     * @return
+     */
+    public boolean examQuestionFlag(ExaminationDto examinationDto) {
+        Long id = examinationDto.getId();
+        int count = examQuestionExamMapper.examQuestionFlag(id);
+
+        if (count > 0) {
+            return true;
+        } else {
+            return false;
+        }
+
     }
 }

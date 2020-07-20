@@ -31,6 +31,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.BeanUtils;
@@ -96,6 +97,12 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
 
     @Resource
     private AnswerMapper answerMapper;
+
+    @Resource
+    private ExamRecordMapper examRecordMapper;
+
+    @Resource
+    private ExaminationMapper examinationMapper;
 
     /**
      * 查找答题
@@ -180,6 +187,59 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
     }
 
     /**
+     * 成绩管理-成绩批改
+     *
+     * @param answer
+     * @return
+     */
+    @Transactional
+    @CacheEvict(value = "answer", key = "#answer.id")
+    public int updateTemporaryScore(Answer answer) {
+        answer.setAnswer(AnswerHandlerUtil.replaceComma(answer.getAnswer()));
+        Answer oldAnswer = this.get(answer);
+        if (0 == answer.getUpdateType()) {
+            answer.setAnswerType(null);
+            return super.update(answer);
+        } else {
+            //获取考试记录数据
+            ExaminationRecord record = new ExaminationRecord();
+            record.setId(oldAnswer.getExamRecordId());
+            record = examRecordService.get(record);
+            //修改当前题目的临时分数
+            if (answer.getTemporaryScore() > 0) {
+                answer.setAnswerType(0);
+            } else {
+                answer.setAnswerType(1);
+            }
+            super.update(answer);
+            // 查询所的答题
+            Double recordScore = 0.0;
+            Integer correctNumber = 0;
+            Integer inCorrectNumber = 0;
+            List<Answer> answers = answerMapper.findAllRecord(oldAnswer.getId());
+            for (Answer a : answers) {
+                a.setScore(a.getTemporaryScore());
+                if (a.getTemporaryScore() > 0) {
+                    a.setAnswerType(0);
+                }else {
+                    a.setAnswerType(1);
+                }
+                super.update(a);
+                if (a.getScore() > 0) {
+                    correctNumber++;
+                } else {
+                    inCorrectNumber++;
+                }
+                recordScore += a.getScore();
+            }
+            record.setScore(recordScore);
+            record.setCorrectNumber(correctNumber);
+            record.setInCorrectNumber(inCorrectNumber);
+            return examRecordService.update(record);
+        }
+    }
+
+    /**
      * 删除答题
      *
      * @param answer answer
@@ -240,6 +300,10 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         String userCode = SysUtil.getUser();
         String sysCode = SysUtil.getSysCode();
         String tenantCode = SysUtil.getTenantCode();
+        //调整考试成绩状态为考试中
+        examRecordMapper.updateSubmitStatusById(1, answerDto.getExamRecordId());
+        ////修改考试状态
+        //examinationMapper.updateStatusById(2,examinationId);
         if (this.save(answerDto, userCode, sysCode, tenantCode) > 0) {
             // 查询下一题
             return this.subjectAnswer(answerDto.getUserId().toString(), answerDto.getSubjectId(), answerDto.getExamRecordId(),
@@ -279,7 +343,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
                 shortScore = Double.valueOf(e.getScore().toString());
             }
         }
-        // 获取本道题的正确答案与考生回答的答案对比,然后打分
+        //回答的答案对比,然后打分
         if (answer.getType() == 0) {
             // 单选题
             subjectAnswer = subjectChoicesMapper.findAnswerById(answer.getSubjectId());
@@ -287,7 +351,9 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         } else if (answer.getType() == 1) {
             // 简答题
             subjectAnswer = subjectShortAnswerMapper.findAnswerById(answer.getSubjectId());
-            score = StringUtils.equals(subjectAnswer, answer.getAnswer()) == true ? shortScore : 0.0;
+            if (StringUtils.isNotEmpty(answer.getAnswer())) {
+                score = StringUtils.equals(subjectAnswer, answer.getAnswer().trim()) == true ? shortScore : 0.0;
+            }
         } else if (answer.getType() == 2) {
             // 判断题
             subjectAnswer = subjectJudgementMapper.findAnswerById(answer.getSubjectId());
@@ -295,7 +361,7 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         } else if (answer.getType() == 3) {
             // 多选题
             subjectAnswer = subjectChoicesMapper.findAnswerById(answer.getSubjectId());
-            score = StringUtils.equals(subjectAnswer, answer.getAnswer()) == true ? choicesScore : 0.0;
+            score = getAnswerScore(subjectAnswer, answer.getAnswer()) == true ? choicesScore : 0.0;
         }
         answer.setScore(score);
         Answer tempAnswer = this.getAnswer(answer);
@@ -305,6 +371,11 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
             tempAnswer.setType(answer.getType());
             tempAnswer.setEndTime(tempAnswer.getModifyDate());
             tempAnswer.setScore(score);
+            if (score > 0.0) {
+                tempAnswer.setAnswerType(0);
+            } else {
+                tempAnswer.setAnswerType(1);
+            }
             return this.update(tempAnswer);
         } else {
             answer.setCommonValue(userCode, sysCode, tenantCode);
@@ -313,6 +384,34 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
             answer.setEndTime(answer.getModifyDate());
             return this.insert(answer);
         }
+    }
+
+    /**
+     * 判断选题的答案是否正确
+     *
+     * @param subjectAnswer
+     * @param answer
+     * @return
+     */
+    private boolean getAnswerScore(String subjectAnswer, String answer) {
+
+        if (StringUtils.isNotEmpty(answer)) {
+            String[] splitSubject = subjectAnswer.split(",");
+            String[] splitAnswer = answer.split(",");
+            //判断数据的大小是否相同
+            if (splitSubject.length == splitAnswer.length) {
+                for (int i = 0; i < splitAnswer.length; i++) {
+                    String data = splitAnswer[i];
+                    if (!subjectAnswer.contains(data)) {
+                        return false;
+                    }
+
+                }
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -534,6 +633,25 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
      * @date 2019/06/18 23:05
      */
     public AnswerDto answerInfo(Long recordId, Long currentSubjectId, Integer nextSubjectType, Integer nextType) {
+        Map map = new HashedMap();
+        List<Answer> answers = answerMapper.findQuestionCountByRecordId(recordId.toString());
+        if (null == currentSubjectId && null != recordId) {
+            for (Answer a : answers) {
+                a.setTemporaryScore(a.getScore());
+                super.update(a);
+            }
+        }
+        List<Answer> answerTwo = answerMapper.findQuestionCountByRecordId(recordId.toString());
+        for (Answer a : answerTwo) {
+            Long answerId = a.getSubjectId();
+            Double answerScore = a.getScore();
+            Double temporaryScore = a.getTemporaryScore();
+            if (answerScore.equals(temporaryScore)) {
+                map.put(answerId, false);
+            } else {
+                map.put(answerId, true);
+            }
+        }
         ExaminationRecord record = examRecordService.get(recordId);
         SubjectDto subjectDto;
         Double scoreSubject = 0.0;
@@ -553,10 +671,14 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
             Integer score = examQuestionExamMapper.getAnswerScoreByExamId(recordId, subjectDto.getId());
             //该题总分
             Integer answerScore = examQuestionExamMapper.getScoreByExamIdAndTypeId(type, record.getExaminationId());
+            //临时分数
+            Integer temporaryScore = examQuestionExamMapper.getAnswerTemporaryScore(recordId, subjectDto.getId());
+            subjectDto.setTemporaryScore(Double.valueOf(temporaryScore.toString()));
             scoreSubject = Double.valueOf(score.toString());
             subjectDto.setScore(scoreSubject);
             answerSubject = Double.valueOf(answerScore.toString());
             subjectDto.setAnswerScore(answerSubject);
+            subjectDto.setMarkMap(map);
         } else {
             ExaminationSubject examinationSubject = new ExaminationSubject();
             examinationSubject.setExaminationId(record.getExaminationId());
@@ -587,10 +709,14 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
             Integer answerScore = examQuestionExamMapper.getScoreByExamIdAndTypeId(type, record.getExaminationId());
             //页面评分
             Integer score = examQuestionExamMapper.getAnswerScoreByExamId(recordId, currentSubjectId);
+            //临时分数
+            Integer temporaryScore = examQuestionExamMapper.getAnswerTemporaryScore(recordId, subjectDto.getId());
+            subjectDto.setTemporaryScore(Double.valueOf(temporaryScore.toString()));
             scoreSubject = Double.valueOf(score.toString());
             subjectDto.setScore(scoreSubject);
             answerSubject = Double.valueOf(answerScore.toString());
             subjectDto.setAnswerScore(answerSubject);
+            subjectDto.setMarkMap(map);
         }
         AnswerDto answerDto = new AnswerDto();
         answerDto.setSubject(subjectDto);
@@ -910,8 +1036,8 @@ public class AnswerService extends CrudService<AnswerMapper, Answer> {
         examRecord.setScore(0.0);
         examRecord.setCorrectNumber(0);
         examRecord.setInCorrectNumber(0);
-        // 默认未提交状态
-        examRecord.setSubmitStatus(SubmitStatusEnum.NOT_SUBMITTED.getValue());
+        // 默认考试中
+        examRecord.setSubmitStatus(1);
         // 保存考试记录
         if (examRecordService.insert(examRecord) > 0) {
             startExamDto.setExamination(examination);

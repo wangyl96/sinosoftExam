@@ -155,9 +155,7 @@
         WHERE a.del_flag = 0
         AND a.examination_id = #{examinationId} and a.user_id = #{userId}
     </select>
-    <update id="updateStatusById" >
-        update exam_examination set STATUS='2' where id=#{id}
-    </update>
+   
 
     <select id="findExaminationRecordCountByDate" resultMap="examRecordResultMap">
         SELECT
@@ -214,10 +212,10 @@
             examination_id = #{examinationId},
         </if>
         <if test="startTime != null">
-            start_time = #{startTime, jdbcType=TIMESTAMP, javaType=java.util.Date},
+            start_time = #{startTime, jdbcType=TIMESTAMP},
         </if>
         <if test="endTime != null">
-            end_time = #{endTime, jdbcType=TIMESTAMP, javaType=java.util.Date},
+            end_time = #{endTime, jdbcType=TIMESTAMP},
         </if>
         <if test="score != null">
             score = #{score},
@@ -239,6 +237,11 @@
         WHERE id = #{id}
     </update>
 
+    
+    <update id="updateSubmitStatusById" >
+        update exam_examination_record set submit_status = #{status} where id=#{id}
+    </update>
+    
     <delete id="delete">
         UPDATE exam_examination_record SET del_flag = 1 WHERE id = #{id}
     </delete>

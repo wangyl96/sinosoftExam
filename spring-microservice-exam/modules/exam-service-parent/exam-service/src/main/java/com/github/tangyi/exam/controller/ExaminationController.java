@@ -194,8 +194,8 @@ public class ExaminationController extends BaseController {
     @ApiOperation(value = "创建考试", notes = "创建考试")
     @ApiImplicitParam(name = "examinationDto", value = "考试实体examinationDto", required = true, dataType = "ExaminationDto")
     @Log("新增考试")
-    public ResponseBean<Boolean> addExamination(@RequestBody @Valid ExaminationDto examinationDto) {
-        return new ResponseBean<>(examinationService.insert(examinationDto) > 0);
+    public ResponseBean<String> addExamination(@RequestBody @Valid ExaminationDto examinationDto) {
+        return new ResponseBean<>(examinationService.insert(examinationDto));
     }
 
     @PostMapping("addExamRule")
@@ -360,4 +360,29 @@ public class ExaminationController extends BaseController {
         Integer time = examinationService.getExamTime(examId);
         return new ResponseBean<>(time);
     }
+
+
+    /**
+     * 判断考试配置是否配置化题目
+     *
+     * @param examinationDto
+     * @return
+     */
+    @PostMapping("/examQuestionFlag")
+    @AdminTenantTeacherAuthorization
+    @ApiOperation(value = "题目配置判断", notes = "根据考试id判断考试配置是否配置化题目")
+    @ApiImplicitParam(name = "examinationDto", value = "考试实体answer", required = true, dataType = "ExaminationDto")
+    @Log("题目配置判断")
+    public ResponseBean<Boolean> examinationFlag(@RequestBody @Valid ExaminationDto examinationDto) {
+        return new ResponseBean<>(examinationService.examQuestionFlag(examinationDto));
+    }
+
+
+
+
+
+
+
+
+
 }

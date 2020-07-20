@@ -24,7 +24,7 @@
 
 <script>
 import ScrollPane from '@/components/ScrollPane'
-
+import { messageFail } from '@/utils/util'
 export default {
   components: { ScrollPane },
   data () {

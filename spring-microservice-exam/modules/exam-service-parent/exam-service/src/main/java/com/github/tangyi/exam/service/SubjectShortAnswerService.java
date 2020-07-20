@@ -9,11 +9,13 @@ import com.github.tangyi.exam.api.module.SubjectShortAnswer;
 import com.github.tangyi.exam.mapper.SubjectShortAnswerMapper;
 import com.github.tangyi.exam.utils.SubjectUtil;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -25,6 +27,9 @@ import java.util.List;
 @Service
 public class SubjectShortAnswerService extends CrudService<SubjectShortAnswerMapper, SubjectShortAnswer>
         implements ISubjectService {
+
+    @Resource
+    private SubjectShortAnswerMapper subjectShortAnswerMapper;
 
     /**
      * 查找题目
@@ -152,7 +157,10 @@ public class SubjectShortAnswerService extends CrudService<SubjectShortAnswerMap
      */
     @Override
     public SubjectDto getNextByCurrentIdAndType(String userId, Long examinationId, Long previousId, Integer nextType) {
-        return null;
+
+        SubjectShortAnswer subjectShortAnswer = subjectShortAnswerMapper.getById(previousId);
+
+        return SubjectUtil.subjectShortAnswerToDto(subjectShortAnswer, true);
     }
 
     /**

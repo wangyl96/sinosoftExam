@@ -91,7 +91,7 @@ export function submitStatusFilter (type) {
   const typeMap = {
     0: '待批改',
     1: '考试中',
-    2: '异常关闭 ',
+    2: '正在统计 ',
     3: '统计完成'
   }
   return typeMap[type]
@@ -112,6 +112,21 @@ export function simpleTagStatusFilter (status) {
     state='danger'
   }else{
     state='success'
+  }
+  return state
+}
+
+/**
+ * success状态
+ * @param status, 自动传入
+ * @returns {string}
+ */
+export function trueOrFalse (status) {
+  var state;
+  if(parseInt(status) === 0){
+    state='success'
+  }else{
+    state='danger'
   }
   return state
 }

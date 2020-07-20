@@ -59,7 +59,7 @@
             </el-table-column>
             <el-table-column :label="$t('table.subject.type')" width="120">
               <template slot-scope="scope">
-                <el-tag :type="scope.row.type | subjectTypeTagFilter" effect="dark" size="small">{{ scope.row.type | subjectTypeFilter }}</el-tag>
+                <el-tag :type="scope.row.choicesType | subjectTypeTagFilter" effect="dark" size="small">{{ scope.row.choicesType | subjectTypeFilter }}</el-tag>
               </template>
             </el-table-column>
             <!--<el-table-column :label="$t('table.subject.score')" width="120">-->
@@ -123,7 +123,7 @@
         </el-row>
         <el-row>
           <el-col :span="24">
-            <el-form-item :label="$t('table.sort')" prop="categoryName">
+            <el-form-item :label="$t('table.sort')" prop="categoryName" style="display: none">
               <el-input :placeholder="$t('table.sort')" v-model="tempCategory.sort"/>
             </el-form-item>
           </el-col>
@@ -645,7 +645,7 @@ export default {
         if (isNotEmpty(response.data) && response.data.list.length > 0) {
           for (let i = 0; i < response.data.list.length; i++) {
             const subject = response.data.list[i]
-            console.log(subject);
+            console.log(subject)
             subject.type = parseInt(subject.type)
             subject.level = parseInt(subject.level)
           }
@@ -690,8 +690,9 @@ export default {
     },
     // 修改题目
     handleUpdateSubject (row) {
+      console.log(row)
       this.$router.push({
-        path: `/exam/subjects/detail/${this.currentCategoryId}-${row.id}-${row.type}-1`
+        path: `/exam/subjects/detail/${this.currentCategoryId}-${row.id}-${row.choicesType}-1`
       })
     },
     // 删除题目
@@ -701,7 +702,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        delSubject(row.id, { type: row.type }).then(() => {
+        delSubject(row.id, { type: row.choicesType }).then(() => {
           this.dialogSubjectFormVisible = false
           this.handleSubjectManagement()
           notifySuccess(this, '删除成功')
@@ -784,7 +785,7 @@ export default {
     // 查看题目
     handleViewSubject (row) {
       // 加载题目信息
-      getSubject(row.id, { type: row.type }).then(response => {
+      getSubject(row.id, { type: row.choicesType }).then(response => {
         this.tempSubject = response.data.data
         this.dialogViewVisible = true
       })

@@ -17,7 +17,7 @@
         <result column="value" property="value"/>
     </resultMap>
 
-    <resultMap id="questionTypesChartMap" type="com.github.tangyi.exam.api.vo.QuestionBankChartVO">
+    <resultMap id="questionTypesChartMap" type="com.github.tangyi.exam.api.vo.QestionTypesChartVO">
         <id column="name" property="name"/>
         <result column="value" property="value"/>
     </resultMap>

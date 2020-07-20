@@ -64,10 +64,20 @@ public interface ExamQuestionExamMapper extends CrudMapper<ExamQuestionExam> {
      * @return
      */
     Integer getAnswerScoreByExamId(Long recordId,Long subjectId);
+
+    /**
+     * 获取临时分数
+     * @param recordId
+     * @param subjectId
+     * @return
+     */
+    Integer getAnswerTemporaryScore(Long recordId,Long subjectId);
     /**
      * 获取题型分数
      * @param examRecordId
      * @return
      */
     List<ExamQuestionExam> getListByRecordId(Long examRecordId);
+
+    Integer examQuestionFlag(Long id);
 }
