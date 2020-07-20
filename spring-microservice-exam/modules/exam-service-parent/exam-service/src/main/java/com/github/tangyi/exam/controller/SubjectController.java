@@ -11,6 +11,7 @@ import com.github.tangyi.common.log.annotation.Log;
 import com.github.tangyi.common.security.annotations.AdminTenantTeacherAuthorization;
 import com.github.tangyi.common.security.utils.SysUtil;
 import com.github.tangyi.exam.api.dto.SubjectDto;
+import com.github.tangyi.exam.api.module.SubjectChoices;
 import com.github.tangyi.exam.excel.listener.SubjectImportListener;
 import com.github.tangyi.exam.excel.model.SubjectExcelModel;
 import com.github.tangyi.exam.service.AnswerService;
@@ -82,7 +83,7 @@ public class SubjectController extends BaseController {
             @ApiImplicitParam(name = CommonConstant.SORT, value = "排序字段", defaultValue = CommonConstant.PAGE_SORT_DEFAULT, dataType = "String"),
             @ApiImplicitParam(name = CommonConstant.ORDER, value = "排序方向", defaultValue = CommonConstant.PAGE_ORDER_DEFAULT, dataType = "String"),
             @ApiImplicitParam(name = "subject", value = "题目信息", dataType = "Subject")})
-    public PageInfo<SubjectDto> subjectList(
+    public PageInfo<SubjectChoices> subjectList(
             @RequestParam(value = CommonConstant.PAGE_NUM, required = false, defaultValue = CommonConstant.PAGE_NUM_DEFAULT) String pageNum,
             @RequestParam(value = CommonConstant.PAGE_SIZE, required = false, defaultValue = CommonConstant.PAGE_SIZE_DEFAULT) String pageSize,
             @RequestParam(value = CommonConstant.SORT, required = false, defaultValue = CommonConstant.PAGE_SORT_DEFAULT) String sort,

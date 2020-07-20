@@ -1,5 +1,6 @@
 package com.github.tangyi.exam.service;
 
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.tangyi.common.core.exceptions.CommonException;
 import com.github.tangyi.common.core.utils.PageUtil;
@@ -13,11 +14,13 @@ import com.github.tangyi.exam.api.module.SubjectJudgement;
 import com.github.tangyi.exam.api.module.SubjectShortAnswer;
 import com.github.tangyi.exam.enums.SubjectTypeEnum;
 import com.github.tangyi.exam.mapper.ExaminationSubjectMapper;
+import com.github.tangyi.exam.mapper.SubjectChoicesMapper;
 import com.github.tangyi.exam.utils.SubjectUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +49,9 @@ public class SubjectService {
 
     @Resource
     private ExaminationSubjectMapper examinationSubjectMapper;
+
+    @Resource
+    private SubjectChoicesMapper subjectChoicesMapper;
 
     /**
      * 根据题目ID，题目类型查询题目信息
@@ -140,27 +146,39 @@ public class SubjectService {
      * @author tangyi
      * @date 2019/06/16 18:12
      */
-    public PageInfo<SubjectDto> findPage(PageInfo pageInfo, SubjectDto subjectDto) {
-        ExaminationSubject examinationSubject = new ExaminationSubject();
-        examinationSubject.setCategoryId(subjectDto.getCategoryId());
-        examinationSubject.setExaminationId(subjectDto.getExaminationId());
-        examinationSubject.setType(subjectDto.getType());
-        examinationSubject.setSubjectNme(subjectDto.getSubjectName());
-        PageInfo<ExaminationSubject> examinationSubjectPageInfo = examinationSubjectService.findPage(pageInfo, examinationSubject);
-        List<SubjectDto> subjectDtos = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(examinationSubjectPageInfo.getList())) {
-            examinationSubjectPageInfo.getList().forEach(tempExaminationSubject -> {
-                SubjectDto tempSubjectDto = subjectService(tempExaminationSubject.getType()).getSubject(tempExaminationSubject.getSubjectId());
-                if (tempSubjectDto != null)
-                    subjectDtos.add(tempSubjectDto);
-            });
-        }
-        PageInfo<SubjectDto> subjectDtoPageInfo = new PageInfo<>();
-        PageUtil.copyProperties(examinationSubjectPageInfo, subjectDtoPageInfo);
-        List<SubjectDto> list = new ArrayList<>();
-        list = subjectDtos.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(SubjectDto::getSubjectName))), ArrayList::new));
-        subjectDtoPageInfo.setList(list);
-        return subjectDtoPageInfo;
+    public PageInfo<SubjectChoices> findPage(PageInfo pageInfo, SubjectDto subjectDto) {
+
+          SubjectChoices subjectChoices = new SubjectChoices();
+          subjectChoices.setCategoryId(subjectDto.getCategoryId());
+          subjectChoices.setChoicesType(subjectDto.getType());
+          subjectChoices.setSubjectName(subjectDto.getSubjectName());
+
+
+          PageHelper.startPage(pageInfo.getPageNum(), pageInfo.getPageSize());
+          PageInfo<SubjectChoices> choicesPageInfo = new PageInfo<>(subjectChoicesMapper.findListByCondition(subjectChoices));
+
+          return choicesPageInfo;
+
+//        ExaminationSubject examinationSubject = new ExaminationSubject();
+//        examinationSubject.setCategoryId(subjectDto.getCategoryId());
+//        examinationSubject.setExaminationId(subjectDto.getExaminationId());
+//        examinationSubject.setType(subjectDto.getType());
+//        examinationSubject.setSubjectNme(subjectDto.getSubjectName());
+//        PageInfo<ExaminationSubject> examinationSubjectPageInfo = examinationSubjectService.findPage(pageInfo, examinationSubject);
+//        List<SubjectDto> subjectDtos = new ArrayList<>();
+//        if (CollectionUtils.isNotEmpty(examinationSubjectPageInfo.getList())) {
+//            examinationSubjectPageInfo.getList().forEach(tempExaminationSubject -> {
+//                SubjectDto tempSubjectDto = subjectService(tempExaminationSubject.getType()).getSubject(tempExaminationSubject.getSubjectId());
+//                if (tempSubjectDto != null)
+//                    subjectDtos.add(tempSubjectDto);
+//            });
+//        }
+//        PageInfo<SubjectDto> subjectDtoPageInfo = new PageInfo<>();
+//        PageUtil.copyProperties(examinationSubjectPageInfo, subjectDtoPageInfo);
+//        List<SubjectDto> list = new ArrayList<>();
+//        list = subjectDtos.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(SubjectDto::getSubjectName))), ArrayList::new));
+//        subjectDtoPageInfo.setList(list);
+//        return subjectDtoPageInfo;
     }
 
     /**
@@ -508,31 +526,41 @@ public class SubjectService {
      * @return List
      */
     public List<SubjectDto> export(Long[] ids, Long examinationId, Long categoryId) {
-        List<SubjectDto> subjects = new ArrayList<>();
-        ExaminationSubject examinationSubject = new ExaminationSubject();
-        List<ExaminationSubject> examinationSubjects = new ArrayList<>();
-        // 根据题目id导出
-        if (ArrayUtils.isNotEmpty(ids)) {
-            for (Long id : ids) {
-                examinationSubject.setSubjectId(id);
-                examinationSubjects.addAll(examinationSubjectService.findListBySubjectId(examinationSubject));
-            }
-        } else if (examinationId != null) {
-            // 根据考试ID
-            examinationSubjects = examinationSubjectService.findListByExaminationId(examinationId);
-        } else if (categoryId != null) {
-            // 根据分类ID、类型导出
-            examinationSubject.setCategoryId(categoryId);
-            examinationSubjects = examinationSubjectService.findListByCategoryId(examinationSubject);
-        }
-        if (CollectionUtils.isNotEmpty(examinationSubjects)) {
-            for (ExaminationSubject es : examinationSubjects) {
-                SubjectDto subjectDto = this.get(es.getSubjectId(), es.getType());
-                subjectDto.setExaminationId(es.getExaminationId());
-                subjectDto.setCategoryId(es.getCategoryId());
-                subjects.add(subjectDto);
-            }
-        }
-        return subjects;
+        SubjectChoices subjectChoices = new SubjectChoices();
+        subjectChoices.setCategoryId(categoryId);
+
+        List<SubjectChoices> listByCondition = subjectChoicesMapper.findListByCondition(subjectChoices);
+
+        List<SubjectDto> subjectDtos = SubjectUtil.subjectChoicesToDto(listByCondition, true);
+
+        return subjectDtos;
+
+
+//        List<SubjectDto> subjects = new ArrayList<>();
+//        ExaminationSubject examinationSubject = new ExaminationSubject();
+//        List<ExaminationSubject> examinationSubjects = new ArrayList<>();
+//        // 根据题目id导出
+//        if (ArrayUtils.isNotEmpty(ids)) {
+//            for (Long id : ids) {
+//                examinationSubject.setSubjectId(id);
+//                examinationSubjects.addAll(examinationSubjectService.findListBySubjectId(examinationSubject));
+//            }
+//        } else if (examinationId != null) {
+//            // 根据考试ID
+//            examinationSubjects = examinationSubjectService.findListByExaminationId(examinationId);
+//        } else if (categoryId != null) {
+//            // 根据分类ID、类型导出
+//            examinationSubject.setCategoryId(categoryId);
+//            examinationSubjects = examinationSubjectService.findListByCategoryId(examinationSubject);
+//        }
+//        if (CollectionUtils.isNotEmpty(examinationSubjects)) {
+//            for (ExaminationSubject es : examinationSubjects) {
+//                SubjectDto subjectDto = this.get(es.getSubjectId(), es.getType());
+//                subjectDto.setExaminationId(es.getExaminationId());
+//                subjectDto.setCategoryId(es.getCategoryId());
+//                subjects.add(subjectDto);
+//            }
+//        }
+//        return subjects;
     }
 }
