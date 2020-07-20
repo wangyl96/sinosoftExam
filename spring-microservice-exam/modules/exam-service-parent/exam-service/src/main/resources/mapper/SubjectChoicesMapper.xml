@@ -141,7 +141,7 @@
                 and a.choices_type = #{choicesType}
             </if>
             <if test="subjectName != null and subjectName != ''">
-                and a.subject_name = #{subjectName}
+                and a.subject_name like CONCAT('%',#{subjectName},'%')
             </if>
             UNION
             select
@@ -161,7 +161,7 @@
                 and '2' = #{choicesType}
             </if>
             <if test="subjectName != null and subjectName != ''">
-                and b.subject_name = #{subjectName}
+                and b.subject_name like CONCAT('%',#{subjectName},'%')
             </if>
             UNION
             select
@@ -181,7 +181,7 @@
                 and '1' = #{choicesType}
             </if>
             <if test="subjectName != null and subjectName != ''">
-                and c.subject_name = #{subjectName}
+                and c.subject_name like CONCAT('%',#{subjectName},'%')
             </if>
     </select>
 
